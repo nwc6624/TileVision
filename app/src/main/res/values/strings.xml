@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TileVision</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_tile_batch_setup">Tile Batch Setup</string>
+    <string name="nav_project_area_setup">Project Area Setup</string>
+    <string name="nav_coverage_match">Coverage Match</string>
+    <string name="nav_layout_explorer">Layout Explorer</string>
+    <string name="nav_ar_preview">AR Preview</string>
+    <string name="nav_project_summary">Project Summary</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_saved_projects">Saved Projects</string>
+    
+    <!-- Home Screen -->
+    <string name="home_welcome_title">Welcome to TileVision</string>
+    <string name="home_welcome_subtitle">Plan Smarter, Tile Better</string>
+    <string name="home_start_new_project">➕ Start New Project</string>
+    <string name="home_view_saved_projects">📂 View Saved Projects</string>
+    <string name="home_quick_tips_title">💡 Quick Tips</string>
+    <string name="home_quick_tips_content">• Use the floating action button for quick tile scanning\n• Save your projects to access them later\n• Try different layouts in the Layout Explorer</string>
+    
+    <!-- Tile Batch Setup -->
+    <string name="tile_batch_setup_title">Let\'s log your tile batch</string>
+    <string name="tile_batch_input_method">How would you like to input tile dimensions?</string>
+    <string name="tile_batch_scan_option">Scan Tile</string>
+    <string name="tile_batch_scan_subtitle">Use camera to auto-detect</string>
+    <string name="tile_batch_manual_option">Manual Entry</string>
+    <string name="tile_batch_manual_subtitle">Enter dimensions manually</string>
+    <string name="tile_batch_dimensions_title">Tile Dimensions</string>
+    <string name="tile_batch_length_label">Length (inches)</string>
+    <string name="tile_batch_width_label">Width (inches)</string>
+    <string name="tile_batch_quantity_label">Quantity</string>
+    <string name="tile_batch_project_settings_title">Project Settings</string>
+    <string name="tile_batch_grout_width_label">Grout Line Width</string>
+    <string name="tile_batch_grout_width_hint">Common: 1/16", 1/8", 3/16"</string>
+    <string name="tile_batch_waste_percentage_label">Waste Percentage</string>
+    <string name="tile_batch_waste_percentage_hint">Recommended: 5-15%</string>
+    <string name="tile_batch_coverage_preview">📊 Coverage Preview</string>
+    <string name="tile_batch_save_button">Save Tile Batch</string>
+    
+    <!-- Project Area Setup -->
+    <string name="project_area_setup_title">Where are these tiles going?</string>
+    <string name="project_area_input_method">How would you like to measure the area?</string>
+    <string name="project_area_ar_option">AR Scan</string>
+    <string name="project_area_ar_subtitle">Use AR to trace corners</string>
+    <string name="project_area_manual_option">Manual Entry</string>
+    <string name="project_area_manual_subtitle">Enter dimensions manually</string>
+    <string name="project_area_details_title">Area Details</string>
+    <string name="project_area_name_label">Area Name</string>
+    <string name="project_area_name_hint">e.g., Kitchen Floor, Bathroom Wall</string>
+    <string name="project_area_length_label">Length (feet)</string>
+    <string name="project_area_width_label">Width (feet)</string>
+    <string name="project_area_notes_label">Notes (Optional)</string>
+    <string name="project_area_notes_hint">e.g., Skip toilet zone, account for vanity</string>
+    <string name="project_area_preview">📊 Area Preview</string>
+    <string name="project_area_save_button">Save Area</string>
+    
+    <!-- Coverage Match -->
+    <string name="coverage_match_title">Do your tiles cover this space?</string>
+    <string name="coverage_match_selected_items">Selected Items</string>
+    <string name="coverage_match_tile_batch_label">Tile Batch</string>
+    <string name="coverage_match_project_area_label">Project Area</string>
+    <string name="coverage_match_success">✅ Success!</string>
+    <string name="coverage_match_shortfall">❌ Shortfall</string>
+    <string name="coverage_match_success_message">You have enough tile with %.1f%% to spare</string>
+    <string name="coverage_match_shortfall_message" formatted="false">You\'re %.1f ft² short — buy %d more tiles</string>
+    <string name="coverage_match_tile_coverage">Tile Coverage:</string>
+    <string name="coverage_match_area_to_cover">Area to Cover:</string>
+    <string name="coverage_match_available_tiles">Available Tiles:</string>
+    <string name="coverage_match_try_layout">Try Different Layout</string>
+    <string name="coverage_match_preview_ar">Preview in AR</string>
+    <string name="coverage_match_continue_summary">Continue to Summary</string>
+    
+    <!-- Layout Explorer -->
+    <string name="layout_explorer_title">Layout Explorer</string>
+    <string name="layout_explorer_coming_soon">Coming Soon!</string>
+    
+    <!-- AR Preview -->
+    <string name="ar_preview_title">AR Preview</string>
+    <string name="ar_preview_coming_soon">Coming Soon!</string>
+    
+    <!-- Project Summary -->
+    <string name="project_summary_title">Project Summary</string>
+    <string name="project_summary_coming_soon">Coming Soon!</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_coming_soon">Coming Soon!</string>
+    
+    <!-- Saved Projects -->
+    <string name="saved_projects_title">Saved Projects</string>
+    <string name="saved_projects_coming_soon">Coming Soon!</string>
+    
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="settings">Settings</string>
+    <string name="quick_scan">Quick Scan</string>
+</resources> 
