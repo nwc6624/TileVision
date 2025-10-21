@@ -49,6 +49,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.lifecycle.runtime.ktx)
+                implementation(libs.arcore)
             }
         }
         val iosX64Main by getting
