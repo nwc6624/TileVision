@@ -19,10 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tilevision.shared.measurement.MeasureViewModel
 import com.tilevision.shared.measurement.MeasureUiState
+import com.tilevision.shared.measurement.Vec2
 
 @Composable
 fun MeasureScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToPolygonReview: (List<Vec2>) -> Unit,
     viewModel: MeasureViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -66,6 +68,8 @@ fun MeasureScreen(
                 onReset = viewModel::onReset,
                 onFinish = viewModel::onFinish,
                 onToggleSnap = viewModel::onToggleSnap,
+                onNavigateToPolygonReview = onNavigateToPolygonReview,
+                points = uiState.points,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -223,6 +227,8 @@ private fun BottomActionRow(
     onReset: () -> Unit,
     onFinish: () -> Unit,
     onToggleSnap: () -> Unit,
+    onNavigateToPolygonReview: (List<Vec2>) -> Unit,
+    points: List<Vec2>,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -266,7 +272,12 @@ private fun BottomActionRow(
             ActionButton(
                 icon = Icons.Filled.Check,
                 label = "Finish",
-                onClick = onFinish,
+                onClick = { 
+                    if (canFinish) {
+                        onFinish()
+                        onNavigateToPolygonReview(points)
+                    }
+                },
                 enabled = canFinish
             )
         }
