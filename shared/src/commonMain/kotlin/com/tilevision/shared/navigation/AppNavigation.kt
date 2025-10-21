@@ -2,11 +2,14 @@ package com.tilevision.shared.navigation
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.tilevision.shared.measurement.MeasureViewModelProvider
+import com.tilevision.shared.platform.PlatformServices
 import com.tilevision.shared.screens.HomeScreen
 import com.tilevision.shared.screens.MeasureScreen
 import com.tilevision.shared.screens.OnboardingScreen
 import com.tilevision.shared.screens.ProjectDetailScreen
 import com.tilevision.shared.screens.SettingsScreen
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun AppNavigation(
@@ -36,8 +39,18 @@ fun AppNavigation(
         }
         
         "measure" -> {
+            val coroutineScope = rememberCoroutineScope()
+            val measureViewModel = remember {
+                MeasureViewModelProvider.create(
+                    arSessionManager = PlatformServices.createArSessionManager(),
+                    haptics = PlatformServices.createHaptics(),
+                    coroutineScope = coroutineScope
+                )
+            }
+            
             MeasureScreen(
-                onNavigateBack = { currentScreen = "home" }
+                onNavigateBack = { currentScreen = "home" },
+                viewModel = measureViewModel
             )
         }
         
