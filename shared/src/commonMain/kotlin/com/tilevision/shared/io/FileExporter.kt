@@ -67,6 +67,7 @@ enum class ExportFormat(val extension: String, val mimeType: String) {
     JSON(".json", "application/json"),
     CSV(".csv", "text/csv"),
     PDF(".pdf", "application/pdf"),
+    PNG(".png", "image/png"),
     DXF(".dxf", "application/dxf")
 }
 

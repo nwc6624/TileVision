@@ -1,7 +1,10 @@
 package com.tilevision.shared.platform
 
 import com.tilevision.shared.ar.ArSessionManager
+import com.tilevision.shared.data.LocalDataSource
 import com.tilevision.shared.haptics.Haptics
+import com.tilevision.shared.io.FileExporter
+import com.tilevision.shared.settings.SettingsDataSource
 
 /**
  * Platform-specific service factory
@@ -10,4 +13,7 @@ import com.tilevision.shared.haptics.Haptics
 expect object PlatformServices {
     fun createArSessionManager(): ArSessionManager
     fun createHaptics(): Haptics
+    fun createFileExporter(): FileExporter
+    fun createLocalDataSource(): LocalDataSource
+    fun createSettingsDataSource(): SettingsDataSource
 }

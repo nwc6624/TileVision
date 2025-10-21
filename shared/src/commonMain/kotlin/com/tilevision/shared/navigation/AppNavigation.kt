@@ -2,10 +2,13 @@ package com.tilevision.shared.navigation
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.tilevision.shared.cost.CostExportViewModel
+import com.tilevision.shared.data.ProjectRepository
 import com.tilevision.shared.measurement.MeasureViewModelProvider
 import com.tilevision.shared.measurement.Vec2
 import com.tilevision.shared.platform.PlatformServices
 import com.tilevision.shared.polygon.PolygonReviewViewModel
+import com.tilevision.shared.screens.CostExportScreen
 import com.tilevision.shared.screens.HomeScreen
 import com.tilevision.shared.screens.MeasureScreen
 import com.tilevision.shared.screens.OnboardingScreen
@@ -13,8 +16,10 @@ import com.tilevision.shared.screens.PolygonReviewScreen
 import com.tilevision.shared.screens.ProjectDetailScreen
 import com.tilevision.shared.screens.SettingsScreen
 import com.tilevision.shared.screens.TilePlannerScreen
+import com.tilevision.shared.settings.SettingsRepository
 import com.tilevision.shared.tile.TilePlannerViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation(
@@ -24,6 +29,19 @@ fun AppNavigation(
     var projectId by remember { mutableStateOf("") }
     var polygonPoints by remember { mutableStateOf<List<Vec2>>(emptyList()) }
     var polygonArea by remember { mutableStateOf(0.0) }
+    var tileCount by remember { mutableStateOf(0) }
+    var boxCount by remember { mutableStateOf(0) }
+    var tileSize by remember { mutableStateOf("12\" x 12\"") }
+    var layoutType by remember { mutableStateOf("Grid") }
+    
+    // Create repositories
+    val projectRepository = remember {
+        ProjectRepository(PlatformServices.createLocalDataSource())
+    }
+    val settingsRepository = remember {
+        SettingsRepository(PlatformServices.createSettingsDataSource())
+    }
+    val coroutineScope = rememberCoroutineScope()
     
     when (currentScreen) {
         "onboarding" -> {
@@ -41,7 +59,8 @@ fun AppNavigation(
                     projectId = id
                     currentScreen = "project_detail"
                 },
-                onNavigateToSettings = { currentScreen = "settings" }
+                onNavigateToSettings = { currentScreen = "settings" },
+                projectRepository = projectRepository
             )
         }
         
@@ -68,13 +87,18 @@ fun AppNavigation(
         "project_detail" -> {
             ProjectDetailScreen(
                 projectId = projectId,
-                onNavigateBack = { currentScreen = "home" }
+                onNavigateBack = { currentScreen = "home" },
+                projectRepository = projectRepository,
+                onExportProject = { project ->
+                    // TODO: Implement project export
+                }
             )
         }
         
         "settings" -> {
             SettingsScreen(
-                onNavigateBack = { currentScreen = "home" }
+                onNavigateBack = { currentScreen = "home" },
+                settingsRepository = settingsRepository
             )
         }
         
@@ -104,14 +128,67 @@ fun AppNavigation(
                 TilePlannerViewModel(
                     polygon = polygonPoints,
                     areaSqFt = polygonArea,
-                    coroutineScope = coroutineScope
+                    coroutineScope = coroutineScope,
+                    settingsRepository = settingsRepository
                 )
             }
             
             TilePlannerScreen(
                 polygon = polygonPoints,
                 onNavigateBack = { currentScreen = "polygon_review" },
+                onNavigateToCostExport = { 
+                    // Store tile planner data for cost export
+                    val plannerState = tilePlannerViewModel.uiState.value
+                    tileCount = plannerState.tileCount
+                    boxCount = plannerState.boxCount
+                    tileSize = "${plannerState.tileWidth}\" x ${plannerState.tileHeight}\""
+                    layoutType = plannerState.layoutType.name
+                    currentScreen = "cost_export" 
+                },
                 viewModel = tilePlannerViewModel
+            )
+        }
+        
+        "cost_export" -> {
+            val coroutineScope = rememberCoroutineScope()
+            val costExportViewModel = remember {
+                CostExportViewModel(
+                    tileCount = tileCount,
+                    boxCount = boxCount,
+                    areaSqFt = polygonArea,
+                    tileSize = tileSize,
+                    layoutType = layoutType,
+                    fileExporter = PlatformServices.createFileExporter(),
+                    coroutineScope = coroutineScope,
+                    settingsRepository = settingsRepository
+                )
+            }
+            
+            CostExportScreen(
+                onNavigateBack = { currentScreen = "tile_planner" },
+                onSaveProject = { projectName, projectDescription ->
+                    coroutineScope.launch {
+                        val surface = costExportViewModel.createSurface(
+                            surfaceName = "Surface 1", // Default name
+                            surfaceDescription = projectDescription,
+                            polygon = polygonPoints
+                        )
+                        
+                        projectRepository.createProjectFromSurface(
+                            projectName = projectName,
+                            projectDescription = projectDescription,
+                            surface = surface
+                        ).fold(
+                            onSuccess = {
+                                currentScreen = "home"
+                            },
+                            onFailure = { exception ->
+                                // TODO: Show error message
+                            }
+                        )
+                    }
+                },
+                viewModel = costExportViewModel
             )
         }
     }

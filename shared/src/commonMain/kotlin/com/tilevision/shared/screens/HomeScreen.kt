@@ -8,20 +8,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tilevision.shared.data.Project
+import com.tilevision.shared.data.ProjectRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToMeasure: () -> Unit,
     onNavigateToProjectDetail: (String) -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    projectRepository: ProjectRepository
 ) {
+    val projects by projectRepository.projects.collectAsState()
+    val isLoading by projectRepository.isLoading.collectAsState()
+    val error by projectRepository.error.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Load projects when screen is first displayed
+    LaunchedEffect(Unit) {
+        projectRepository.loadProjects()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,14 +75,72 @@ fun HomeScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(sampleProjects) { project ->
-                    ProjectCard(
-                        project = project,
-                        onClick = { onNavigateToProjectDetail(project.id) }
-                    )
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                error != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error loading projects",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = { 
+                                    coroutineScope.launch {
+                                        projectRepository.loadProjects()
+                                    }
+                                }
+                            ) {
+                                Text("Retry")
+                            }
+                        }
+                    }
+                }
+                projects.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "No projects yet",
+                                fontSize = 18.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Start by creating a new measurement",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(projects) { project ->
+                            ProjectCard(
+                                project = project,
+                                onClick = { onNavigateToProjectDetail(project.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -107,24 +178,41 @@ fun ProjectCard(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            Text(
-                text = "Last updated: ${project.lastUpdated}",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${project.surfaces.size} surface${if (project.surfaces.size != 1) "s" else ""}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                Text(
+                    text = formatTimestamp(project.modifiedTimestamp),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
-data class Project(
-    val id: String,
-    val name: String,
-    val description: String,
-    val lastUpdated: String
-)
+private fun formatTimestamp(timestamp: Long): String {
+    // Simple timestamp formatting - in a real app you'd use proper date formatting
+    val now = getCurrentTimeMillis()
+    val diff = now - timestamp
+    
+    return when {
+        diff < 60000 -> "Just now"
+        diff < 3600000 -> "${diff / 60000}m ago"
+        diff < 86400000 -> "${diff / 3600000}h ago"
+        diff < 604800000 -> "${diff / 86400000}d ago"
+        else -> "${diff / 604800000}w ago"
+    }
+}
 
-val sampleProjects = listOf(
-    Project("1", "Living Room", "Main living area measurement", "2 days ago"),
-    Project("2", "Kitchen", "Kitchen renovation project", "1 week ago"),
-    Project("3", "Bedroom", "Master bedroom layout", "2 weeks ago")
-)
+private fun getCurrentTimeMillis(): Long {
+    // Simple timestamp - in a real app you'd use proper date/time library
+    return 1700000000000L
+}

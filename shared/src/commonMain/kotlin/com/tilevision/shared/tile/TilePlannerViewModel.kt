@@ -4,6 +4,7 @@ import com.tilevision.shared.domain.TileCalculator
 import com.tilevision.shared.domain.TileLayoutType
 import com.tilevision.shared.domain.TileLayoutPreview
 import com.tilevision.shared.measurement.Vec2
+import com.tilevision.shared.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,16 +18,17 @@ import kotlinx.coroutines.launch
 class TilePlannerViewModel(
     private val polygon: List<Vec2>,
     private val areaSqFt: Double,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val settingsRepository: SettingsRepository
 ) {
     private val _uiState = MutableStateFlow(
         TilePlannerUiState(
-            tileWidth = 12.0,
-            tileHeight = 12.0,
-            groutWidth = 0.125,
+            tileWidth = settingsRepository.getCurrentUserPrefs().defaultTileWidth,
+            tileHeight = settingsRepository.getCurrentUserPrefs().defaultTileHeight,
+            groutWidth = settingsRepository.getCurrentUserPrefs().defaultGroutWidth,
             layoutType = TileLayoutType.GRID,
-            wastePercentage = 10.0,
-            tilesPerBox = 10,
+            wastePercentage = settingsRepository.getCurrentUserPrefs().defaultWastePercentage,
+            tilesPerBox = settingsRepository.getCurrentUserPrefs().defaultTilesPerBox,
             tileCount = 0,
             boxCount = 0,
             totalAreaSqFt = 0.0,
@@ -39,6 +41,24 @@ class TilePlannerViewModel(
     init {
         // Calculate initial values
         updateCalculations()
+        
+        // Listen for settings changes and update defaults
+        coroutineScope.launch {
+            settingsRepository.userPrefs.collect { userPrefs ->
+                if (userPrefs != null) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            tileWidth = userPrefs.defaultTileWidth,
+                            tileHeight = userPrefs.defaultTileHeight,
+                            groutWidth = userPrefs.defaultGroutWidth,
+                            wastePercentage = userPrefs.defaultWastePercentage,
+                            tilesPerBox = userPrefs.defaultTilesPerBox
+                        )
+                    }
+                    updateCalculations()
+                }
+            }
+        }
     }
     
     fun onTileWidthChange(width: Double) {

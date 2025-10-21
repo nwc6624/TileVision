@@ -1,37 +1,44 @@
 package com.tilevision.shared.haptics
 
 actual class Haptics {
-    actual fun light() {
-        // TODO: Implement iOS light haptic feedback using UIImpactFeedbackGenerator
-    }
-    
-    actual fun medium() {
-        // TODO: Implement iOS medium haptic feedback using UIImpactFeedbackGenerator
-    }
-    
-    actual fun heavy() {
-        // TODO: Implement iOS heavy haptic feedback using UIImpactFeedbackGenerator
-    }
     
     actual fun selection() {
-        // TODO: Implement iOS selection haptic feedback using UISelectionFeedbackGenerator
+        // TODO: Implement UISelectionFeedbackGenerator
+        // selectionFeedbackGenerator.selectionChanged()
     }
     
     actual fun impact(style: ImpactStyle) {
-        // TODO: Implement iOS impact haptic feedback using UIImpactFeedbackGenerator with appropriate style
+        // TODO: Implement UIImpactFeedbackGenerator
+        when (style) {
+            ImpactStyle.LIGHT -> {
+                // lightImpactGenerator.impactOccurred()
+            }
+            ImpactStyle.MEDIUM -> {
+                // mediumImpactGenerator.impactOccurred()
+            }
+            ImpactStyle.HEAVY -> {
+                // heavyImpactGenerator.impactOccurred()
+            }
+        }
     }
     
     actual fun notification(type: NotificationType) {
-        // TODO: Implement iOS notification haptic feedback using UINotificationFeedbackGenerator
+        // TODO: Implement UINotificationFeedbackGenerator
+        when (type) {
+            NotificationType.SUCCESS -> {
+                // notificationFeedbackGenerator.notificationOccurred(.success)
+            }
+            NotificationType.WARNING -> {
+                // notificationFeedbackGenerator.notificationOccurred(.warning)
+            }
+            NotificationType.ERROR -> {
+                // notificationFeedbackGenerator.notificationOccurred(.error)
+            }
+        }
     }
     
-    actual fun isSupported(): Boolean {
-        // TODO: Check if haptic feedback is supported on iOS device
-        return false
-    }
-    
-    actual fun isEnabled(): Boolean {
-        // TODO: Check if haptic feedback is enabled in iOS settings
-        return false
+    actual fun isHapticFeedbackSupported(): Boolean {
+        // TODO: Check iOS device haptic support
+        return true // Mock for now
     }
 }

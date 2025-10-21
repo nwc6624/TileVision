@@ -29,6 +29,7 @@ import com.tilevision.shared.domain.TileLayoutType
 fun TilePlannerScreen(
     polygon: List<Vec2>,
     onNavigateBack: () -> Unit,
+    onNavigateToCostExport: () -> Unit,
     viewModel: TilePlannerViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -44,6 +45,13 @@ fun TilePlannerScreen(
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                }
+            },
+            actions = {
+                TextButton(
+                    onClick = onNavigateToCostExport
+                ) {
+                    Text("Cost & Export")
                 }
             }
         )
