@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tv_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/tv_primary"
+            android:elevation="4dp"
+            app:title="Tile Sample Details"
+            app:titleTextColor="@color/tv_primaryText"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:navigationIconTint="@color/tv_primaryText" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Preview Image -->
+            <ImageView
+                android:id="@+id/previewImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="24dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/round_white_button" />
+
+            <!-- Tile Name -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tile Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tileNameText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tile - Oct 24, 2024 14:32"
+                android:textSize="16sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Dimensions -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dimensions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/dimensionsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="12.0 in x 24.0 in"
+                android:textSize="16sp"
+                android:textColor="@color/tv_primary"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Area -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Area"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/areaText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2.0 ft²"
+                android:textSize="16sp"
+                android:textColor="@color/tv_primary"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Timestamp -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Created"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/timestampText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Oct 24, 2024 2:32 PM"
+                android:textSize="16sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Action Buttons -->
+            <Button
+                android:id="@+id/useTileButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Use This Tile"
+                android:textSize="16sp"
+                android:textColor="@color/tv_primaryText"
+                android:background="@color/tv_primary"
+                android:layout_marginBottom="16dp"
+                android:padding="16dp" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete"
+                android:textSize="16sp"
+                android:textColor="@color/tv_text_primary"
+                android:background="@drawable/round_white_button"
+                android:padding="16dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_title_privacy_statement">"Privacidade"</string>
+    <string name="no_camera_permission_warning_title">"Permissão da câmara"</string>
+    <string name="no_camera_permission_warning">"A permissão é necessária para medir distâncias com a câmara."</string>
+    <string name="ar_core_error_sdk_too_old">"Esta aplicação é demasiado antiga, tente atualizá-la-"</string>
+    <string name="ar_core_tracking_error_bad_state">"Algo correu mal. Tente recomeçar a medição."</string>
+    <string name="ar_core_tracking_error_insufficient_light">"Está demasiado escuro aqui"</string>
+    <string name="ar_core_tracking_error_excessive_motion">"Demasiado movimento"</string>
+    <string name="ar_core_tracking_error_insufficient_features">"Número de elementos visuais insuficientes"</string>
+    <string name="ar_core_tracking_error_camera_unavailable">"A câmara está a ser utilizada por outra aplicação"</string>
+    <string name="ar_core_tracking_error_too_steep_angle">"Ângulo demasiado agudo, afaste-se um pouco"</string>
+    <string name="ar_core_tracking_error_no_plane_hit">"Mantenha-se mais perto da seta mas cuidado com o trânsito!"</string>
+    <string name="no_camera_permission_toast">"Sem permissão de câmara"</string>
+    <string name="ar_core_tracking_hint_tap_to_measure">"Toque no ecrã para começar a medir"</string>
+    <string name="measure_info_title">"Atingir a precisão ideal"</string>
+    <string name="measure_info_html_description">"&lt;p&gt;O ARCore, por vezes, presume (inicialmente) que o solo está um pouco mais baixo ou mais alto do que realmente está. Isso introduz um erro de medição que aumenta quanto mais inclina o telemóvel em direção ao horizonte.&lt;/p&gt; &lt;p&gt;Defina os pontos inicial e final enquanto aponta o telemóvel diretamente para baixo (de modo a ver a seta branca de cima) para evitar completamente este problema nas medições horizontais.&lt;/p&gt; &lt;p&gt;Para medições verticais, é necessário verificar se o ponto inicial não parece mover-se em relação ao solo, observando-o de diferentes ângulos.&lt;/p&gt;"</string>
+    <string name="privacy_html_arcore">"Esta aplicação funciona em &lt;a href=\"https://play.google.com/store/apps/details?id=com.google.ar.core\"&gt;Google Play Services para AR&lt;/a&gt; (ARCore), que é fornecida pelo Google e governada pela &lt;a href=\"https://policies.google.com/privacy\"&gt;Política de Privacidade Google&lt;/a&gt;."</string>
+</resources>

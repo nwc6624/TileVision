@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tv_background">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/tv_primary"
+        app:titleTextColor="@color/tv_primaryText"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:navigationIconTint="@color/tv_primaryText" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓ Measurement Saved!"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_primary"
+                android:layout_marginBottom="24dp" />
+
+            <ImageView
+                android:id="@+id/measurementImage"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:background="@color/tv_text_secondary"
+                android:contentDescription="Measurement Preview" />
+
+            <TextView
+                android:id="@+id/measurementTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Project - Oct 24, 2025"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/measurementArea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Area: 0.0 ft²"
+                android:textSize="18sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/measurementTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Timestamp: "
+                android:textSize="16sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="32dp" />
+
+            <Button
+                android:id="@+id/buttonCalculateTiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Calculate Tiles"
+                android:textSize="18sp"
+                android:textColor="@color/tv_primaryText"
+                android:background="@color/tv_primary"
+                android:layout_marginBottom="16dp"
+                android:padding="16dp" />
+
+            <Button
+                android:id="@+id/buttonViewAllProjects"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View All Saved Projects"
+                android:textSize="16sp"
+                android:textColor="@color/tv_primaryText"
+                android:background="@color/tv_text_secondary"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/buttonDone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Done"
+                android:textSize="16sp"
+                android:textColor="@color/tv_primaryText"
+                android:background="@color/tv_text_secondary"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

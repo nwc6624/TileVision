@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tv_background">
+
+    <!-- AR Scene View -->
+    <com.google.ar.sceneform.ArSceneView
+        android:id="@+id/arSceneView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top App Bar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/tv_primary"
+        android:elevation="4dp"
+        app:title="Tile Sample"
+        app:titleTextColor="@color/tv_primaryText"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:navigationIconTint="@color/tv_primaryText" />
+
+    <!-- Bottom Overlay -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bottom_overlay_background"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Instruction Text -->
+        <TextView
+            android:id="@+id/instructionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aim at one tile and tap to capture size + photo"
+            android:textSize="16sp"
+            android:textColor="@color/tv_text_primary"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Measurement Display -->
+        <TextView
+            android:id="@+id/measurementText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tap to measure tile"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/tv_primary"
+            android:gravity="center"
+            android:background="@drawable/measurement_bubble_background"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Back Button -->
+            <Button
+                android:id="@+id/buttonBack"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="←"
+                android:textSize="20sp"
+                android:textColor="@color/tv_text_primary"
+                android:background="@drawable/circle_button_background"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Retake Button -->
+            <Button
+                android:id="@+id/buttonRetake"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="⟲"
+                android:textSize="20sp"
+                android:textColor="@color/tv_text_primary"
+                android:background="@drawable/circle_button_background"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/buttonSave"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="✓"
+                android:textSize="20sp"
+                android:textColor="@color/tv_primaryText"
+                android:background="@color/tv_primary"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
