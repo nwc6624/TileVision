@@ -42,7 +42,7 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Setting Row: Privacy Policy -->
+                <!-- Setting Row: Theme -->
                 <LinearLayout
                     android:id="@+id/privacyPolicyRow"
                     android:layout_width="match_parent"
@@ -52,13 +52,14 @@
                     android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:background="?android:attr/selectableItemBackground"
+                    android:contentDescription="Appearance and theme">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Privacy Policy"
+                        android:text="Theme"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary" />
 
@@ -87,7 +88,8 @@
                     android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:background="?android:attr/selectableItemBackground"
+                    android:contentDescription="Delete all saved data">
 
                     <TextView
                         android:layout_width="0dp"
@@ -115,7 +117,8 @@
                     android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:background="?android:attr/selectableItemBackground"
+                    android:contentDescription="Email support">
 
                     <TextView
                         android:layout_width="0dp"

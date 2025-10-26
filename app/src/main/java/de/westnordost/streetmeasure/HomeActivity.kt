@@ -23,6 +23,7 @@ class HomeActivity : AppCompatActivity() {
     // The ONLY AR workflow we support in TileVision is multi-point polygon surface area measurement for square footage, for tile planning.
     
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)

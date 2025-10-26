@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Glassmorphism Dark Theme Colors -->
+    <!-- Glassmorphism Light Theme Colors -->
     
     <!-- Backgrounds -->
-    <color name="bg_primary_dark">#0E1117</color> <!-- Page background -->
-    <color name="bg_surface_glass">#CC1A1F29</color> <!-- Translucent card (80% alpha) -->
-    <color name="bg_surface_glass_full">#1A1F29</color> <!-- Full opacity for fallback -->
+    <color name="bg_primary">#F5F6FA</color> <!-- Page background -->
+    <color name="bg_surface_glass">#FFFFFFCC</color> <!-- Translucent card (80% alpha) -->
+    <color name="bg_surface_glass_full">#FFFFFF</color> <!-- Full opacity for fallback -->
     
-    <!-- Accents -->
+    <!-- Accents (same in both themes) -->
     <color name="accent_teal">#22E0B8</color> <!-- Neon teal glow -->
     <color name="accent_teal_alpha_40">#6622E0B8</color> <!-- 40% alpha for glow -->
     <color name="accent_purple">#8A7BFF</color> <!-- Secondary accent -->
     
     <!-- Text -->
-    <color name="text_primary">#FFFFFF</color> <!-- White text -->
-    <color name="text_secondary">#8B93A7</color> <!-- Gray text -->
-    <color name="text_hint">#5A5F6D</color> <!-- Muted gray text -->
+    <color name="text_primary">#0E1117</color> <!-- Near black text -->
+    <color name="text_secondary">#4B5568</color> <!-- Gray text -->
+    <color name="text_hint">#9CA3B8</color> <!-- Muted gray text -->
     
     <!-- Borders & Overlays -->
-    <color name="border_soft">#22FFFFFF</color> <!-- Soft white border -->
-    <color name="overlay_dark">#80000000</color> <!-- Dark overlay -->
+    <color name="border_soft">#00000022</color> <!-- Soft black border -->
+    <color name="overlay_dark">#40000000</color> <!-- Light overlay -->
     
     <!-- Legacy compatibility -->
     <color name="tv_primary">#22E0B8</color>
-    <color name="tv_primaryText">#FFFFFF</color>
-    <color name="tv_background">#0E1117</color>
-    <color name="tv_surface">#1A1F29</color>
-    <color name="tv_text_primary">#FFFFFF</color>
-    <color name="tv_text_secondary">#8B93A7</color>
-    <color name="tv_text_hint">#5A5F6D</color>
+    <color name="tv_primaryText">#0E1117</color>
+    <color name="tv_background">#F5F6FA</color>
+    <color name="tv_surface">#FFFFFF</color>
+    <color name="tv_text_primary">#0E1117</color>
+    <color name="tv_text_secondary">#4B5568</color>
+    <color name="tv_text_hint">#9CA3B8</color>
     
     <!-- Standard colors -->
     <color name="purple_200">#FFBB86FC</color>
@@ -38,4 +38,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Legacy for bg_primary_dark -->
+    <color name="bg_primary_dark">#F5F6FA</color>
 </resources>
