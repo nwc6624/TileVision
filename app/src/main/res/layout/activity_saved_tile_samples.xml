@@ -1,38 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/tv_background">
+    android:background="@drawable/bg_gradient_dark">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/tv_primary"
-        android:elevation="4dp"
+        android:background="@color/bg_surface_glass"
+        android:elevation="8dp"
         app:title="Saved Tile Samples"
-        app:titleTextColor="@color/tv_primaryText"
+        app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="@color/tv_primaryText" />
+        app:navigationIconTint="@color/text_primary" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp" />
+        android:layout_below="@id/toolbar"
+        android:layout_above="@id/buttonCalculateTiles"
+        android:padding="16dp"
+        android:clipToPadding="false" />
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/emptyStateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="48dp"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/glow_dot"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nothing saved yet"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start measuring to see tile samples here."
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/emptyStateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="Measure Tile Sample"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/bg_primary_dark"
+            android:background="@drawable/button_primary_background"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/buttonCalculateTiles"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
         android:text="Calculate Tiles"
         android:textSize="16sp"
-        android:textColor="@color/tv_primaryText"
-        android:background="@color/tv_primary"
-        android:layout_margin="16dp"
-        android:padding="12dp" />
+        android:textStyle="bold"
+        android:textColor="@color/bg_primary_dark"
+        android:background="@drawable/button_primary_background"
+        android:layout_margin="16dp" />
 
-</LinearLayout>
+</RelativeLayout>
