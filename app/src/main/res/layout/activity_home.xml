@@ -15,18 +15,37 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
-            <!-- App Title -->
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TileVision"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:gravity="center"
-                android:letterSpacing="0.02" />
+                android:orientation="vertical"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true">
+
+                <!-- App Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TileVision AR"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:gravity="center"
+                    android:letterSpacing="0.02" />
+
+                <!-- Subheader -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Measure. Visualize. Estimate."
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
 
             <!-- Settings Button -->
             <ImageView
@@ -34,24 +53,14 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
+                android:layout_alignParentTop="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="12dp"
                 android:src="@drawable/ic_settings_24"
                 android:contentDescription="Settings"
-                app:tint="@color/tv_text_secondary" />
+                app:tint="@color/text_secondary" />
 
         </RelativeLayout>
-
-        <!-- Tagline -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="AR surface measurement + tile estimator. For remodels, countertops, showers, and floors."
-            android:textSize="16sp"
-            android:textColor="@color/tv_text_secondary"
-            android:gravity="center"
-            android:layout_marginBottom="32dp" />
 
         <!-- Measure Project Area Card -->
         <de.westnordost.streetmeasure.GlassCardView
