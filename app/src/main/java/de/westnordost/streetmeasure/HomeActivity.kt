@@ -3,6 +3,7 @@ package de.westnordost.streetmeasure
 import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -45,28 +46,28 @@ class HomeActivity : AppCompatActivity() {
             startMeasurement()
         }
         
-        findViewById<Button>(R.id.buttonMeasureTileSample).setOnClickListener {
+        findViewById<View>(R.id.buttonMeasureTileSample).setOnClickListener {
             val intent = Intent(this, TileSampleMeasureActivity::class.java)
             startActivity(intent)
         }
         
-        findViewById<Button>(R.id.openCalculatorButton).setOnClickListener {
+        findViewById<View>(R.id.openCalculatorButton).setOnClickListener {
             val intent = Intent(this, TileCalculatorActivity::class.java)
             // do NOT put area extra here, user will type manually
             startActivity(intent)
         }
         
-        findViewById<Button>(R.id.buttonViewSavedProjects).setOnClickListener {
+        findViewById<View>(R.id.buttonViewSavedProjects).setOnClickListener {
             val intent = Intent(this, SavedProjectsActivity::class.java)
             startActivity(intent)
         }
         
-        findViewById<Button>(R.id.buttonViewSavedTileSamples).setOnClickListener {
+        findViewById<View>(R.id.buttonViewSavedTileSamples).setOnClickListener {
             val intent = Intent(this, SavedTileSamplesActivity::class.java)
             startActivity(intent)
         }
         
-        findViewById<Button>(R.id.buttonViewSavedJobs).setOnClickListener {
+        findViewById<View>(R.id.buttonViewSavedJobs).setOnClickListener {
             val intent = Intent(this, SavedSummariesActivity::class.java)
             startActivity(intent)
         }

@@ -1,15 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- TileVision Brand Colors -->
-    <color name="tv_primary">#2D5A4A</color> <!-- Deep teal for tile/construction vibe -->
-    <color name="tv_primaryText">#F5F5F5</color> <!-- Near-white text -->
+    <!-- Glassmorphism Dark Theme Colors -->
     
-    <!-- Light theme background and surface colors -->
-    <color name="tv_background">#FFFFFF</color> <!-- Light background -->
-    <color name="tv_surface">#F5F5F5</color> <!-- Light surface -->
-    <color name="tv_text_primary">#212121</color> <!-- Primary text in light mode -->
-    <color name="tv_text_secondary">#757575</color> <!-- Secondary text in light mode -->
-    <color name="tv_text_hint">#BDBDBD</color> <!-- Hint text in light mode -->
+    <!-- Backgrounds -->
+    <color name="bg_primary_dark">#0E1117</color> <!-- Page background -->
+    <color name="bg_surface_glass">#CC1A1F29</color> <!-- Translucent card (80% alpha) -->
+    <color name="bg_surface_glass_full">#1A1F29</color> <!-- Full opacity for fallback -->
+    
+    <!-- Accents -->
+    <color name="accent_teal">#22E0B8</color> <!-- Neon teal glow -->
+    <color name="accent_teal_alpha_40">#6622E0B8</color> <!-- 40% alpha for glow -->
+    <color name="accent_purple">#8A7BFF</color> <!-- Secondary accent -->
+    
+    <!-- Text -->
+    <color name="text_primary">#FFFFFF</color> <!-- White text -->
+    <color name="text_secondary">#8B93A7</color> <!-- Gray text -->
+    <color name="text_hint">#5A5F6D</color> <!-- Muted gray text -->
+    
+    <!-- Borders & Overlays -->
+    <color name="border_soft">#22FFFFFF</color> <!-- Soft white border -->
+    <color name="overlay_dark">#80000000</color> <!-- Dark overlay -->
+    
+    <!-- Legacy compatibility -->
+    <color name="tv_primary">#22E0B8</color>
+    <color name="tv_primaryText">#FFFFFF</color>
+    <color name="tv_background">#0E1117</color>
+    <color name="tv_surface">#1A1F29</color>
+    <color name="tv_text_primary">#FFFFFF</color>
+    <color name="tv_text_secondary">#8B93A7</color>
+    <color name="tv_text_hint">#5A5F6D</color>
     
     <!-- Standard colors -->
     <color name="purple_200">#FFBB86FC</color>
