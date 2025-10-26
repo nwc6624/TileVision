@@ -18,11 +18,14 @@ class InstructionPopupView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private lateinit var instructionText: TextView
+    private lateinit var pulseDot: View
     private var floatAnimator: ObjectAnimator? = null
+    private var pulseAnimator: ObjectAnimator? = null
 
     init {
         val view = LayoutInflater.from(context).inflate(R.layout.view_instruction_popup, this, true)
         instructionText = view.findViewById(R.id.instructionText)
+        pulseDot = view.findViewById(R.id.pulseDot)
         
         // Make clickable for tap-to-dismiss
         isClickable = true
@@ -49,11 +52,22 @@ class InstructionPopupView @JvmOverloads constructor(
             interpolator = AccelerateDecelerateInterpolator()
         }
         floatAnimator?.start()
+        
+        // Start pulsing dot animation
+        pulseAnimator = ObjectAnimator.ofFloat(pulseDot, "alpha", 0.3f, 1.0f).apply {
+            duration = 1200L
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        pulseAnimator?.start()
     }
 
     fun stopFloatAnim() {
         floatAnimator?.cancel()
         floatAnimator = null
+        pulseAnimator?.cancel()
+        pulseAnimator = null
     }
 
     fun dismiss() {

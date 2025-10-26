@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -131,9 +132,14 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
         // Direction, unit, and flash buttons removed for surface area mode
 
-        binding.backButton.setOnClickListener { finish() }
         binding.undoButton.setOnClickListener { undoLastPoint() }
         binding.confirmButton.setOnClickListener { confirmMeasurement() }
+        
+        // Find save button if it exists
+        val saveButton = binding.root.findViewById<View>(R.id.saveButton)
+        saveButton?.setOnClickListener {
+            // Handle save action
+        }
         
         // Setup instruction popup
         binding.instructionPopup.setText("Tap at each corner of the surface to mark the outline.\nPress ✓ when done.")
@@ -780,7 +786,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val canConfirm = polygonState.anchors.size >= 3
         
         binding.bottomControlsContainer.visibility = if (hasPoints) android.view.View.VISIBLE else android.view.View.GONE
-        binding.backButton.visibility = if (hasPoints) android.view.View.VISIBLE else android.view.View.GONE
         binding.undoButton.visibility = if (canUndo) android.view.View.VISIBLE else android.view.View.GONE
         binding.confirmButton.visibility = if (canConfirm) android.view.View.VISIBLE else android.view.View.GONE
     }

@@ -1,20 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#E0000000"
+    android:orientation="vertical"
     android:layout_margin="24dp">
 
-    <TextView
-        android:id="@+id/instructionText"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:textAlignment="center" />
+        app:cardCornerRadius="20dp"
+        app:cardElevation="16dp"
+        app:cardBackgroundColor="@color/bg_surface_glass"
+        app:strokeColor="@color/border_soft"
+        app:strokeWidth="1dp">
 
-</com.google.android.material.card.MaterialCardView>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <!-- Pulsing dot indicator -->
+            <View
+                android:id="@+id/pulseDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/glow_dot"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/instructionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textAlignment="center"
+                android:lineSpacingMultiplier="1.3" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
