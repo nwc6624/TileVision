@@ -10,14 +10,14 @@ object TileSampleRepository {
     private var tileSamples = mutableListOf<TileSample>()
     private var prefs: SharedPreferences? = null
     private val gson = Gson()
-    
+
     fun init(context: Context) {
-        prefs = context.getSharedPreferences("tile_samples", Context.MODE_PRIVATE)
+        prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
         loadTileSamples()
     }
-    
+
     private fun loadTileSamples() {
-        val json = prefs?.getString("tile_samples", null)
+        val json = prefs?.getString("tile_samples_json", null)
         if (json != null) {
             val type = object : TypeToken<List<TileSample>>() {}.type
             tileSamples = gson.fromJson(json, type) ?: mutableListOf()
@@ -26,7 +26,7 @@ object TileSampleRepository {
     
     private fun saveTileSamples() {
         val json = gson.toJson(tileSamples)
-        prefs?.edit()?.putString("tile_samples", json)?.apply()
+        prefs?.edit()?.putString("tile_samples_json", json)?.apply()
     }
     
     fun addTileSample(tileSample: TileSample): TileSample {
@@ -49,6 +49,18 @@ object TileSampleRepository {
             saveTileSamples()
         }
         return removed
+    }
+    
+    fun updateTileName(id: String, newName: String): Boolean {
+        val index = tileSamples.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val currentTile = tileSamples[index]
+            val updatedTile = currentTile.copy(displayName = newName)
+            tileSamples[index] = updatedTile
+            saveTileSamples()
+            return true
+        }
+        return false
     }
     
     fun clear() {

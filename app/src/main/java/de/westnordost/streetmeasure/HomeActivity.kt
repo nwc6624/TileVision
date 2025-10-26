@@ -30,6 +30,7 @@ class HomeActivity : AppCompatActivity() {
         AppPrefs.init(this)
         ProjectRepository.init(this)
         TileSampleRepository.init(this)
+        ProjectSummaryRepository.init(this)
         
         setupClickListeners()
     }
@@ -62,6 +63,11 @@ class HomeActivity : AppCompatActivity() {
         
         findViewById<Button>(R.id.buttonViewSavedTileSamples).setOnClickListener {
             val intent = Intent(this, SavedTileSamplesActivity::class.java)
+            startActivity(intent)
+        }
+        
+        findViewById<Button>(R.id.buttonViewSavedJobs).setOnClickListener {
+            val intent = Intent(this, SavedSummariesActivity::class.java)
             startActivity(intent)
         }
         

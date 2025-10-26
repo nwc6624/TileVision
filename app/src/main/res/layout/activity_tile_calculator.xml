@@ -214,6 +214,18 @@
         android:textColor="@color/tv_primaryText"
         android:background="@color/tv_primary"
         android:padding="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Save Job Summary Button -->
+    <Button
+        android:id="@+id/buttonSaveJobSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Job Summary"
+        android:textSize="16sp"
+        android:textColor="@color/tv_text_primary"
+        android:background="@drawable/round_white_button"
+        android:padding="16dp"
         android:layout_marginBottom="24dp" />
 
     <!-- Result Card -->

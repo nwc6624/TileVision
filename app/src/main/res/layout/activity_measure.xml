@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/measurementScreenshotRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,6 +21,17 @@
         android:visibility="gone"
         android:clickable="false"
         android:focusable="false"/>
+
+    <!-- Instruction Popup -->
+    <de.westnordost.streetmeasure.InstructionPopupView
+        android:id="@+id/instructionPopup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:visibility="visible"
+        android:contentDescription="Measurement instructions" />
 
     <!-- Top instruction label -->
     <TextView
@@ -138,6 +150,23 @@
         android:textStyle="bold"
         android:visibility="visible"
         tools:visibility="visible" />
+
+    <!-- Skip AR Button -->
+    <TextView
+        android:id="@+id/skipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="Skip AR &amp; Open Calculator"
+        android:textColor="#fff"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:background="@android:color/transparent"
+        android:padding="12dp"
+        android:visibility="visible"
+        android:contentDescription="Skip AR and open calculator" />
 
     <!-- AR tracking error message -->
     <TextView

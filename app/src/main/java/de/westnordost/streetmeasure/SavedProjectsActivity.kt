@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -132,33 +131,31 @@ class SavedProjectsActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = projects.size
 
-        inner class ProjectViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val thumbnailImage: ImageView = itemView.findViewById(R.id.thumbnailImage)
-            private val titleText: TextView = itemView.findViewById(R.id.titleText)
-            private val subtitleText: TextView = itemView.findViewById(R.id.subtitleText)
-            private val timestampText: TextView = itemView.findViewById(R.id.timestampText)
+    inner class ProjectViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val polygonPreview: PolygonPreviewView = itemView.findViewById(R.id.polygonPreview)
+        private val titleText: TextView = itemView.findViewById(R.id.titleText)
+        private val subtitleText: TextView = itemView.findViewById(R.id.subtitleText)
+        private val timestampText: TextView = itemView.findViewById(R.id.timestampText)
 
-            fun bind(project: ProjectMeasurement) {
-                android.util.Log.d("SavedProjectsActivity", "Binding project: ${project.displayName} with area: ${project.areaFt2} ft²")
-                
-                titleText.text = project.displayName
-                        subtitleText.text = "${String.format("%.2f", project.areaFt2)} sq ft"
-                timestampText.text = MeasurementUtils.formatTimestamp(project.timestamp)
-                
-                android.util.Log.d("SavedProjectsActivity", "Set title: ${titleText.text}, subtitle: ${subtitleText.text}")
-                
-                // TODO: Load actual preview image when screenshot capture is implemented
-                thumbnailImage.setImageResource(R.drawable.ic_launcher_foreground)
-
-                itemView.setOnClickListener {
-                    onProjectClick(project)
-                }
-                
-                itemView.setOnLongClickListener {
-                    showDeleteDialog(project)
-                    true
-                }
+        fun bind(project: ProjectMeasurement) {
+            android.util.Log.d("SavedProjectsActivity", "Binding project: ${project.displayName} with area: ${project.areaFt2} ft²")
+            
+            titleText.text = project.displayName
+            subtitleText.text = "${String.format("%.2f", project.areaFt2)} sq ft"
+            timestampText.text = MeasurementUtils.formatTimestamp(project.timestamp)
+            
+            // Set polygon preview data
+            polygonPreview.setPolygonData(project.polygonPoints, project.areaFt2)
+            
+            itemView.setOnClickListener {
+                onProjectClick(project)
             }
+            
+            itemView.setOnLongClickListener {
+                showDeleteDialog(project)
+                true
+            }
+        }
             
             private fun showDeleteDialog(project: ProjectMeasurement) {
                 AlertDialog.Builder(this@SavedProjectsActivity)

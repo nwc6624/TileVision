@@ -109,6 +109,18 @@
             android:textSize="18sp"
             android:textColor="@color/tv_primaryText"
             android:background="@color/tv_primary"
+            android:layout_marginBottom="16dp"
+            android:padding="16dp" />
+
+        <!-- View Saved Jobs Button -->
+        <Button
+            android:id="@+id/buttonViewSavedJobs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Saved Jobs"
+            android:textSize="18sp"
+            android:textColor="@color/tv_primaryText"
+            android:background="@color/tv_primary"
             android:layout_marginBottom="32dp"
             android:padding="16dp" />
 

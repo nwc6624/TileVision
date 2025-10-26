@@ -16,7 +16,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/tv_primary"
             android:elevation="4dp"
-            app:title="Tile Sample Details"
+            app:title="Job Summary"
             app:titleTextColor="@color/tv_primaryText"
             app:navigationIcon="@drawable/ic_arrow_back_24"
             app:navigationIconTint="@color/tv_primaryText" />
@@ -27,69 +27,119 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Preview Rectangle -->
-            <de.westnordost.streetmeasure.RectanglePreviewView
-                android:id="@+id/rectanglePreview"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Tile Name -->
+            <!-- Summary Name -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tile Name"
+                android:text="Job Name"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/tv_text_primary"
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/tileNameText"
+                android:id="@+id/summaryNameText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tile - Oct 24, 2024 14:32"
+                android:text="Kitchen Floor - Oct 26, 2025"
                 android:textSize="16sp"
                 android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp" />
 
-            <!-- Dimensions -->
+            <!-- Project Area -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dimensions"
+                android:text="Project Area"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/tv_text_primary"
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/dimensionsText"
+                android:id="@+id/projectAreaText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="150.00 sq ft"
+                android:textSize="24sp"
+                android:textColor="@color/tv_primary"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Tile Details -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tile Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tileSizeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="12.0 in x 24.0 in"
                 android:textSize="16sp"
-                android:textColor="@color/tv_primary"
-                android:layout_marginBottom="16dp" />
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="4dp" />
 
-            <!-- Area -->
+            <TextView
+                android:id="@+id/tileCoverageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2.00 ft² per tile"
+                android:textSize="16sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Calculation Results -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Area"
+                android:text="Material Requirements"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/tv_text_primary"
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/areaText"
+                android:id="@+id/wasteText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="2.0 ft²"
-                android:textSize="16sp"
+                android:text="Waste: 10%"
+                android:textSize="14sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tilesNeededText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Required Tiles: 88"
+                android:textSize="24sp"
+                android:textStyle="bold"
                 android:textColor="@color/tv_primary"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="24dp" />
+
+            <!-- Notes -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notes"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/tv_text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/notesText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No notes"
+                android:textSize="14sp"
+                android:textColor="@color/tv_text_secondary"
+                android:layout_marginBottom="24dp" />
 
             <!-- Timestamp -->
             <TextView
@@ -105,17 +155,17 @@
                 android:id="@+id/timestampText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Oct 24, 2024 2:32 PM"
-                android:textSize="16sp"
+                android:text="Oct 26, 2025 3:45 PM"
+                android:textSize="14sp"
                 android:textColor="@color/tv_text_secondary"
                 android:layout_marginBottom="32dp" />
 
             <!-- Action Buttons -->
             <Button
-                android:id="@+id/useTileButton"
+                android:id="@+id/buttonShare"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Use This Tile"
+                android:text="Share / Export (Coming Soon)"
                 android:textSize="16sp"
                 android:textColor="@color/tv_primaryText"
                 android:background="@color/tv_primary"
@@ -123,21 +173,10 @@
                 android:padding="16dp" />
 
             <Button
-                android:id="@+id/renameButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Rename Tile"
-                android:textSize="16sp"
-                android:textColor="@color/tv_text_primary"
-                android:background="@drawable/round_white_button"
-                android:layout_marginBottom="16dp"
-                android:padding="16dp" />
-
-            <Button
                 android:id="@+id/deleteButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Delete"
+                android:text="Delete Summary"
                 android:textSize="16sp"
                 android:textColor="@color/tv_text_primary"
                 android:background="@drawable/round_white_button"

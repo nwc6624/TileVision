@@ -46,9 +46,9 @@ class ProjectDetailActivity : AppCompatActivity() {
         binding.projectNameText.text = project.displayName
         binding.areaText.text = "${String.format("%.2f", project.areaFt2)} ft²"
         binding.timestampText.text = MeasurementUtils.formatTimestamp(project.timestamp)
-        
-        // TODO: Load preview image when screenshot capture is implemented
-        binding.previewImage.setImageResource(R.drawable.ic_launcher_foreground)
+
+        // Set polygon preview data
+        binding.previewImage.setPolygonData(project.polygonPoints, project.areaFt2)
     }
 
     private fun setupClickListeners() {

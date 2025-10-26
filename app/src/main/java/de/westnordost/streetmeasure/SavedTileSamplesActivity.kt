@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -104,28 +103,28 @@ class SavedTileSamplesActivity : AppCompatActivity() {
         override fun getItemCount(): Int = tileSamples.size
 
         inner class TileSampleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val thumbnailImage: ImageView = itemView.findViewById(R.id.thumbnailImage)
+            private val rectanglePreview: RectanglePreviewView = itemView.findViewById(R.id.rectanglePreview)
             private val titleText: TextView = itemView.findViewById(R.id.titleText)
             private val subtitleText: TextView = itemView.findViewById(R.id.subtitleText)
             private val timestampText: TextView = itemView.findViewById(R.id.timestampText)
 
-            fun bind(tileSample: TileSample) {
-                titleText.text = tileSample.displayName
-                        subtitleText.text = "${String.format("%.2f", tileSample.width)} x ${String.format("%.2f", tileSample.height)} (${String.format("%.2f", tileSample.areaFt2)} ft²)"
-                timestampText.text = MeasurementUtils.formatTimestamp(tileSample.timestamp)
-                
-                // TODO: Load actual preview image when screenshot capture is implemented
-                thumbnailImage.setImageResource(R.drawable.ic_launcher_foreground)
+                    fun bind(tileSample: TileSample) {
+                        titleText.text = tileSample.displayName
+                        subtitleText.text = "${String.format("%.1f", tileSample.widthInInches)} in x ${String.format("%.1f", tileSample.heightInInches)} in"
+                        timestampText.text = MeasurementUtils.formatTimestamp(tileSample.timestamp)
 
-                itemView.setOnClickListener {
-                    onTileClick(tileSample)
-                }
-                
-                itemView.setOnLongClickListener {
-                    showDeleteDialog(tileSample)
-                    true
-                }
-            }
+                        // Set rectangle preview data
+                        rectanglePreview.setTileData(tileSample.widthInInches, tileSample.heightInInches, tileSample.areaSqFt)
+
+                        itemView.setOnClickListener {
+                            onTileClick(tileSample)
+                        }
+
+                        itemView.setOnLongClickListener {
+                            showDeleteDialog(tileSample)
+                            true
+                        }
+                    }
             
             private fun showDeleteDialog(tileSample: TileSample) {
                 AlertDialog.Builder(this@SavedTileSamplesActivity)

@@ -10,6 +10,8 @@ import android.util.Log
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -132,6 +134,17 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         binding.backButton.setOnClickListener { finish() }
         binding.undoButton.setOnClickListener { undoLastPoint() }
         binding.confirmButton.setOnClickListener { confirmMeasurement() }
+        
+        // Setup instruction popup
+        binding.instructionPopup.setText("Tap at each corner of the surface to mark the outline.\nPress ✓ when done.")
+        binding.instructionPopup.startFloatAnim()
+        
+        // Setup skip button
+        binding.skipButton.setOnClickListener {
+            val intent = Intent(this, TileCalculatorActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         // Initialize polygon measurement UI
         updatePolygonDisplay()
@@ -330,6 +343,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         val plane = hitResult.trackable as? Plane ?: return
         val anchor = hitResult.createAnchor()
+        
+        // Fade out instruction popup on first tap
+        if (polygonPoints.isEmpty() && binding.instructionPopup.visibility == android.view.View.VISIBLE) {
+            binding.instructionPopup.fadeOut()
+        }
         
         // Store the world position as Vector3 in polygonPoints
         val worldPosition = anchor.pose.translation
@@ -857,26 +875,29 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         dialog.show()
     }
     
+    
     private fun saveProjectAndContinue(areaFt2: Float, areaM2: Float) {
         Log.d("MeasureActivity", "Saving project with area: $areaFt2 ft²")
         
-        // Capture screenshot
-        val screenshot = MeasurementUtils.captureArScreenshot(arSceneView!!)
-        val screenshotPath = if (screenshot != null) {
-            MeasurementUtils.saveScreenshot(this, screenshot, "project_${System.currentTimeMillis()}")
-        } else null
-        
-        // Create ProjectMeasurement
+        // Generate project ID and timestamp
+        val projectId = java.util.UUID.randomUUID().toString()
         val timestamp = System.currentTimeMillis()
+        
+        // Convert polygon points to ProjectPoint2D format (only x,z for 2D preview)
+        val polygonPoints = polygonState.anchors.map { anchor ->
+            ProjectPoint2D(
+                x = anchor.pose.tx(),
+                z = anchor.pose.tz()
+            )
+        }
+        
+        // Create ProjectMeasurement with all required fields
         val project = ProjectMeasurement(
-            id = java.util.UUID.randomUUID().toString(),
+            id = projectId,
             displayName = MeasurementUtils.formatDisplayName("Project", timestamp),
             areaFt2 = areaFt2,
             timestamp = timestamp,
-            previewImageUri = screenshotPath,
-            polygonPoints = polygonState.anchors.map { anchor -> 
-                Vector3(anchor.pose.tx(), anchor.pose.ty(), anchor.pose.tz())
-            }
+            polygonPoints = polygonPoints
         )
         
         Log.d("MeasureActivity", "Created project: ${project.displayName}")
@@ -899,6 +920,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         startActivity(intent)
         finish()
     }
+    
     
     private fun continueWithoutSaving(areaFt2: Float, areaM2: Float) {
         // Do NOT save to any repository - just pass directly to TileCalculatorActivity

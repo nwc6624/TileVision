@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tileSampleRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tv_background">
 
-    <!-- AR Scene View -->
-    <com.google.ar.sceneform.ArSceneView
-        android:id="@+id/arSceneView"
+    <!-- AR Scene View Container -->
+    <FrameLayout
+        android:id="@+id/arSceneViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -23,29 +24,31 @@
         app:navigationIcon="@drawable/ic_arrow_back_24"
         app:navigationIconTint="@color/tv_primaryText" />
 
-    <!-- Bottom Overlay -->
+    <!-- Bottom Panel (hidden until capture complete) -->
     <LinearLayout
+        android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/bottom_overlay_background"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        android:visibility="gone">
 
         <!-- Instruction Text -->
-        <TextView
-            android:id="@+id/instructionText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Aim at one tile and tap to capture size + photo"
-            android:textSize="16sp"
-            android:textColor="@color/tv_text_primary"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
+                <TextView
+                    android:id="@+id/instructionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Slowly move your phone until the tile's surface is detected (you should see AR plane highlights). Then trace the tile with your finger in one loop."
+                    android:textSize="16sp"
+                    android:textColor="@color/tv_text_primary"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
 
         <!-- Measurement Display -->
         <TextView
-            android:id="@+id/measurementText"
+            android:id="@+id/textResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tap to measure tile"
@@ -75,20 +78,57 @@
                 android:background="@drawable/circle_button_background"
                 android:layout_marginEnd="16dp" />
 
-            <!-- Retake Button -->
+                    <!-- Edit Size Button -->
+                    <Button
+                        android:id="@+id/editSizeButton"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:text="✏️"
+                        android:textSize="20sp"
+                        android:textColor="@color/tv_primaryText"
+                        android:background="@color/tv_primary"
+                        android:layout_marginEnd="16dp"
+                        android:enabled="false" />
+
+                    <!-- Undo/Retake Button -->
+                    <Button
+                        android:id="@+id/undoButton"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:text="⟲"
+                        android:textSize="20sp"
+                        android:textColor="@color/tv_text_primary"
+                        android:background="@drawable/circle_button_background"
+                        android:layout_marginEnd="16dp"
+                        android:enabled="false" />
+
+                    <!-- Save Button -->
+                    <Button
+                        android:id="@+id/saveButton"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:text="💾"
+                        android:textSize="20sp"
+                        android:textColor="@color/tv_primaryText"
+                        android:background="@color/tv_primary"
+                        android:layout_marginEnd="16dp"
+                        android:enabled="false" />
+
+            <!-- Manual Outline Button -->
             <Button
-                android:id="@+id/buttonRetake"
+                android:id="@+id/buttonManualOutline"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:text="⟲"
+                android:text="✏️"
                 android:textSize="20sp"
                 android:textColor="@color/tv_text_primary"
                 android:background="@drawable/circle_button_background"
-                android:layout_marginEnd="16dp" />
+                android:layout_marginEnd="16dp"
+                android:visibility="gone" />
 
-            <!-- Save Button -->
+            <!-- Finish Polygon Button -->
             <Button
-                android:id="@+id/buttonSave"
+                android:id="@+id/buttonFinishPolygon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:text="✓"
@@ -97,8 +137,53 @@
                 android:background="@color/tv_primary"
                 android:visibility="gone" />
 
-        </LinearLayout>
+                    <!-- Use in Calculator Button -->
+                    <Button
+                        android:id="@+id/useButton"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:text="📐"
+                        android:textSize="20sp"
+                        android:textColor="@color/tv_primaryText"
+                        android:background="@color/tv_primary"
+                        android:enabled="false" />
 
-    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+    <!-- Instruction Popup -->
+    <de.westnordost.streetmeasure.InstructionPopupView
+        android:id="@+id/instructionPopup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="120dp"
+        android:visibility="visible"
+        android:contentDescription="Measurement instructions" />
+
+    <!-- Skip AR Button -->
+    <TextView
+        android:id="@+id/skipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="80dp"
+        android:text="Skip AR &amp; Open Calculator"
+        android:textColor="#fff"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:background="@android:color/transparent"
+        android:padding="12dp"
+        android:visibility="visible"
+        android:contentDescription="Skip AR and open calculator" />
+
+    <!-- THE TRACE OVERLAY MUST BE LAST SO IT SITS ON TOP AND GETS TOUCH -->
+    <de.westnordost.streetmeasure.TileTraceOverlayView
+        android:id="@+id/traceOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true" />
 
 </FrameLayout>

@@ -31,13 +31,18 @@ class TileCalculatorActivity : AppCompatActivity() {
     private lateinit var boxesNeededText: TextView
     
     private var incomingArea: Float = 0f
+    private var projectMeasurementId: String? = null
+    private var tileSampleId: String? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tile_calculator)
         
-        // Initialize AppPrefs
+        // Initialize AppPrefs and Repositories
         AppPrefs.init(this)
+        ProjectRepository.init(this)
+        TileSampleRepository.init(this)
+        ProjectSummaryRepository.init(this)
         
         // Grab views
         measuredAreaText = findViewById(R.id.measuredAreaText)
@@ -50,9 +55,11 @@ class TileCalculatorActivity : AppCompatActivity() {
         tilesNeededText = findViewById(R.id.tilesNeededText)
         boxesNeededText = findViewById(R.id.boxesNeededText)
         
-        // Read incoming area
+        // Read incoming data
         incomingArea = intent.getFloatExtra("areaSqFeet", 0f)
-        android.util.Log.d("TileCalculatorActivity", "Received incoming area: $incomingArea ft²")
+        projectMeasurementId = intent.getStringExtra("projectMeasurementId")
+        tileSampleId = intent.getStringExtra("tileSampleId")
+        android.util.Log.d("TileCalculatorActivity", "Received incoming area: $incomingArea ft², projectId: $projectMeasurementId, tileId: $tileSampleId")
         
         // Set up area display
         if (incomingArea > 0) {
@@ -91,6 +98,10 @@ class TileCalculatorActivity : AppCompatActivity() {
                 putExtra("from_calculator", true)
             }
             startActivityForResult(intent, REQUEST_CODE_SELECT_PROJECT)
+        }
+        
+        findViewById<Button>(R.id.buttonSaveJobSummary).setOnClickListener {
+            showSaveJobSummaryDialog()
         }
     }
     
@@ -271,18 +282,121 @@ class TileCalculatorActivity : AppCompatActivity() {
             .show()
     }
     
+    private fun showSaveJobSummaryDialog() {
+        // Validate that we have the minimum data
+        val currentArea = if (incomingArea > 0) {
+            incomingArea
+        } else {
+            try {
+                manualAreaInput.text.toString().toFloat()
+            } catch (e: NumberFormatException) {
+                Toast.makeText(this, "Please calculate first", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+        
+        val tileWidth = try {
+            tileWidthInput.text.toString().toFloat()
+        } catch (e: NumberFormatException) {
+            0f
+        }
+        
+        val tileHeight = try {
+            tileHeightInput.text.toString().toFloat()
+        } catch (e: NumberFormatException) {
+            0f
+        }
+        
+        if (tileWidth <= 0 || tileHeight <= 0) {
+            Toast.makeText(this, "Please enter tile dimensions first", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        // Create dialog view
+        val dialogView = layoutInflater.inflate(R.layout.dialog_save_job_summary, null)
+        val editProjectName = dialogView.findViewById<EditText>(R.id.editProjectName)
+        val editNotes = dialogView.findViewById<EditText>(R.id.editNotes)
+        val editWastePercent = dialogView.findViewById<EditText>(R.id.editWastePercent)
+        
+        // Pre-fill with default values
+        val defaultName = MeasurementUtils.formatDisplayName("Job", System.currentTimeMillis())
+        editProjectName.setText(defaultName)
+        editWastePercent.setText(wasteInput.text.toString())
+        
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Save Project Summary")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                saveJobSummary(
+                    editProjectName.text.toString().trim().ifEmpty { defaultName },
+                    editNotes.text.toString(),
+                    editWastePercent.text.toString().toFloatOrNull() ?: 10f
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        
+        dialog.show()
+    }
+    
+    private fun saveJobSummary(displayName: String, notes: String, wastePercent: Float) {
+        // Get current values
+        val currentArea = if (incomingArea > 0) incomingArea else manualAreaInput.text.toString().toFloat()
+        val tileWidth = tileWidthInput.text.toString().toFloat()
+        val tileHeight = tileHeightInput.text.toString().toFloat()
+        val tileAreaSqFt = (tileWidth / 12f) * (tileHeight / 12f)
+        
+        // Calculate tiles needed
+        val rawTileCount = currentArea / tileAreaSqFt
+        val withWasteTileCount = rawTileCount * (1f + wastePercent / 100f)
+        val finalTileCount = kotlin.math.round(withWasteTileCount).toInt()
+        
+        // Create ProjectSummary
+        val summary = ProjectSummary(
+            id = java.util.UUID.randomUUID().toString(),
+            timestamp = System.currentTimeMillis(),
+            displayName = displayName,
+            projectMeasurementId = projectMeasurementId ?: "",
+            tileSampleId = tileSampleId,
+            areaSqFt = currentArea,
+            tileWidthIn = tileWidth,
+            tileHeightIn = tileHeight,
+            tileAreaSqFt = tileAreaSqFt,
+            wastePercent = wastePercent,
+            totalTilesNeededRaw = rawTileCount,
+            totalTilesNeededFinal = finalTileCount,
+            notes = notes.ifEmpty { null }
+        )
+        
+        // Save to repository
+        ProjectSummaryRepository.addSummary(summary)
+        
+        // Show confirmation dialog
+        AlertDialog.Builder(this)
+            .setTitle("Job Summary Saved")
+            .setMessage("Your job summary has been saved successfully.")
+            .setPositiveButton("View Saved Jobs") { _, _ ->
+                val intent = Intent(this, SavedSummariesActivity::class.java)
+                startActivity(intent)
+            }
+            .setNegativeButton("Done") { _, _ ->
+                // Just dismiss
+            }
+            .show()
+    }
+    
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         
         if (resultCode == RESULT_OK && data != null) {
             when (requestCode) {
                 REQUEST_CODE_SELECT_TILE, REQUEST_CODE_MEASURE_TILE -> {
-                    val tileWidth = data.getFloatExtra("tile_width", 0f)
-                    val tileHeight = data.getFloatExtra("tile_height", 0f)
+                    val tileWidth = data.getFloatExtra(TileSampleMeasureActivity.EXTRA_TILE_WIDTH, 0f)
+                    val tileHeight = data.getFloatExtra(TileSampleMeasureActivity.EXTRA_TILE_HEIGHT, 0f)
                     
                     if (tileWidth > 0 && tileHeight > 0) {
-                        tileWidthInput.setText(tileWidth.toString())
-                        tileHeightInput.setText(tileHeight.toString())
+                        tileWidthInput.setText(String.format("%.1f", tileWidth))
+                        tileHeightInput.setText(String.format("%.1f", tileHeight))
                         val message = if (requestCode == REQUEST_CODE_MEASURE_TILE) {
                             "Tile dimensions loaded from measurement"
                         } else {

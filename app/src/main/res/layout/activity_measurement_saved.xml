@@ -35,13 +35,11 @@
                 android:textColor="@color/tv_primary"
                 android:layout_marginBottom="24dp" />
 
-            <ImageView
-                android:id="@+id/measurementImage"
+            <de.westnordost.streetmeasure.PolygonPreviewView
+                android:id="@+id/measurementPreview"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                android:scaleType="centerCrop"
                 android:layout_marginBottom="16dp"
-                android:background="@color/tv_text_secondary"
                 android:contentDescription="Measurement Preview" />
 
             <TextView

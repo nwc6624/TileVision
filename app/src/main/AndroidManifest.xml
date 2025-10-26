@@ -19,6 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StreetMeasure"
+        android:versionName="1.0.0"
+        android:versionCode="1"
         tools:targetApi="33">
         <meta-data android:name="com.google.ar.core" android:value="required" />
         <activity
@@ -40,6 +42,14 @@
         </activity>
         
         <activity
+            android:name="de.westnordost.streetmeasure.TileSampleMeasureActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity">
+        </activity>
+        
+        <activity
             android:name="de.westnordost.streetmeasure.ResultSummaryActivity"
             android:exported="false">
         </activity>
@@ -53,14 +63,6 @@
             android:name="de.westnordost.streetmeasure.SettingsActivity"
             android:exported="false"
             android:parentActivityName="de.westnordost.streetmeasure.HomeActivity">
-        </activity>
-        
-        <activity
-            android:name="de.westnordost.streetmeasure.TileSampleMeasureActivity"
-            android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            tools:ignore="LockedOrientationActivity">
         </activity>
         
         <activity
@@ -97,6 +99,18 @@
             android:name="de.westnordost.streetmeasure.TileSampleSavedActivity"
             android:exported="false"
             android:parentActivityName="de.westnordost.streetmeasure.TileSampleMeasureActivity">
+        </activity>
+        
+        <activity
+            android:name="de.westnordost.streetmeasure.SavedSummariesActivity"
+            android:exported="false"
+            android:parentActivityName="de.westnordost.streetmeasure.HomeActivity">
+        </activity>
+        
+        <activity
+            android:name="de.westnordost.streetmeasure.ProjectSummaryDetailActivity"
+            android:exported="false"
+            android:parentActivityName="de.westnordost.streetmeasure.SavedSummariesActivity">
         </activity>
 
     </application>

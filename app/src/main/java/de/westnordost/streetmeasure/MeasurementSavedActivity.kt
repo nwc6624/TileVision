@@ -1,12 +1,10 @@
 package de.westnordost.streetmeasure
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.westnordost.streetmeasure.databinding.ActivityMeasurementSavedBinding
-import java.io.File
 
 class MeasurementSavedActivity : AppCompatActivity() {
 
@@ -52,16 +50,8 @@ class MeasurementSavedActivity : AppCompatActivity() {
         binding.measurementArea.text = "${String.format("%.2f", project.areaFt2)} ft²"
         binding.measurementTimestamp.text = MeasurementUtils.formatTimestamp(project.timestamp)
 
-        // Load preview image if available
-        project.previewImageUri?.let { uri ->
-            val imgFile = File(uri)
-            if (imgFile.exists()) {
-                val bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                binding.measurementImage.setImageBitmap(bitmap)
-            } else {
-                binding.measurementImage.setImageResource(R.drawable.ic_launcher_foreground)
-            }
-        } ?: binding.measurementImage.setImageResource(R.drawable.ic_launcher_foreground)
+        // Set polygon preview data
+        binding.measurementPreview.setPolygonData(project.polygonPoints, project.areaFt2)
     }
 
     private fun setupClickListeners(project: ProjectMeasurement) {

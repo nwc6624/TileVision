@@ -17,15 +17,15 @@ class TileSampleDetailActivity : AppCompatActivity() {
         binding = ActivityTileSampleDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize repositories
+        TileSampleRepository.init(this)
+
         setupToolbar()
         loadTileSample()
         setupClickListeners()
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Tile Sample Details"
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
@@ -35,69 +35,96 @@ class TileSampleDetailActivity : AppCompatActivity() {
         val tileId = intent.getStringExtra("tile_id")
         if (tileId != null) {
             tileSample = TileSampleRepository.getTileSampleById(tileId)
-            tileSample?.let { displayTileSample(it) }
-        } else {
-            Toast.makeText(this, "Tile sample not found", Toast.LENGTH_SHORT).show()
-            finish()
+            if (tileSample != null) {
+                displayTileSample(tileSample!!)
+            } else {
+                Toast.makeText(this, "Tile sample not found", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 
     private fun displayTileSample(tileSample: TileSample) {
         binding.tileNameText.text = tileSample.displayName
-        binding.dimensionsText.text = "${String.format("%.2f", tileSample.width)} ${tileSample.units} x ${String.format("%.2f", tileSample.height)} ${tileSample.units}"
-        binding.areaText.text = "${String.format("%.2f", tileSample.areaFt2)} ft²"
+        binding.dimensionsText.text = "${String.format("%.1f", tileSample.widthInInches)} in x ${String.format("%.1f", tileSample.heightInInches)} in"
+        binding.areaText.text = "${String.format("%.2f", tileSample.areaSqFt)} ft²"
         binding.timestampText.text = MeasurementUtils.formatTimestamp(tileSample.timestamp)
-        
-        // TODO: Load preview image when screenshot capture is implemented
-        binding.previewImage.setImageResource(R.drawable.ic_launcher_foreground)
+
+        // Set rectangle preview data
+        binding.rectanglePreview.setTileData(tileSample.widthInInches, tileSample.heightInInches, tileSample.areaSqFt)
     }
 
     private fun setupClickListeners() {
         binding.useTileButton.setOnClickListener {
             useTile()
         }
-        
+
+        binding.renameButton.setOnClickListener {
+            showRenameDialog()
+        }
+
         binding.deleteButton.setOnClickListener {
-            showDeleteConfirmation()
+            showDeleteDialog()
         }
     }
 
     private fun useTile() {
-        tileSample?.let { tile ->
-            val resultIntent = Intent().apply {
-                putExtra("tile_width", tile.width)
-                putExtra("tile_height", tile.height)
-                putExtra("tile_area", tile.areaFt2)
-                putExtra("tile_units", tile.units)
-                putExtra("tile_id", tile.id)
-            }
-            setResult(RESULT_OK, resultIntent)
-            finish()
+        val tile = tileSample ?: return
+
+        val resultIntent = Intent().apply {
+            putExtra(TileSampleMeasureActivity.EXTRA_TILE_WIDTH, tile.widthInInches)
+            putExtra(TileSampleMeasureActivity.EXTRA_TILE_HEIGHT, tile.heightInInches)
+            putExtra(TileSampleMeasureActivity.EXTRA_TILE_AREA, tile.areaSqFt)
         }
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
-    private fun showDeleteConfirmation() {
+    private fun showRenameDialog() {
+        val tile = tileSample ?: return
+
+        val input = android.widget.EditText(this)
+        input.setText(tile.displayName)
+        input.selectAll()
+
         AlertDialog.Builder(this)
-            .setTitle("Delete Tile Sample")
-            .setMessage("Are you sure you want to delete this tile sample? This action cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                deleteTileSample()
+            .setTitle("Rename Tile")
+            .setView(input)
+            .setPositiveButton("Save") { _, _ ->
+                val newName = input.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    val updated = TileSampleRepository.updateTileName(tile.id, newName)
+                    if (updated) {
+                        // Refresh the tile sample from repository
+                        tileSample = TileSampleRepository.getTileSampleById(tile.id)
+                        tileSample?.let { displayTileSample(it) }
+                        
+                        Toast.makeText(this, "Tile renamed", Toast.LENGTH_SHORT).show()
+                        
+                        // Set result to indicate a change occurred
+                        setResult(RESULT_OK)
+                    }
+                } else {
+                    Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                }
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun deleteTileSample() {
-        tileSample?.let { tile ->
-            val deleted = TileSampleRepository.deleteTileSample(tile.id)
-            if (deleted) {
-                Toast.makeText(this, "Tile sample deleted", Toast.LENGTH_SHORT).show()
-                finish()
-            } else {
-                Toast.makeText(this, "Failed to delete tile sample", Toast.LENGTH_SHORT).show()
+    private fun showDeleteDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Tile Sample")
+            .setMessage("Are you sure you want to delete this tile sample?")
+            .setPositiveButton("Delete") { _, _ ->
+                val tile = tileSample ?: return@setPositiveButton
+                val deleted = TileSampleRepository.deleteTileSample(tile.id)
+                if (deleted) {
+                    Toast.makeText(this, "Tile sample deleted", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

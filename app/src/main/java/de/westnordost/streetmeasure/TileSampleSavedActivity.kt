@@ -1,12 +1,10 @@
 package de.westnordost.streetmeasure
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.westnordost.streetmeasure.databinding.ActivityTileSampleSavedBinding
-import java.io.File
 
 class TileSampleSavedActivity : AppCompatActivity() {
 
@@ -49,30 +47,21 @@ class TileSampleSavedActivity : AppCompatActivity() {
 
     private fun displayTileDetails(tileSample: TileSample) {
         binding.tileTitle.text = tileSample.displayName
-        binding.tileDimensions.text = "${String.format("%.2f", tileSample.width)} ${tileSample.units} x ${String.format("%.2f", tileSample.height)} ${tileSample.units}"
-        binding.tileArea.text = "${String.format("%.2f", tileSample.areaFt2)} ft²"
+        binding.tileDimensions.text = "${String.format("%.1f", tileSample.widthInInches)} in x ${String.format("%.1f", tileSample.heightInInches)} in"
+        binding.tileArea.text = "${String.format("%.2f", tileSample.areaSqFt)} ft²"
         binding.tileTimestamp.text = MeasurementUtils.formatTimestamp(tileSample.timestamp)
 
-        // Load preview image if available
-        tileSample.previewImageUri?.let { uri ->
-            val imgFile = File(uri)
-            if (imgFile.exists()) {
-                val bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                binding.tileImage.setImageBitmap(bitmap)
-            } else {
-                binding.tileImage.setImageResource(R.drawable.ic_launcher_foreground)
-            }
-        } ?: binding.tileImage.setImageResource(R.drawable.ic_launcher_foreground)
+        // Show placeholder image since we're not storing screenshots yet
+        binding.tileImage.setImageResource(R.drawable.ic_launcher_foreground)
     }
 
     private fun setupClickListeners(tileSample: TileSample) {
         binding.buttonCalculateTiles.setOnClickListener {
             // Launch TileCalculatorActivity with the tile dimensions
             val intent = Intent(this, TileCalculatorActivity::class.java).apply {
-                putExtra("tile_width", tileSample.width)
-                putExtra("tile_height", tileSample.height)
-                putExtra("tile_area", tileSample.areaFt2)
-                putExtra("tile_units", tileSample.units)
+                putExtra(TileSampleMeasureActivity.EXTRA_TILE_WIDTH, tileSample.widthInInches)
+                putExtra(TileSampleMeasureActivity.EXTRA_TILE_HEIGHT, tileSample.heightInInches)
+                putExtra(TileSampleMeasureActivity.EXTRA_TILE_AREA, tileSample.areaSqFt)
             }
             startActivity(intent)
             finish()
