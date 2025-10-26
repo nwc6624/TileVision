@@ -34,7 +34,23 @@ class HomeActivity : AppCompatActivity() {
         TileSampleRepository.init(this)
         ProjectSummaryRepository.init(this)
         
+        setupButtons()
         setupClickListeners()
+    }
+    
+    private fun setupButtons() {
+        setButtonText(R.id.buttonMeasureTileSample, "Measure Tile Sample")
+        setButtonText(R.id.openCalculatorButton, "Open Tile Calculator")
+        setButtonText(R.id.buttonViewSavedProjects, "View Saved Projects")
+        setButtonText(R.id.buttonViewSavedTileSamples, "View Saved Tile Samples")
+        setButtonText(R.id.buttonViewSavedJobs, "View Saved Jobs")
+    }
+    
+    private fun setButtonText(buttonId: Int, text: String) {
+        findViewById<android.view.View>(buttonId)?.apply {
+            findViewById<android.widget.TextView>(R.id.buttonText)?.text = text
+            findViewById<android.widget.TextView>(R.id.buttonIcon)?.visibility = android.view.View.VISIBLE
+        }
     }
     
     override fun onResume() {

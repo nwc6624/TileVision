@@ -98,64 +98,44 @@
         </de.westnordost.streetmeasure.GlassCardView>
 
         <!-- Measure Tile Sample Button -->
-        <Button
+        <include
             android:id="@+id/buttonMeasureTileSample"
+            layout="@layout/view_glass_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Measure Tile Sample"
-            android:textSize="18sp"
-            android:textColor="@color/tv_primaryText"
-            android:background="@color/tv_primary"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp" />
+            android:layout_marginBottom="16dp" />
 
         <!-- Open Tile Calculator Button -->
-        <Button
+        <include
             android:id="@+id/openCalculatorButton"
+            layout="@layout/view_glass_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open Tile Calculator"
-            android:textSize="18sp"
-            android:textColor="@color/tv_primaryText"
-            android:background="@color/tv_primary"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp" />
+            android:layout_marginBottom="16dp" />
 
         <!-- View Saved Projects Button -->
-        <Button
+        <include
             android:id="@+id/buttonViewSavedProjects"
+            layout="@layout/view_glass_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Saved Projects"
-            android:textSize="18sp"
-            android:textColor="@color/tv_primaryText"
-            android:background="@color/tv_primary"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp" />
+            android:layout_marginBottom="16dp" />
 
         <!-- View Saved Tile Samples Button -->
-        <Button
+        <include
             android:id="@+id/buttonViewSavedTileSamples"
+            layout="@layout/view_glass_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Saved Tile Samples"
-            android:textSize="18sp"
-            android:textColor="@color/tv_primaryText"
-            android:background="@color/tv_primary"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp" />
+            android:layout_marginBottom="16dp" />
 
         <!-- View Saved Jobs Button -->
-        <Button
+        <include
             android:id="@+id/buttonViewSavedJobs"
+            layout="@layout/view_glass_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Saved Jobs"
-            android:textSize="18sp"
-            android:textColor="@color/tv_primaryText"
-            android:background="@color/tv_primary"
-            android:layout_marginBottom="32dp"
-            android:padding="16dp" />
+            android:layout_marginBottom="32dp" />
 
         <!-- Recent Measurements Header -->
         <TextView
