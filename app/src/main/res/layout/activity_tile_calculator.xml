@@ -1,258 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/tv_background"
-    android:padding="24dp">
+    android:background="@drawable/bg_gradient_dark"
+    android:fillViewport="true">
 
-    <!-- Title -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tile Calculator"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Section: Measured Area -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Measured Area"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Measured Area (ft²):"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="4dp" />
-
-    <TextView
-        android:id="@+id/measuredAreaText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="0.0 ft²"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_secondary"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/manualAreaInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Or enter area manually (ft²)"
-        android:inputType="numberDecimal"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Section: Tile Size -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tile Size"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tile Size (inches)"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="24dp">
-
-        <EditText
-            android:id="@+id/tileWidthInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Width (in)"
-            android:inputType="numberDecimal"
-            android:background="@drawable/round_white_button"
-            android:padding="16dp"
-            android:layout_marginEnd="8dp" />
-
-        <EditText
-            android:id="@+id/tileHeightInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Height (in)"
-            android:inputType="numberDecimal"
-            android:background="@drawable/round_white_button"
-            android:padding="16dp"
-            android:layout_marginStart="8dp" />
-
-    </LinearLayout>
-
-    <!-- Section: Tile Measurement -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tile Measurement"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/buttonMeasureTileSample"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Measure Tile Sample"
-        android:textSize="16sp"
-        android:textColor="@color/tv_primaryText"
-        android:background="@color/tv_primary"
-        android:layout_marginBottom="8dp"
-        android:padding="12dp" />
-
-    <Button
-        android:id="@+id/buttonChooseFromSavedTiles"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose From Saved Tiles"
-        android:textSize="16sp"
-        android:textColor="@color/tv_primaryText"
-        android:background="@color/tv_primary"
-        android:layout_marginBottom="8dp"
-        android:padding="12dp" />
-
-    <Button
-        android:id="@+id/buttonChooseFromSavedProjects"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose From Saved Projects"
-        android:textSize="16sp"
-        android:textColor="@color/tv_primaryText"
-        android:background="@color/tv_primary"
-        android:layout_marginBottom="24dp"
-        android:padding="12dp" />
-
-    <!-- Section: Waste / Breakage -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Waste / Breakage"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Waste allowance (%)"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/wasteInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="10"
-        android:text="10"
-        android:inputType="numberDecimal"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Section: Box Coverage -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Box Coverage"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Coverage per box (ft²)"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_primary"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/boxCoverageInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="15.0"
-        android:inputType="numberDecimal"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Calculate Button -->
-    <Button
-        android:id="@+id/calcButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Calculate"
-        android:textSize="18sp"
-        android:textColor="@color/tv_primaryText"
-        android:background="@color/tv_primary"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Save Job Summary Button -->
-    <Button
-        android:id="@+id/buttonSaveJobSummary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Job Summary"
-        android:textSize="16sp"
-        android:textColor="@color/tv_text_primary"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Result Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/round_white_button"
-        android:padding="16dp">
+        android:padding="24dp">
 
-        <TextView
-            android:id="@+id/tilesNeededText"
+        <!-- CARD A: PROJECT INPUTS -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tiles Needed: --"
-            android:textSize="16sp"
-            android:textColor="@color/tv_text_primary"
-            android:layout_marginBottom="8dp" />
+            app:cardCornerRadius="20dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="@color/bg_surface_glass"
+            app:strokeColor="@color/border_soft"
+            app:strokeWidth="1dp"
+            android:layout_marginBottom="16dp">
 
-        <TextView
-            android:id="@+id/boxesNeededText"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Section Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+
+                    <View
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/glow_dot" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="Project Inputs"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+                <!-- Area Input -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Area (sq ft)"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxBackgroundColor="@color/bg_surface_glass_full"
+                    app:hintTextColor="@color/text_secondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manualAreaInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/text_primary"
+                        android:hint="Enter project area" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Tile Width & Height -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tile Dimensions (inches)"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxBackgroundColor="@color/bg_surface_glass_full"
+                        app:hintTextColor="@color/text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tileWidthInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/text_primary"
+                            android:hint="Width" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxBackgroundColor="@color/bg_surface_glass_full"
+                        app:hintTextColor="@color/text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tileHeightInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/text_primary"
+                            android:hint="Height" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!-- Layout Style Dropdown -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Layout Style"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutStyleLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="dropdown_menu"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxBackgroundColor="@color/bg_surface_glass_full"
+                    app:hintTextColor="@color/text_secondary"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Straight" >
+
+                    <AutoCompleteTextView
+                        android:id="@+id/layoutStyleDropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textColor="@color/text_primary" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Grout Gap Dropdown -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Grout Gap"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/groutGapLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="dropdown_menu"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxBackgroundColor="@color/bg_surface_glass_full"
+                    app:hintTextColor="@color/text_secondary"
+                    android:layout_marginBottom="16dp"
+                    android:hint="1/8 inches" >
+
+                    <AutoCompleteTextView
+                        android:id="@+id/groutGapDropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textColor="@color/text_primary" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Waste % Slider -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Waste Percentage"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <Slider
+                        android:id="@+id/wasteSlider"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="5f"
+                        android:valueTo="20f"
+                        android:value="10f"
+                        android:layout_marginEnd="12dp" />
+
+                    <TextView
+                        android:id="@+id/wastePercentBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="10%"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_teal"
+                        android:background="@drawable/waste_badge_background"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- CARD B: RESULTS & SAVE -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Boxes Needed: --"
-            android:textSize="16sp"
-            android:textColor="@color/tv_text_primary" />
+            app:cardCornerRadius="20dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="@color/bg_surface_glass"
+            app:strokeColor="@color/border_soft"
+            app:strokeWidth="1dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Big Result Number -->
+                <TextView
+                    android:id="@+id/tilesNeededText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0 tiles"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_teal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tilesCalculationDetailsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Notes Field -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Notes (optional)"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxBackgroundColor="@color/bg_surface_glass_full">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/notesInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:lines="3"
+                        android:textColor="@color/text_primary"
+                        android:hint="e.g. Bathroom wall, 1/8 inch grout, staggered layout" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Buttons Row -->
+                <Button
+                    android:id="@+id/buttonSaveJobSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Save Job Summary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_primary_background"
+                    android:textColor="@color/bg_primary_dark"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/buttonBackToHome"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Back to Home"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_secondary_background"
+                    android:textColor="@color/text_primary" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
