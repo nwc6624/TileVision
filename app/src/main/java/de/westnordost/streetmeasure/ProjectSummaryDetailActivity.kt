@@ -17,11 +17,14 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProjectSummaryDetailBinding
     private var summary: ProjectSummary? = null
+    private lateinit var gridBackground: GridBackgroundView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProjectSummaryDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        gridBackground = findViewById(R.id.gridBackground)
 
         // Initialize repositories
         ProjectRepository.init(this)
@@ -160,5 +163,20 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
             putExtra("wastePercent", s.wastePercent)
         }
         startActivity(intent)
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        gridBackground.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground.setGridEnabled(this, true)
+        } else {
+            gridBackground.setGridEnabled(this, false)
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        gridBackground.stopAnimators()
     }
 }
