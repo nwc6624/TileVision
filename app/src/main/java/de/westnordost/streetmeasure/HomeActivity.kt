@@ -44,8 +44,9 @@ class HomeActivity : AppCompatActivity() {
             android.util.Log.e("TileVisionLifecycle", "inflate failed in HomeActivity", e)
         }
         
-        // Now set up binding on the inflated content
-        binding = ActivityHomeBinding.bind(pageContentContainer)
+        // Now set up binding on the inflated content (bind to the child, not the container)
+        val inflatedContent = pageContentContainer.getChildAt(0) as android.widget.LinearLayout
+        binding = ActivityHomeBinding.bind(inflatedContent)
         
         // Initialize AppPrefs and repositories
         AppPrefs.init(this)

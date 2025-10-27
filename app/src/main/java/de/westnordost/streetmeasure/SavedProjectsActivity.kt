@@ -39,8 +39,9 @@ class SavedProjectsActivity : AppCompatActivity() {
             android.util.Log.e("TileVisionLifecycle", "inflate failed in SavedProjectsActivity", e)
         }
         
-        // Now set up binding on the inflated content
-        binding = ActivitySavedProjectsBinding.bind(pageContentContainer)
+        // Now set up binding on the inflated content (bind to the child, not the container)
+        val inflatedContent = pageContentContainer.getChildAt(0) as android.widget.LinearLayout
+        binding = ActivitySavedProjectsBinding.bind(inflatedContent)
 
         // Initialize repositories
         ProjectRepository.init(this)

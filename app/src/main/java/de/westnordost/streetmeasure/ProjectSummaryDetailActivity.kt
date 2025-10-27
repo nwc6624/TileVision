@@ -39,8 +39,9 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
             android.util.Log.e("TileVisionLifecycle", "inflate failed in ProjectSummaryDetailActivity", e)
         }
         
-        // Now set up binding on the inflated content
-        binding = ActivityProjectSummaryDetailBinding.bind(pageContentContainer)
+        // Now set up binding on the inflated content (bind to the child, not the container)
+        val inflatedContent = pageContentContainer.getChildAt(0) as android.widget.LinearLayout
+        binding = ActivityProjectSummaryDetailBinding.bind(inflatedContent)
 
         // Initialize repositories
         ProjectRepository.init(this)
