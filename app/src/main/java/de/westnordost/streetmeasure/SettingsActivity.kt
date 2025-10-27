@@ -21,7 +21,7 @@ class SettingsActivity : AppCompatActivity() {
         
         // Setup grid background
         val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.setEnabledState(GridBackgroundView.isEnabled(this), saveToPreferences = false)
+        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
         
         setupSettingsRows()
         setupVersionText()
@@ -45,7 +45,8 @@ class SettingsActivity : AppCompatActivity() {
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
         gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
         gridSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            GridBackgroundView.setEnabledState(this, isChecked)
+            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+            gridBackground?.setGridEnabled(this@SettingsActivity, isChecked)
         }
         
         // Delete All Data row (using privacyPolicyRow ID for now, will update)

@@ -29,7 +29,7 @@ class SavedTileSamplesActivity : AppCompatActivity() {
 
         // Setup grid background
         val gridBackground = binding.root.findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.setEnabledState(GridBackgroundView.isEnabled(this), saveToPreferences = false)
+        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
 
                 setupToolbar()
                 setupRecyclerView()

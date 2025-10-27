@@ -49,16 +49,15 @@ class HomeActivity : AppCompatActivity() {
         
         // Set up grid toggle button
         binding.appHeader.setGridToggle {
+            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
             val currentState = GridBackgroundView.isEnabled(this)
             val newState = !currentState
-            GridBackgroundView.setEnabledState(this, newState)
+            
+            // Use new setGridEnabled method
+            gridBackground?.setGridEnabled(this, newState)
             
             // Update icon color based on state
             binding.appHeader.updateGridToggleState(newState)
-            
-            // Update grid background view visibility
-            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-            gridBackground?.setEnabledState(newState, saveToPreferences = false)
             
             // Haptic feedback
             window.decorView.performHapticFeedback(
@@ -90,13 +89,7 @@ class HomeActivity : AppCompatActivity() {
         
         // Update grid background visibility based on preference
         val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.let {
-            if (GridBackgroundView.isEnabled(this)) {
-                it.fadeIn()
-            } else {
-                it.fadeOut()
-            }
-        }
+        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
     }
     
     private fun setupClickListeners() {
