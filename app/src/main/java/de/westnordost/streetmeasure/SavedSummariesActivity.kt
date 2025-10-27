@@ -56,6 +56,7 @@ class SavedSummariesActivity : AppCompatActivity() {
 
     private fun loadSummaries() {
         val summaries = ProjectSummaryRepository.getAllSummaries()
+        android.util.Log.d("TileVision", "Loaded ${summaries.size} summaries")
         adapter.submitList(summaries)
         
         // Show/hide empty state

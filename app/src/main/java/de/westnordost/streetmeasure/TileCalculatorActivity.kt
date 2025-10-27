@@ -389,7 +389,9 @@ class TileCalculatorActivity : AppCompatActivity() {
         )
         
         // Save to repository
+        android.util.Log.d("TileVision", "Saving job summary to repository...")
         ProjectSummaryRepository.addSummary(summary)
+        android.util.Log.d("TileVision", "Summary saved: ${summary.displayName}")
         
         // Show confirmation dialog
         AlertDialog.Builder(this)

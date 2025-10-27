@@ -21,6 +21,7 @@ object ProjectSummaryRepository {
             val type = object : TypeToken<List<ProjectSummary>>() {}.type
             summaries = gson.fromJson(json, type) ?: mutableListOf()
         }
+        android.util.Log.d("TileVision", "Loaded ${summaries.size} summaries from storage")
     }
 
     private fun saveSummaries() {
@@ -31,7 +32,11 @@ object ProjectSummaryRepository {
     fun addSummary(summary: ProjectSummary): ProjectSummary {
         summaries.add(summary)
         saveSummaries()
-        android.util.Log.d("ProjectSummaryRepository", "Added summary: ${summary.displayName} (${summaries.size} total)")
+        android.util.Log.d("TileVision", "Saved summary: ${summary.displayName}")
+        android.util.Log.d("TileVision", "  ID: ${summary.id}")
+        android.util.Log.d("TileVision", "  Area: ${summary.areaSqFt} ft²")
+        android.util.Log.d("TileVision", "  Tiles: ${summary.totalTilesNeededFinal}")
+        android.util.Log.d("TileVision", "Total summaries now: ${summaries.size}")
         return summary
     }
 
