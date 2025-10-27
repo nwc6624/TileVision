@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pageShellRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_page_frame">
+
+    <!-- Animated electric tile grid background -->
+    <de.westnordost.streetmeasure.GridBackgroundView
+        android:id="@+id/gridBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <!-- Slot for actual screen content -->
+    <FrameLayout
+        android:id="@+id/pageContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"/>
+
+</FrameLayout>

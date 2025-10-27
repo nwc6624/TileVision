@@ -21,16 +21,24 @@ class SavedSummariesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySavedSummariesBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
+        gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_saved_summaries, pageContentContainer, true)
+        
+        // Now set up binding on the inflated content
+        binding = ActivitySavedSummariesBinding.bind(pageContentContainer)
 
         // Initialize repositories
         ProjectRepository.init(this)
         TileSampleRepository.init(this)
         ProjectSummaryRepository.init(this)
-
-        // Setup grid background
-        gridBackground = binding.root.findViewById(R.id.gridBackground)
 
         setupHeader()
         setupRecyclerView()

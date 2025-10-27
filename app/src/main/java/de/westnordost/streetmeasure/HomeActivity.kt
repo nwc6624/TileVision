@@ -14,6 +14,7 @@ import java.util.Date
 class HomeActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityHomeBinding
+    private lateinit var gridBackground: GridBackgroundView
 
     // CHECKPOINT:
     // - Recent Measurements list should update because MeasurementStore was updated in MeasureActivity.
@@ -25,8 +26,19 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
-        binding = ActivityHomeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
+        gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_home, pageContentContainer, true)
+        
+        // Now set up binding on the inflated content
+        binding = ActivityHomeBinding.bind(pageContentContainer)
         
         // Initialize AppPrefs and repositories
         AppPrefs.init(this)
@@ -49,8 +61,7 @@ class HomeActivity : AppCompatActivity() {
         
         // Set up grid toggle button
         binding.appHeader.setGridToggle {
-            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-            gridBackground?.toggleGrid(this)
+            gridBackground.toggleGrid(this)
             
             // Update icon color based on state
             val newState = GridBackgroundView.isEnabled(this)
@@ -85,20 +96,18 @@ class HomeActivity : AppCompatActivity() {
         populateRecentMeasurements()
         
         // Apply initial grid state and start/stop animators
-        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.applyInitialEnabledState(this)
+        gridBackground.applyInitialEnabledState(this)
         if (GridBackgroundView.isEnabled(this)) {
-            gridBackground?.setGridEnabled(this, true)
+            gridBackground.setGridEnabled(this, true)
         } else {
-            gridBackground?.setGridEnabled(this, false)
+            gridBackground.setGridEnabled(this, false)
         }
     }
     
     override fun onPause() {
         super.onPause()
         // Stop animators when leaving screen to prevent crash
-        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.stopAnimators()
+        gridBackground.stopAnimators()
     }
     
     private fun setupClickListeners() {
