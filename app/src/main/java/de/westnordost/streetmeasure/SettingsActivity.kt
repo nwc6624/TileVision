@@ -21,7 +21,7 @@ class SettingsActivity : AppCompatActivity() {
         
         // Setup grid background
         val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
+        gridBackground?.applyInitialEnabledState(this)
         
         setupSettingsRows()
         setupVersionText()
@@ -120,6 +120,13 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
     
+    override fun onResume() {
+        super.onResume()
+        // Sync switch state when returning to Settings
+        val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
+        gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true

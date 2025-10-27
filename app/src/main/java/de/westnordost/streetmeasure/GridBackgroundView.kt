@@ -2,6 +2,7 @@ package de.westnordost.streetmeasure
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -11,238 +12,229 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
+import androidx.core.content.ContextCompat
 
 class GridBackgroundView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
     
-    // State
-    private var lineAlpha = 0.15f
+    private var lineAlpha = 0.15f           // animated 0.10 → 0.18 → 0.10
     private var sweepOffset = 0f
-    
-    // Animators
-    private val pulseAnimator = ValueAnimator.ofFloat(0.10f, 0.18f, 0.10f).apply {
-        duration = 3000L
-        repeatCount = ValueAnimator.INFINITE
-        interpolator = AccelerateDecelerateInterpolator()
-        addUpdateListener {
-            lineAlpha = it.animatedValue as Float
-            invalidate()
-        }
-    }
-    
-    private val sweepAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-        duration = 6000L
-        repeatCount = ValueAnimator.INFINITE
-        interpolator = LinearInterpolator()
-        addUpdateListener {
-            sweepOffset = it.animatedValue as Float
-            invalidate()
-        }
-    }
-    
-    // Paints
-    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = 1f
-        style = Paint.Style.STROKE
-    }
-    
+
+    private var pulseAnimator: ValueAnimator? = null
+    private var sweepAnimator: ValueAnimator? = null
+
+    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val sweepPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    
-    // Colors (resolved from theme)
-    private var lineColor: Int = Color.argb(51, 51, 51, 51) // Default gray fallback
-    private var sweepColor: Int = Color.argb(20, 226, 184, 26) // Default teal fallback
-    
-    private var spacingPx = 32f * resources.displayMetrics.density
-    
+
+    private var lineColorBase = 0
+    private var sweepColorBase = 0
+
+    private var spacingPx = 0f
+    private var gridEnabled = false
+
     init {
-        resolveColorsForTheme()
+        setWillNotDraw(false)
+
+        // convert 32dp to px once
+        spacingPx = (32f * resources.displayMetrics.density)
+
+        resolveThemeColors()
     }
-    
-    private fun resolveColorsForTheme() {
-        // Determine if dark mode by checking bg_primary color
-        val isDarkMode = androidx.core.content.ContextCompat.getColor(context, R.color.bg_primary) == 0xFF0E1117.toInt()
-        
-        if (isDarkMode) {
-            // Dark mode: teal-ish lines
-            val baseColor = androidx.core.content.ContextCompat.getColor(context, R.color.gridLineDarkMode)
-            lineColor = baseColor
-            // Sweep: same color but with lower alpha
-            val alpha = (android.graphics.Color.alpha(baseColor) * 0.3f).toInt()
-            sweepColor = android.graphics.Color.argb(
-                alpha,
-                android.graphics.Color.red(baseColor),
-                android.graphics.Color.green(baseColor),
-                android.graphics.Color.blue(baseColor)
-            )
+
+    private fun resolveThemeColors() {
+        // theme-aware colors
+        val isNight = (resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+
+        if (isNight) {
+            lineColorBase = ContextCompat.getColor(context, R.color.gridLineDarkMode)
+            sweepColorBase = ContextCompat.getColor(context, R.color.gridLineDarkMode)
         } else {
-            // Light mode: darker gray/teal lines
-            val baseColor = androidx.core.content.ContextCompat.getColor(context, R.color.gridLineLightMode)
-            lineColor = baseColor
-            // Sweep: same color but with lower alpha
-            val alpha = (android.graphics.Color.alpha(baseColor) * 0.3f).toInt()
-            sweepColor = android.graphics.Color.argb(
-                alpha,
-                android.graphics.Color.red(baseColor),
-                android.graphics.Color.green(baseColor),
-                android.graphics.Color.blue(baseColor)
-            )
+            lineColorBase = ContextCompat.getColor(context, R.color.gridLineLightMode)
+            sweepColorBase = ContextCompat.getColor(context, R.color.gridLineLightMode)
         }
+
+        linePaint.style = Paint.Style.STROKE
+        linePaint.strokeWidth = resources.displayMetrics.density * 1f // 1dp-ish
+
+        sweepPaint.style = Paint.Style.FILL
     }
-    
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        // Resolve colors again in case theme changed
-        resolveColorsForTheme()
-        // Start animations if visible
-        if (visibility == VISIBLE) {
-            startAnimIfVisible()
-        }
-    }
-    
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        stopAnim()
-    }
-    
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        // Restart sweep animator with new range
-        if (sweepAnimator.isRunning) {
-            sweepAnimator.cancel()
-            sweepAnimator.setFloatValues(0f, w.toFloat() * 2f)
-            sweepAnimator.start()
+        // whenever size changes (first layout, rotation, etc), rebuild animators
+        rebuildAnimators()
+        if (gridEnabled) {
+            startAnimators()
         }
     }
-    
+
+    private fun rebuildAnimators() {
+        pulseAnimator?.cancel()
+        sweepAnimator?.cancel()
+
+        // pulseAnimator: lineAlpha breathing
+        pulseAnimator = ValueAnimator.ofFloat(0.10f, 0.18f, 0.10f).apply {
+            duration = 3000L
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { va ->
+                lineAlpha = (va.animatedValue as Float).coerceIn(0.05f, 0.25f)
+                invalidate()
+            }
+        }
+
+        // sweepAnimator: diagonal shimmer motion
+        // if width is 0 somehow, guard to something > 0 so animator still runs
+        val travel = (width.takeIf { it > 0 } ?: 1) * 2f
+        sweepAnimator = ValueAnimator.ofFloat(0f, travel).apply {
+            duration = 6000L
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            addUpdateListener { va ->
+                sweepOffset = va.animatedValue as Float
+                invalidate()
+            }
+        }
+    }
+
+    private fun startAnimators() {
+        // start only if not already running
+        if (pulseAnimator?.isRunning != true) pulseAnimator?.start()
+        if (sweepAnimator?.isRunning != true) sweepAnimator?.start()
+    }
+
+    private fun stopAnimators() {
+        pulseAnimator?.cancel()
+        sweepAnimator?.cancel()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resolveThemeColors()
+        if (gridEnabled) {
+            // after attach we may still not know size, but onSizeChanged will fire soon
+            // so just ensure visibility state is correct
+            alpha = 1f
+        } else {
+            alpha = 0f
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stopAnimators()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        
-        val width = canvas.width.toFloat()
-        val height = canvas.height.toFloat()
-        
-        // Draw grid lines with current pulse alpha
-        val alpha = (android.graphics.Color.alpha(lineColor) * lineAlpha).toInt()
-        linePaint.color = android.graphics.Color.argb(
-            alpha,
-            android.graphics.Color.red(lineColor),
-            android.graphics.Color.green(lineColor),
-            android.graphics.Color.blue(lineColor)
-        )
-        
-        // Draw vertical lines
+
+        if (!gridEnabled) return
+        if (width == 0 || height == 0) return
+
+        // draw grid lines
+        val lineA = (lineAlpha * 255).toInt().coerceIn(0, 255)
+        linePaint.color = (lineColorBase and 0x00FFFFFF) or (lineA shl 24)
+
         var x = 0f
-        while (x <= width) {
-            canvas.drawLine(x, 0f, x, height, linePaint)
+        while (x <= width.toFloat()) {
+            canvas.drawLine(x, 0f, x, height.toFloat(), linePaint)
             x += spacingPx
         }
-        
-        // Draw horizontal lines
+
         var y = 0f
-        while (y <= height) {
-            canvas.drawLine(0f, y, width, y, linePaint)
+        while (y <= height.toFloat()) {
+            canvas.drawLine(0f, y, width.toFloat(), y, linePaint)
             y += spacingPx
         }
-        
-        // Draw diagonal sweep
-        val currentSweepOffset = sweepOffset * width * 2f
+
+        // draw diagonal sweep
+        val sweepAlpha = (0.08f * 255).toInt().coerceIn(0, 255)
+        val sweepColor = (sweepColorBase and 0x00FFFFFF) or (sweepAlpha shl 24)
+
         val shader = LinearGradient(
-            -width + currentSweepOffset,
+            -width.toFloat() + sweepOffset,
             0f,
-            currentSweepOffset,
-            height,
+            sweepOffset,
+            height.toFloat(),
             intArrayOf(Color.TRANSPARENT, sweepColor, Color.TRANSPARENT),
             floatArrayOf(0f, 0.5f, 1f),
             Shader.TileMode.CLAMP
         )
         sweepPaint.shader = shader
-        sweepPaint.alpha = (0.08f * 255).toInt()
-        
-        canvas.drawRect(0f, 0f, width, height, sweepPaint)
+
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), sweepPaint)
     }
-    
-    override fun setVisibility(visibility: Int) {
-        when (visibility) {
-            VISIBLE -> {
-                alpha = 0f
-                super.setVisibility(VISIBLE)
-                animate()
-                    .alpha(1f)
-                    .setDuration(300)
-                    .withEndAction { startAnimIfVisible() }
-                    .start()
-            }
-            GONE, INVISIBLE -> {
-                stopAnim()
-                animate()
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction { super.setVisibility(GONE) }
-                    .start()
-            }
-            else -> super.setVisibility(visibility)
-        }
-    }
-    
-    fun startAnimIfVisible() {
-        if (visibility == VISIBLE && width > 0 && height > 0) {
-            // Update sweep animator range to current width
-            sweepAnimator.setFloatValues(0f, width.toFloat() * 2f)
-            pulseAnimator.start()
-            sweepAnimator.start()
-        }
-    }
-    
-    fun stopAnim() {
-        pulseAnimator.cancel()
-        sweepAnimator.cancel()
-    }
-    
-    fun setGridEnabled(ctx: Context, enabled: Boolean) {
-        savePref(ctx, "grid_enabled", enabled)
-        if (enabled) {
-            if (visibility != VISIBLE) {
-                visibility = VISIBLE
-            } else {
-                startAnimIfVisible()
+
+    // -------- public API we call from Activities / header / settings --------
+
+    fun applyInitialEnabledState(ctx: Context) {
+        gridEnabled = getPref(ctx, "grid_enabled", true)
+        if (gridEnabled) {
+            // instantly visible (no flicker at Activity start)
+            alpha = 1f
+            visibility = VISIBLE
+            if (width > 0 && height > 0) {
+                startAnimators()
             }
         } else {
-            // Triggers fade out and stopAnim via setVisibility(GONE)
+            alpha = 0f
             visibility = GONE
+            stopAnimators()
         }
     }
-    
-    private fun savePref(context: Context, key: String, value: Boolean) {
-        val prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean(key, value).apply()
+
+    fun toggleGrid(ctx: Context) {
+        val newState = !gridEnabled
+        setGridEnabled(ctx, newState)
     }
-    
-    // Legacy methods for compatibility
-    fun fadeIn() {
-        visibility = VISIBLE
-    }
-    
-    fun fadeOut() {
-        visibility = GONE
-    }
-    
-    fun setEnabledState(enabled: Boolean, saveToPreferences: Boolean = true) {
-        if (saveToPreferences) {
-            savePref(context, "grid_enabled", enabled)
+
+    fun setGridEnabled(ctx: Context, enabled: Boolean) {
+        gridEnabled = enabled
+        savePref(ctx, "grid_enabled", enabled)
+
+        if (enabled) {
+            // fade in, then start animators
+            visibility = VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(300L)
+                .withEndAction {
+                    if (width > 0 && height > 0) {
+                        startAnimators()
+                    }
+                }
+                .start()
+        } else {
+            // fade out, then stop animators + hide
+            animate()
+                .alpha(0f)
+                .setDuration(300L)
+                .withEndAction {
+                    stopAnimators()
+                    visibility = GONE
+                }
+                .start()
         }
-        setGridEnabled(context, enabled)
     }
-    
+
     companion object {
-        fun isEnabled(context: Context): Boolean {
-            val prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
-            return prefs.getBoolean("grid_enabled", false)
+        private fun prefs(ctx: Context) =
+            ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
+
+        private fun savePref(ctx: Context, key: String, value: Boolean) {
+            prefs(ctx).edit().putBoolean(key, value).apply()
         }
-        
-        fun setEnabledState(context: Context, enabled: Boolean) {
-            val prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
-            prefs.edit().putBoolean("grid_enabled", enabled).apply()
+
+        private fun getPref(ctx: Context, key: String, def: Boolean): Boolean {
+            return prefs(ctx).getBoolean(key, def)
+        }
+
+        fun isEnabled(ctx: Context): Boolean {
+            return getPref(ctx, "grid_enabled", true)
         }
     }
 }

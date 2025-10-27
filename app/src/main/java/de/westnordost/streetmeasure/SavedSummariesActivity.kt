@@ -30,7 +30,7 @@ class SavedSummariesActivity : AppCompatActivity() {
 
         // Setup grid background
         val gridBackground = binding.root.findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
+        gridBackground?.applyInitialEnabledState(this)
 
         setupHeader()
         setupRecyclerView()

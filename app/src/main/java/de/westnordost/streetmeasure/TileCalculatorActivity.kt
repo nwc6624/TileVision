@@ -69,7 +69,7 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         // Setup grid background
         val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.setGridEnabled(this, GridBackgroundView.isEnabled(this))
+        gridBackground?.applyInitialEnabledState(this)
         
         // Set up area display
         if (incomingArea > 0) {
