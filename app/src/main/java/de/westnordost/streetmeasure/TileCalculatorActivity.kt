@@ -33,6 +33,7 @@ class TileCalculatorActivity : AppCompatActivity() {
     private var incomingArea: Float = 0f
     private var projectMeasurementId: String? = null
     private var tileSampleId: String? = null
+    private var currentAreaSqFt: Float = 0f  // Track current area value
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +73,9 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         // Set up area display
         if (incomingArea > 0) {
-            manualAreaInput.setText(String.format("%.2f", incomingArea))
-            android.util.Log.d("TileCalculatorActivity", "Set manual area input to: $incomingArea")
+            currentAreaSqFt = incomingArea
+            updateMeasuredAreaChip(incomingArea)
+            android.util.Log.d("TileCalculatorActivity", "Set measured area to: $incomingArea")
         }
         
         // Load default tile sizes from preferences
@@ -127,8 +129,33 @@ class TileCalculatorActivity : AppCompatActivity() {
             val intent = Intent(this, TileSampleMeasureActivity::class.java)
             startActivityForResult(intent, REQUEST_CODE_MEASURE_TILE)
         }
+        
+        // New button listeners
+        findViewById<android.widget.ImageButton>(R.id.buttonMeasureArea)?.setOnClickListener {
+            val intent = Intent(this, MeasureActivity::class.java)
+            startActivity(intent)
         }
         
+        findViewById<android.widget.ImageButton>(R.id.buttonPickSavedArea)?.setOnClickListener {
+            val intent = Intent(this, SavedProjectsActivity::class.java)
+            intent.putExtra("picker_mode", true)
+            startActivityForResult(intent, REQUEST_CODE_SELECT_PROJECT)
+        }
+        
+        findViewById<android.widget.Button>(R.id.buttonPickSavedTile)?.setOnClickListener {
+            val intent = Intent(this, SavedTileSamplesActivity::class.java)
+            intent.putExtra("picker_mode", true)
+            startActivityForResult(intent, REQUEST_CODE_SELECT_TILE)
+        }
+        }
+        
+    private fun updateMeasuredAreaChip(area: Float) {
+        findViewById<com.google.android.material.card.MaterialCardView>(R.id.measuredAreaChip)?.apply {
+            visibility = android.view.View.VISIBLE
+            findViewById<TextView>(R.id.measuredAreaText)?.text = "${String.format("%.2f", area)} ft²"
+        }
+    }
+    
     private fun saveJobSummary() {
         showSaveJobSummaryDialog()
     }
@@ -452,14 +479,18 @@ class TileCalculatorActivity : AppCompatActivity() {
                     }
                 }
                 REQUEST_CODE_SELECT_PROJECT -> {
-                    val projectArea = data.getFloatExtra("project_area", 0f)
+                    val projectArea = data.getFloatExtra("EXTRA_AREA_FT2", 0f)
+                    // Also try the old key for compatibility
+                    val projectAreaAlt = if (projectArea == 0f) data.getFloatExtra("project_area", 0f) else projectArea
                     
-                    if (projectArea > 0) {
-                        // Set the measured area in manual input
-                        manualAreaInput.setText(String.format("%.2f", projectArea))
-                        incomingArea = projectArea
+                    if (projectAreaAlt > 0) {
+                        currentAreaSqFt = projectAreaAlt
+                        incomingArea = projectAreaAlt
+                        // Update UI with the measured area chip
+                        updateMeasuredAreaChip(projectAreaAlt)
+                        manualAreaInput.setText("") // Clear manual input since we're using AR measurement
                         calculateTiles() // Recalculate after loading project area
-                        Toast.makeText(this, "Project area loaded: ${String.format("%.2f", projectArea)} ft²", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Area loaded: ${String.format("%.2f", projectAreaAlt)} ft²", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

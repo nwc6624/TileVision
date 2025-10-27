@@ -56,33 +56,61 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:paddingHorizontal="16dp">
 
-                <!-- Section Header -->
+                <!-- Row 0: Header with title + action icons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="12dp">
 
-                    <View
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@drawable/glow_dot" />
-
+                    <!-- Title -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="12dp"
                         android:text="Project Inputs"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
+
+                    <!-- Action Icons Row -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="12dp">
+
+                        <!-- Measure Area Icon Button -->
+                        <ImageButton
+                            android:id="@+id/buttonMeasureArea"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/glass_button_background"
+                            android:src="@drawable/ic_camera_24"
+                            android:padding="8dp"
+                            android:contentDescription="Measure area again"
+                            app:tint="@color/accent_teal" />
+
+                        <!-- Choose Saved Area Icon Button -->
+                        <ImageButton
+                            android:id="@+id/buttonPickSavedArea"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/glass_button_background"
+                            android:src="@drawable/ic_folder_24"
+                            android:padding="8dp"
+                            android:contentDescription="Choose saved area"
+                            app:tint="@color/accent_teal" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Area Input -->
+                <!-- Row 1: Area inputs side-by-side -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -91,27 +119,63 @@
                     android:textColor="@color/text_secondary"
                     android:layout_marginBottom="8dp" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxBackgroundColor="@color/bg_surface_glass_full"
-                    app:hintTextColor="@color/text_secondary">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/manualAreaInput"
-                        android:layout_width="match_parent"
+                    <!-- Measured Area Chip -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/measuredAreaChip"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/text_primary"
-                        android:hint="Enter project area" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:visibility="gone"
+                        app:cardCornerRadius="16dp"
+                        app:cardBackgroundColor="@color/bg_surface_glass"
+                        app:strokeColor="@color/border_soft"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp">
 
-                <!-- Tile Width & Height -->
+                        <TextView
+                            android:id="@+id/measuredAreaText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="12dp"
+                            android:text="142.8 ft²"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:gravity="center" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Manual Area Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/manualAreaInputLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/border_soft"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/manualAreaInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/text_primary"
+                            android:hint="Enter area manually" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!-- Row 2: Tile size side-by-side -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -124,19 +188,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/border_soft"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:boxBackgroundColor="@color/bg_surface_glass_full"
-                        app:hintTextColor="@color/text_secondary">
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tileWidthInput"
@@ -152,12 +216,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/border_soft"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:boxBackgroundColor="@color/bg_surface_glass_full"
-                        app:hintTextColor="@color/text_secondary">
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tileHeightInput"
@@ -169,82 +233,89 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-                <!-- Measure Tile Button -->
-                <Button
-                    android:id="@+id/buttonMeasureTile"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                <!-- Row 3: Layout style and grout side-by-side -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Measure Tile Sample"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="16dp"
-                    app:strokeColor="@color/accent_teal"
-                    app:strokeWidth="1dp"
-                    android:textColor="@color/accent_teal" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-                <!-- Layout Style Dropdown -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Layout Style"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginBottom="8dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layoutStyleLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:endIconMode="dropdown_menu"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxBackgroundColor="@color/bg_surface_glass_full"
-                    app:hintTextColor="@color/text_secondary"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Straight" >
-
-                    <AutoCompleteTextView
-                        android:id="@+id/layoutStyleDropdown"
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:textColor="@color/text_primary" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical">
 
-                <!-- Grout Gap Dropdown -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Grout Gap"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Layout Style"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:layout_marginBottom="8dp" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/groutGapLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:endIconMode="dropdown_menu"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxBackgroundColor="@color/bg_surface_glass_full"
-                    app:hintTextColor="@color/text_secondary"
-                    android:layout_marginBottom="16dp"
-                    android:hint="1/8 inches" >
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutStyleLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:endIconMode="dropdown_menu"
+                            app:boxBackgroundMode="outline"
+                            app:boxStrokeColor="@color/border_soft"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            android:hint="Straight">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/groutGapDropdown"
-                        android:layout_width="match_parent"
+                            <AutoCompleteTextView
+                                android:id="@+id/layoutStyleDropdown"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:textColor="@color/text_primary" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:textColor="@color/text_primary" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
 
-                <!-- Waste % Slider -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Grout Gap"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary"
+                            android:layout_marginBottom="8dp" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/groutGapLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:endIconMode="dropdown_menu"
+                            app:boxBackgroundMode="outline"
+                            app:boxStrokeColor="@color/border_soft"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            android:hint="1/8 inches">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/groutGapDropdown"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:textColor="@color/text_primary" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Row 4: Waste allowance -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -281,6 +352,41 @@
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="4dp" />
                 </LinearLayout>
+
+                <!-- Row 5: Tile measurement source buttons -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tile Sample"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Measure Tile Button -->
+                <Button
+                    android:id="@+id/buttonMeasureTile"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Measure Tile Sample"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="8dp"
+                    app:strokeColor="@color/accent_teal"
+                    app:strokeWidth="1dp"
+                    android:textColor="@color/accent_teal" />
+
+                <!-- Use Saved Tile Sample Button -->
+                <Button
+                    android:id="@+id/buttonPickSavedTile"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Use Saved Tile Sample"
+                    android:textSize="14sp"
+                    android:textColor="@color/accent_teal"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
