@@ -9,7 +9,7 @@
     <uses-feature android:glEsVersion="0x00030001" android:required="true" />
 
     <uses-feature android:name="android.hardware.screen.portrait" />
-    <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
@@ -19,8 +19,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StreetMeasure"
-        android:versionName="1.0.0"
-        android:versionCode="1"
         tools:targetApi="33">
         <meta-data android:name="com.google.ar.core" android:value="required" />
         <activity
@@ -37,7 +35,7 @@
             android:name="de.westnordost.streetmeasure.MeasureActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
-            android:exported="true"
+            android:exported="false"
             tools:ignore="LockedOrientationActivity">
         </activity>
         

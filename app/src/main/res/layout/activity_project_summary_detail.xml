@@ -268,6 +268,19 @@
 
             <!-- Buttons -->
             <Button
+                android:id="@+id/buttonShareText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share Job Summary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/bg_primary_dark"
+                android:background="@drawable/button_primary_background"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="Share this job summary as text" />
+
+            <Button
                 android:id="@+id/buttonExportPdf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

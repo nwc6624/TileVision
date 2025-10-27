@@ -115,6 +115,13 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        binding.buttonShareText.setOnClickListener {
+            summary?.let { s ->
+                binding.buttonShareText.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
+                shareText(s)
+            }
+        }
+
         binding.buttonExportPdf.setOnClickListener {
             summary?.let { s ->
                 binding.buttonExportPdf.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
@@ -129,6 +136,29 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
         binding.buttonOpenCalculator.setOnClickListener {
             openInCalculator()
         }
+    }
+
+    private fun shareText(summary: ProjectSummary) {
+        val shareText = buildString {
+            appendLine("Job: ${summary.displayName}")
+            appendLine("Area: ${String.format("%.1f", summary.areaSqFt)} sq ft")
+            appendLine("Tile: ${String.format("%.1f", summary.tileWidthIn)} x ${String.format("%.1f", summary.tileHeightIn)} in")
+            appendLine("Layout: ${summary.layoutStyle}")
+            appendLine("Grout Gap: ${formatGroutGap(summary.groutGapInches)}")
+            appendLine("Waste: ${String.format("%.0f", summary.wastePercent)}%")
+            appendLine("Tiles Needed: ${summary.totalTilesNeededFinal}")
+            if (summary.boxesNeeded != null) {
+                appendLine("Boxes Needed: ${String.format("%.1f", summary.boxesNeeded)}")
+            }
+            appendLine("Notes: ${summary.notes ?: "—"}")
+        }
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "TileVision AR estimate - ${summary.displayName}")
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        startActivity(Intent.createChooser(intent, "Share job summary"))
     }
 
     private fun sharePdf(summary: ProjectSummary) {

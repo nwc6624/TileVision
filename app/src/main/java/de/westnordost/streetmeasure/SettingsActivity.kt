@@ -42,7 +42,7 @@ class SettingsActivity : BaseFramedActivity() {
     
     private fun setupSettingsRows() {
         // Theme row
-        findViewById<android.view.View>(R.id.privacyPolicyRow)?.setOnClickListener {
+        findViewById<android.view.View>(R.id.themeRow)?.setOnClickListener {
             showThemeDialog()
         }
         
@@ -53,14 +53,24 @@ class SettingsActivity : BaseFramedActivity() {
             gridBackground?.setGridEnabled(this@SettingsActivity, isChecked)
         }
         
-        // Delete All Data row (using privacyPolicyRow ID for now, will update)
-        findViewById<android.view.View>(R.id.deleteAllDataRow)?.setOnClickListener {
-            showDeleteAllDataDialog()
+        // Privacy Policy row
+        findViewById<android.view.View>(R.id.rowPrivacyPolicy)?.setOnClickListener {
+            showPrivacyPolicyDialog()
+        }
+        
+        // Terms of Use row
+        findViewById<android.view.View>(R.id.rowTerms)?.setOnClickListener {
+            showTermsOfUseDialog()
         }
         
         // Contact Support row
-        findViewById<android.view.View>(R.id.contactSupportRow)?.setOnClickListener {
+        findViewById<android.view.View>(R.id.rowSupport)?.setOnClickListener {
             openContactSupport()
+        }
+        
+        // Delete All Data row
+        findViewById<android.view.View>(R.id.rowDeleteData)?.setOnClickListener {
+            showDeleteAllDataDialog()
         }
     }
     
@@ -93,10 +103,26 @@ class SettingsActivity : BaseFramedActivity() {
             .show()
     }
     
+    private fun showPrivacyPolicyDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Privacy Policy")
+            .setMessage("We use your camera only to measure surfaces locally on your device. Measurements are stored locally on this phone. No cloud upload.")
+            .setPositiveButton("OK", null)
+            .show()
+    }
+    
+    private fun showTermsOfUseDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Terms of Use")
+            .setMessage("This app provides estimates only. Always verify measurements before purchasing materials.")
+            .setPositiveButton("OK", null)
+            .show()
+    }
+    
     private fun showDeleteAllDataDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Delete All Data")
-            .setMessage("This will permanently delete all saved projects, tile samples, and job summaries. This action cannot be undone.")
+            .setTitle("Delete all saved jobs and tile samples?")
+            .setMessage("This will remove all saved measurements from this device. This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteAllData()
             }
@@ -105,23 +131,21 @@ class SettingsActivity : BaseFramedActivity() {
     }
     
     private fun deleteAllData() {
-        ProjectRepository.clear()
-        TileSampleRepository.clear()
         ProjectSummaryRepository.clear()
+        TileSampleRepository.clear()
+        ProjectRepository.clear()
+        MeasurementStore.clear()
         
         Toast.makeText(this, "All saved data deleted", Toast.LENGTH_SHORT).show()
     }
     
     private fun openContactSupport() {
-        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:support@tilevision.example")
-            putExtra(Intent.EXTRA_SUBJECT, "TileVision Support")
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("support@tilevision.example"))
+            putExtra(Intent.EXTRA_SUBJECT, "TileVision AR Support")
         }
-        try {
-            startActivity(emailIntent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Email client not available", Toast.LENGTH_SHORT).show()
-        }
+        startActivity(Intent.createChooser(intent, "Contact Support"))
     }
     
     override fun onResume() {

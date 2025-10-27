@@ -19,6 +19,7 @@ import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.MaterialFactory
 import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.Color
+import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -33,6 +34,7 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     // AR session and state
     private var arSession: Session? = null
     private var isSessionCreated = false
+    private val createArCoreSession = ArCoreSessionCreator(this)
     
     // Plane acquisition state
     private var activePlane: Plane? = null
@@ -68,6 +70,18 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         // Initialize repositories
         TileSampleRepository.init(this)
         
+        // Check AR support first
+        if (!ArSupportChecker.isArSupported(this)) {
+            showUnsupportedDialog()
+            return
+        }
+
+        // Check camera permission
+        if (!CameraPermissionHelper.hasCameraPermission(this)) {
+            CameraPermissionHelper.requestCameraPermission(this)
+            return
+        }
+        
         binding = de.westnordost.streetmeasure.databinding.ActivityTileSampleMeasureBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
@@ -100,7 +114,7 @@ class TileSampleMeasureActivity : AppCompatActivity() {
             return
         }
         
-        binding.instructionPopup.setText("Trace around one tile with your finger.\nLift your finger to finish.")
+        binding.instructionPopup.setText(getString(R.string.msg_scan_surface))
         binding.instructionPopup.startFloatAnim()
         binding.instructionPopup.alpha = 0f
         binding.instructionPopup.visibility = android.view.View.VISIBLE
@@ -150,6 +164,9 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         
         // Wire up trace overlay callbacks
         traceOverlay.onStrokeStart = { startPoint ->
+            // Update instruction text when user starts tracing
+            binding.instructionPopup.setText(getString(R.string.msg_trace_tile))
+            
             // Dismiss hint on first touch if visible
             if (binding.instructionPopup.visibility == android.view.View.VISIBLE) {
                 getSharedPreferences("tilevision", MODE_PRIVATE).edit()
@@ -229,20 +246,40 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     }
     
     private fun setupArScene() {
-        // Initialize AR session
+        // Initialize AR session using the same pattern as MeasureActivity
         lifecycleScope.launch {
-            try {
-                arSession = Session(this@TileSampleMeasureActivity)
-                configureSession(arSession!!)
+            val result = createArCoreSession()
+            if (result is ArCoreSessionCreator.Success) {
+                val session = result.session
+                arSession = session
+                configureSession(session)
                 isSessionCreated = true
                 Log.d("TileSampleMeasureActivity", "AR session created successfully")
                 
                 // Create ArSceneView programmatically
                 createArSceneView()
-            } catch (e: Exception) {
-                Log.e("TileSampleMeasureActivity", "Failed to create AR session", e)
-                Toast.makeText(this@TileSampleMeasureActivity, "AR not supported on this device", Toast.LENGTH_LONG).show()
+            } else if (result is ArCoreSessionCreator.Failure) {
+                val reason = result.reason
+                when (reason) {
+                    ArNotAvailableReason.AR_CORE_SDK_TOO_OLD -> {
+                        Toast.makeText(this@TileSampleMeasureActivity, R.string.ar_core_error_sdk_too_old, Toast.LENGTH_SHORT).show()
+                    }
+                    ArNotAvailableReason.NO_CAMERA_PERMISSION -> {
+                        Toast.makeText(this@TileSampleMeasureActivity, R.string.msg_need_camera, Toast.LENGTH_SHORT).show()
+                    }
+                    ArNotAvailableReason.DEVICE_NOT_COMPATIBLE -> {
+                        showFatalErrorAndClose(getString(R.string.msg_no_ar))
+                        return@launch
+                    }
+                    else -> {
+                        showFatalErrorAndClose(getString(R.string.msg_no_ar))
+                        return@launch
+                    }
+                }
                 finish()
+            } else {
+                // null result means we need to wait for user action (permission, install)
+                // The session creation will be retried on next onResume
             }
         }
     }
@@ -691,8 +728,81 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         returnToCalculator()
     }
     
+    private fun showUnsupportedDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("AR not available")
+            .setMessage("This device can't use AR measuring. You can still enter measurements manually in the Tile Calculator.")
+            .setPositiveButton("Open Calculator") { _, _ ->
+                startActivity(Intent(this, TileCalculatorActivity::class.java))
+                finish()
+            }
+            .setNegativeButton("Close") { _, _ ->
+                finish()
+            }
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        CameraPermissionHelper.handlePermissionResult(
+            this,
+            requestCode,
+            grantResults,
+            onGranted = { initArSession() },
+            onDenied = {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Camera required")
+                    .setMessage("Camera access is required to measure surfaces and tiles with AR.")
+                    .setPositiveButton("OK") { _, _ -> finish() }
+                    .show()
+            }
+        )
+    }
+
+    private fun initArSession() {
+        // Initialize AR session - this is called after camera permission is granted
+        try {
+            setupArScene()
+        } catch (t: Throwable) {
+            android.util.Log.e("ARInit", "Failed to start AR", t)
+            // Optional Crashlytics.logException(t)
+            MaterialAlertDialogBuilder(this)
+                .setTitle("AR problem")
+                .setMessage("We couldn't start AR on this device. You can still enter measurements manually.")
+                .setPositiveButton("Open Calculator") { _, _ ->
+                    startActivity(Intent(this, TileCalculatorActivity::class.java))
+                    finish()
+                }
+                .setNegativeButton("Close") { _, _ ->
+                    finish()
+                }
+                .show()
+        }
+    }
+
+    private fun showFatalErrorAndClose(message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("AR Not Available")
+            .setMessage(message)
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
     override fun onResume() {
         super.onResume()
+        
+        // Retry AR session creation if it failed before
+        if (!isSessionCreated) {
+            setupArScene()
+        }
+        
         if (arSceneView != null && isSessionCreated) {
             try {
                 arSceneView?.resume()

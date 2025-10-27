@@ -44,6 +44,7 @@ import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.ViewRenderable
 import de.westnordost.streetmeasure.databinding.ActivityMeasureBinding
+import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
@@ -119,6 +120,18 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         readIntent()
 
+        // Check AR support first
+        if (!ArSupportChecker.isArSupported(this)) {
+            showUnsupportedDialog()
+            return
+        }
+
+        // Check camera permission
+        if (!CameraPermissionHelper.hasCameraPermission(this)) {
+            CameraPermissionHelper.requestCameraPermission(this)
+            return
+        }
+
         try {
             binding = ActivityMeasureBinding.inflate(layoutInflater)
         } catch (e: Exception) {
@@ -148,7 +161,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
         
         // Setup instruction popup
-        binding.instructionPopup.setText("Tap at each corner of the surface to mark the outline.\nPress ✓ when done.")
+        binding.instructionPopup.setText(getString(R.string.msg_scan_surface))
         binding.instructionPopup.startFloatAnim()
         
         // Setup arrow instruction popup (first-time hint)
@@ -168,12 +181,86 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (initSessionOnResume) {
-            lifecycleScope.launch {
+    private fun showUnsupportedDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("AR not available")
+            .setMessage("This device can't use AR measuring. You can still enter measurements manually in the Tile Calculator.")
+            .setPositiveButton("Open Calculator") { _, _ ->
+                startActivity(Intent(this, TileCalculatorActivity::class.java))
+                finish()
+            }
+            .setNegativeButton("Close") { _, _ ->
+                finish()
+            }
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        CameraPermissionHelper.handlePermissionResult(
+            this,
+            requestCode,
+            grantResults,
+            onGranted = { initArSession() },
+            onDenied = {
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Camera required")
+                    .setMessage("Camera access is required to measure surfaces and tiles with AR.")
+                    .setPositiveButton("OK") { _, _ -> finish() }
+                    .show()
+            }
+        )
+    }
+
+    private fun initArSession() {
+        // Initialize AR session - this is called after camera permission is granted
+        lifecycleScope.launch {
+            try {
                 initializeSession()
                 initRenderables()
+            } catch (t: Throwable) {
+                android.util.Log.e("ARInit", "Failed to start AR", t)
+                // Optional Crashlytics.logException(t)
+                androidx.appcompat.app.AlertDialog.Builder(this@MeasureActivity)
+                    .setTitle("AR problem")
+                    .setMessage("We couldn't start AR on this device. You can still enter measurements manually.")
+                    .setPositiveButton("Open Calculator") { _, _ ->
+                        startActivity(Intent(this@MeasureActivity, TileCalculatorActivity::class.java))
+                        finish()
+                    }
+                    .setNegativeButton("Close") { _, _ ->
+                        finish()
+                    }
+                    .show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (initSessionOnResume && CameraPermissionHelper.hasCameraPermission(this)) {
+            lifecycleScope.launch {
+                try {
+                    initializeSession()
+                    initRenderables()
+                } catch (t: Throwable) {
+                    android.util.Log.e("ARInit", "Failed to start AR", t)
+                    androidx.appcompat.app.AlertDialog.Builder(this@MeasureActivity)
+                        .setTitle("AR problem")
+                        .setMessage("We couldn't start AR on this device. You can still enter measurements manually.")
+                        .setPositiveButton("Open Calculator") { _, _ ->
+                            startActivity(Intent(this@MeasureActivity, TileCalculatorActivity::class.java))
+                            finish()
+                        }
+                        .setNegativeButton("Close") { _, _ ->
+                            finish()
+                        }
+                        .show()
+                }
             }
         }
         if (arSceneView != null) {
@@ -350,7 +437,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         val hitResult = hitResults.firstOrNull()
         if (hitResult == null) {
-            Toast.makeText(this, "Tap on a floor or countertop surface", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.msg_trace_tile), Toast.LENGTH_SHORT).show()
             return
         }
         
