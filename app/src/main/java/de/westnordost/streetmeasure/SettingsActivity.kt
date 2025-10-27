@@ -10,30 +10,21 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseFramedActivity() {
     
-    private lateinit var gridBackground: GridBackgroundView
+    override fun getContentLayoutResId(): Int = R.layout.activity_settings
     
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
+        
+        // Theme must be applied before setContentView, but BaseFramedActivity already did that
+        // So we need to recreate if theme changed
+        val savedTheme = ThemeManager.load(this)
+        ThemeManager.applyTheme(savedTheme)
         
         android.util.Log.d("TileVisionLifecycle", "onCreate SettingsActivity starting")
         
-        // Inflate the shared page shell
-        setContentView(R.layout.layout_page_shell)
-        
-        // Get references to shell elements
-        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
-        gridBackground = findViewById(R.id.gridBackground)
-        
-        // Inflate the activity's own content layout into the shell's container
-        try {
-            layoutInflater.inflate(R.layout.activity_settings, pageContentContainer, true)
-            android.util.Log.d("TileVisionLifecycle", "SettingsActivity shell + content inflated ok")
-        } catch (e: Exception) {
-            android.util.Log.e("TileVisionLifecycle", "inflate failed in SettingsActivity", e)
-        }
+        // BaseFramedActivity already inflated layout_page_shell and activity_settings
         
         setupToolbar()
         
@@ -59,7 +50,7 @@ class SettingsActivity : AppCompatActivity() {
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
         gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
         gridSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            gridBackground.setGridEnabled(this@SettingsActivity, isChecked)
+            gridBackground?.setGridEnabled(this@SettingsActivity, isChecked)
         }
         
         // Delete All Data row (using privacyPolicyRow ID for now, will update)
@@ -135,24 +126,9 @@ class SettingsActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.applyInitialEnabledState(this)
-            if (GridBackgroundView.isEnabled(this)) {
-                gridBackground.setGridEnabled(this, true)
-            } else {
-                gridBackground.setGridEnabled(this, false)
-            }
-        }
         // Sync switch state
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
         gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.stopAnimators()
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -3,7 +3,9 @@
     android:id="@+id/pageShellRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_page_frame">
+    android:background="@drawable/bg_page_frame"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
     <!-- Animated electric tile grid background -->
     <de.westnordost.streetmeasure.GridBackgroundView
@@ -12,12 +14,13 @@
         android:layout_height="match_parent"
         android:visibility="visible" />
 
-    <!-- Slot for actual screen content -->
+    <!-- Per-screen UI gets inflated into this slot -->
     <FrameLayout
         android:id="@+id/pageContentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:clipChildren="false"/>
+        android:clipChildren="false"
+        android:padding="16dp" />
 
 </FrameLayout>

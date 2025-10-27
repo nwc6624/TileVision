@@ -13,33 +13,20 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.westnordost.streetmeasure.databinding.ActivitySavedTileSamplesBinding
 
-class SavedTileSamplesActivity : AppCompatActivity() {
+class SavedTileSamplesActivity : BaseFramedActivity() {
 
     private lateinit var binding: ActivitySavedTileSamplesBinding
     private lateinit var adapter: TileSamplesAdapter
-    private lateinit var gridBackground: GridBackgroundView
+    
+    override fun getContentLayoutResId(): Int = R.layout.activity_saved_tile_samples
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         android.util.Log.d("TileVisionLifecycle", "onCreate SavedTileSamplesActivity starting")
         
-        // Inflate the shared page shell
-        setContentView(R.layout.layout_page_shell)
-        
-        // Get references to shell elements
+        // BaseFramedActivity already inflated layout_page_shell and activity_saved_tile_samples
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
-        gridBackground = findViewById(R.id.gridBackground)
-        
-        // Inflate the activity's own content layout into the shell's container
-        try {
-            layoutInflater.inflate(R.layout.activity_saved_tile_samples, pageContentContainer, true)
-            android.util.Log.d("TileVisionLifecycle", "SavedTileSamplesActivity shell + content inflated ok")
-        } catch (e: Exception) {
-            android.util.Log.e("TileVisionLifecycle", "inflate failed in SavedTileSamplesActivity", e)
-        }
-        
-        // Now set up binding on the inflated content (bind to the child, not the container)
         val inflatedContent = pageContentContainer.getChildAt(0) as android.widget.LinearLayout
         binding = ActivitySavedTileSamplesBinding.bind(inflatedContent)
 
@@ -163,24 +150,7 @@ class SavedTileSamplesActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.applyInitialEnabledState(this)
-            if (GridBackgroundView.isEnabled(this)) {
-                gridBackground.setGridEnabled(this, true)
-            } else {
-                gridBackground.setGridEnabled(this, false)
-            }
-        }
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.stopAnimators()
-        }
-    }
+
 
     companion object {
         private const val REQUEST_CODE_TILE_DETAIL = 1002

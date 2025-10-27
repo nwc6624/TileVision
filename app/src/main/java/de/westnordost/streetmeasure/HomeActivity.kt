@@ -11,10 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import de.westnordost.streetmeasure.databinding.ActivityHomeBinding
 import java.util.Date
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : BaseFramedActivity() {
     
     private lateinit var binding: ActivityHomeBinding
-    private lateinit var gridBackground: GridBackgroundView
+    
+    override fun getContentLayoutResId(): Int = R.layout.activity_home
 
     // CHECKPOINT:
     // - Recent Measurements list should update because MeasurementStore was updated in MeasureActivity.
@@ -29,22 +30,9 @@ class HomeActivity : AppCompatActivity() {
         
         android.util.Log.d("TileVisionLifecycle", "onCreate HomeActivity starting")
         
-        // Inflate the shared page shell
-        setContentView(R.layout.layout_page_shell)
-        
-        // Get references to shell elements
+        // BaseFramedActivity already inflated layout_page_shell and activity_home
+        // Now get the binding from the inflated content
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
-        gridBackground = findViewById(R.id.gridBackground)
-        
-        // Inflate the activity's own content layout into the shell's container
-        try {
-            layoutInflater.inflate(R.layout.activity_home, pageContentContainer, true)
-            android.util.Log.d("TileVisionLifecycle", "HomeActivity shell + content inflated ok")
-        } catch (e: Exception) {
-            android.util.Log.e("TileVisionLifecycle", "inflate failed in HomeActivity", e)
-        }
-        
-        // Now set up binding on the inflated content (bind to the child, not the container)
         val inflatedContent = pageContentContainer.getChildAt(0) as android.widget.LinearLayout
         binding = ActivityHomeBinding.bind(inflatedContent)
         
@@ -69,7 +57,7 @@ class HomeActivity : AppCompatActivity() {
         
         // Set up grid toggle button
         binding.appHeader.setGridToggle {
-            gridBackground.toggleGrid(this)
+            gridBackground?.toggleGrid(this)
             
             // Update icon color based on state
             val newState = GridBackgroundView.isEnabled(this)
@@ -102,24 +90,6 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         populateRecentMeasurements()
-        
-        // Apply initial grid state and start/stop animators
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.applyInitialEnabledState(this)
-            if (GridBackgroundView.isEnabled(this)) {
-                gridBackground.setGridEnabled(this, true)
-            } else {
-                gridBackground.setGridEnabled(this, false)
-            }
-        }
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        // Stop animators when leaving screen to prevent crash
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.stopAnimators()
-        }
     }
     
     private fun setupClickListeners() {

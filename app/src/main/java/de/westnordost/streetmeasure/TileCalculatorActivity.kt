@@ -12,7 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.slider.Slider
 
-class TileCalculatorActivity : AppCompatActivity() {
+class TileCalculatorActivity : BaseFramedActivity() {
+    
+    override fun getContentLayoutResId(): Int = R.layout.activity_tile_calculator
     
     companion object {
         private const val REQUEST_CODE_SELECT_TILE = 1001
@@ -29,7 +31,6 @@ class TileCalculatorActivity : AppCompatActivity() {
     private lateinit var tilesNeededText: TextView
     private lateinit var tilesCalculationDetailsText: TextView
     private lateinit var notesInput: android.widget.EditText
-    private lateinit var gridBackground: GridBackgroundView
     
     private var incomingArea: Float = 0f
     private var projectMeasurementId: String? = null
@@ -41,20 +42,7 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         android.util.Log.d("TileVisionLifecycle", "onCreate TileCalculatorActivity starting")
         
-        // Inflate the shared page shell
-        setContentView(R.layout.layout_page_shell)
-        
-        // Get references to shell elements
-        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
-        gridBackground = findViewById(R.id.gridBackground)
-        
-        // Inflate the activity's own content layout into the shell's container
-        try {
-            layoutInflater.inflate(R.layout.activity_tile_calculator, pageContentContainer, true)
-            android.util.Log.d("TileVisionLifecycle", "TileCalculatorActivity shell + content inflated ok")
-        } catch (e: Exception) {
-            android.util.Log.e("TileVisionLifecycle", "inflate failed in TileCalculatorActivity", e)
-        }
+        // BaseFramedActivity already inflated layout_page_shell and activity_tile_calculator
         
         // Initialize AppPrefs and Repositories
         AppPrefs.init(this)
@@ -519,22 +507,4 @@ class TileCalculatorActivity : AppCompatActivity() {
         }
     }
     
-    override fun onResume() {
-        super.onResume()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.applyInitialEnabledState(this)
-            if (GridBackgroundView.isEnabled(this)) {
-                gridBackground.setGridEnabled(this, true)
-            } else {
-                gridBackground.setGridEnabled(this, false)
-            }
-        }
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        if (::gridBackground.isInitialized && gridBackground != null) {
-            gridBackground.stopAnimators()
-        }
-    }
 }
