@@ -28,18 +28,15 @@ class SavedSummariesActivity : AppCompatActivity() {
         TileSampleRepository.init(this)
         ProjectSummaryRepository.init(this)
 
-        setupToolbar()
+        setupHeader()
         setupRecyclerView()
-        setupCalculateTilesButton()
+        setupEmptyState()
     }
 
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Saved Jobs"
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
+    private fun setupHeader() {
+        binding.appHeader.setTitle("Saved Jobs")
+        binding.appHeader.setSubtitle(null)
+        binding.appHeader.setModeBack { finish() }
     }
 
     private fun setupRecyclerView() {
@@ -48,12 +45,10 @@ class SavedSummariesActivity : AppCompatActivity() {
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
-
-        loadSummaries()
     }
 
-    private fun setupCalculateTilesButton() {
-        binding.buttonCalculateTiles.setOnClickListener {
+    private fun setupEmptyState() {
+        binding.emptyStateButton.setOnClickListener {
             val intent = Intent(this, TileCalculatorActivity::class.java)
             startActivity(intent)
         }
@@ -62,6 +57,15 @@ class SavedSummariesActivity : AppCompatActivity() {
     private fun loadSummaries() {
         val summaries = ProjectSummaryRepository.getAllSummaries()
         adapter.submitList(summaries)
+        
+        // Show/hide empty state
+        if (summaries.isEmpty()) {
+            binding.recyclerView.visibility = View.GONE
+            binding.emptyStateLayout.visibility = View.VISIBLE
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.emptyStateLayout.visibility = View.GONE
+        }
     }
 
     private fun openSummaryDetail(summary: ProjectSummary) {
@@ -107,10 +111,9 @@ class SavedSummariesActivity : AppCompatActivity() {
 
             fun bind(summary: ProjectSummary) {
                 titleText.text = summary.displayName
-                areaText.text = "Area: ${String.format("%.2f", summary.areaSqFt)} sq ft"
-                tileText.text = "Tile: ${String.format("%.1f", summary.tileWidthIn)} x ${String.format("%.1f", summary.tileHeightIn)} in"
-                tilesNeededText.text = "You need: ${summary.totalTilesNeededFinal} tiles (${String.format("%.0f", summary.wastePercent)}% waste)"
-                timestampText.text = MeasurementUtils.formatTimestamp(summary.timestamp)
+                areaText.text = "${String.format("%.2f", summary.areaSqFt)} ft² • ${summary.totalTilesNeededFinal} tiles"
+                tileText.text = "${String.format("%.1f", summary.tileWidthIn)} × ${String.format("%.1f", summary.tileHeightIn)} in"
+                tilesNeededText.text = MeasurementUtils.formatTimestamp(summary.timestamp)
 
                 itemView.setOnClickListener {
                     onSummaryClick(summary)
@@ -124,12 +127,12 @@ class SavedSummariesActivity : AppCompatActivity() {
 
             private fun showDeleteDialog(summary: ProjectSummary) {
                 AlertDialog.Builder(this@SavedSummariesActivity)
-                    .setTitle("Delete Job Summary")
-                    .setMessage("Are you sure you want to delete this job summary?")
+                    .setTitle("Delete this job?")
                     .setPositiveButton("Delete") { _, _ ->
+                        itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                         val deleted = ProjectSummaryRepository.deleteSummary(summary.id)
                         if (deleted) {
-                            Toast.makeText(this@SavedSummariesActivity, "Job summary deleted", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@SavedSummariesActivity, "Job deleted", Toast.LENGTH_SHORT).show()
                             loadSummaries()
                         }
                     }
