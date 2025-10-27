@@ -1,189 +1,310 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tv_background">
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient_dark">
 
-    <LinearLayout
+    <!-- App Header -->
+    <de.westnordost.streetmeasure.AppHeaderView
+        android:id="@+id/appHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/tv_primary"
-            android:elevation="4dp"
-            app:title="Job Summary"
-            app:titleTextColor="@color/tv_primaryText"
-            app:navigationIcon="@drawable/ic_arrow_back_24"
-            app:navigationIconTint="@color/tv_primaryText" />
+    <!-- ScrollView -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="80dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:paddingTop="16dp">
 
-            <!-- Summary Name -->
-            <TextView
+            <!-- Main GlassCard -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Job Name"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                app:cardCornerRadius="20dp"
+                app:cardElevation="16dp"
+                app:cardBackgroundColor="@color/bg_surface_glass"
+                app:strokeColor="@color/border_soft"
+                app:strokeWidth="1dp"
+                android:layout_marginBottom="16dp">
 
-            <TextView
-                android:id="@+id/summaryNameText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Kitchen Floor - Oct 26, 2025"
-                android:textSize="16sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="24dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-            <!-- Project Area -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Project Area"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                    <!-- Section: Project -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Project"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:id="@+id/projectAreaText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="150.00 sq ft"
-                android:textSize="24sp"
-                android:textColor="@color/tv_primary"
-                android:layout_marginBottom="24dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Measured Area:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/areaValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="142.8 ft²"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <!-- Tile Details -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tile Details"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Layout Style:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/layoutValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Staggered"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:id="@+id/tileSizeText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="12.0 in x 24.0 in"
-                android:textSize="16sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Grout Gap:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/groutValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1/8 in"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="24dp" />
 
-            <TextView
-                android:id="@+id/tileCoverageText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="2.00 ft² per tile"
-                android:textSize="16sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="24dp" />
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_soft"
+                        android:layout_marginBottom="24dp" />
 
-            <!-- Calculation Results -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Material Requirements"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                    <!-- Section: Tile -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tile"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:id="@+id/wasteText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Waste: 10%"
-                android:textSize="14sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tile Size:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tileSizeValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="12.0 in × 24.0 in"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:id="@+id/tilesNeededText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Required Tiles: 88"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_primary"
-                android:layout_marginBottom="24dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tile Coverage:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tileCoverageValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="2.0 ft² per tile"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="24dp" />
 
-            <!-- Notes -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Notes"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_soft"
+                        android:layout_marginBottom="24dp" />
 
-            <TextView
-                android:id="@+id/notesText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No notes"
-                android:textSize="14sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="24dp" />
+                    <!-- Section: Calculation -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Calculation"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <!-- Timestamp -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Created"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/tv_text_primary"
-                android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Raw Tiles:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/rawTilesValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="71.4 tiles (before waste)"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:id="@+id/timestampText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Oct 26, 2025 3:45 PM"
-                android:textSize="14sp"
-                android:textColor="@color/tv_text_secondary"
-                android:layout_marginBottom="32dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Waste:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/wasteValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="10%"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
 
-            <!-- Action Buttons -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Total Tiles:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/totalTilesValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="79 tiles (rounded)"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_teal"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/boxesNeededContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:layout_marginBottom="24dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Boxes Needed:"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+                        <TextView
+                            android:id="@+id/boxesNeededValueText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="8.5 boxes"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_primary" />
+                    </TextView>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_soft"
+                        android:layout_marginBottom="24dp" />
+
+                    <!-- Section: Notes -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Notes"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/notesValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Buttons -->
             <Button
-                android:id="@+id/buttonShare"
+                android:id="@+id/buttonExportPdf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Share / Export (Coming Soon)"
+                android:text="Export / Share PDF"
                 android:textSize="16sp"
-                android:textColor="@color/tv_primaryText"
-                android:background="@color/tv_primary"
-                android:layout_marginBottom="16dp"
-                android:padding="16dp" />
+                android:textStyle="bold"
+                android:textColor="@color/bg_primary_dark"
+                android:background="@drawable/button_primary_background"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="Export this job as a PDF document" />
 
             <Button
-                android:id="@+id/deleteButton"
+                android:id="@+id/buttonDelete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Delete Summary"
+                android:text="Delete Job"
                 android:textSize="16sp"
-                android:textColor="@color/tv_text_primary"
-                android:background="@drawable/round_white_button"
-                android:padding="16dp" />
+                android:textColor="@color/text_primary"
+                android:background="@drawable/button_secondary_background"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/buttonOpenCalculator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Open in Calculator"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:padding="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:contentDescription="Open this job in the tile calculator to make changes" />
 
         </LinearLayout>
+    </ScrollView>
 
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>
