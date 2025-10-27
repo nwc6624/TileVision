@@ -34,8 +34,9 @@ class GridBackgroundView @JvmOverloads constructor(
             androidx.core.content.ContextCompat.getColor(context, R.color.gridLineLightMode)
         }
         
-        // Apply pulse alpha to create energy effect
-        val alpha = (android.graphics.Color.alpha(baseColor) * pulseAlpha).toInt()
+        // Apply pulse alpha to create energy effect (clamp at 1.0 = 100% opacity)
+        val clampedAlpha = pulseAlpha.coerceIn(0f, 1f)
+        val alpha = (android.graphics.Color.alpha(baseColor) * clampedAlpha).toInt()
         linePaint.color = android.graphics.Color.argb(
             alpha,
             android.graphics.Color.red(baseColor),
@@ -85,9 +86,9 @@ class GridBackgroundView @JvmOverloads constructor(
     private fun startPulseAnimation() {
         stopPulseAnimation()
         
-        // More dramatic pulse: from 15% to 80% opacity
-        pulseAnimator = ValueAnimator.ofFloat(0.15f, 0.80f).apply {
-            duration = 1500L  // Faster pulse for more energy
+        // BOLD pulse: from 0% to 300% opacity (really stands out!)
+        pulseAnimator = ValueAnimator.ofFloat(0.0f, 3.0f).apply {
+            duration = 1200L  // Even faster for maximum energy
             repeatCount = ValueAnimator.INFINITE
             repeatMode = ValueAnimator.REVERSE
             interpolator = LinearInterpolator()
