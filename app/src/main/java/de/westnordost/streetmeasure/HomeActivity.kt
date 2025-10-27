@@ -34,13 +34,22 @@ class HomeActivity : AppCompatActivity() {
         TileSampleRepository.init(this)
         ProjectSummaryRepository.init(this)
         
+        setupHeader()
         setupButtons()
         setupClickListeners()
     }
     
+    private fun setupHeader() {
+        binding.appHeader.setTitle("TileVision AR")
+        binding.appHeader.setSubtitle("Measure. Visualize. Estimate.")
+        binding.appHeader.setModeHome {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+    }
+    
     private fun setupButtons() {
-        setButtonText(R.id.buttonMeasureTileSample, "Measure Tile Sample")
-        setButtonText(R.id.openCalculatorButton, "Open Tile Calculator")
+        // Set text for library buttons that use include layout
         setButtonText(R.id.buttonViewSavedProjects, "View Saved Projects")
         setButtonText(R.id.buttonViewSavedTileSamples, "View Saved Tile Samples")
         setButtonText(R.id.buttonViewSavedJobs, "View Saved Jobs")
@@ -86,11 +95,6 @@ class HomeActivity : AppCompatActivity() {
         
         findViewById<View>(R.id.buttonViewSavedJobs).setOnClickListener {
             val intent = Intent(this, SavedSummariesActivity::class.java)
-            startActivity(intent)
-        }
-        
-        binding.settingsButton.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
     }
