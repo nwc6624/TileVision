@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.slider.Slider
 
 class TileCalculatorActivity : AppCompatActivity() {
     
@@ -20,15 +21,14 @@ class TileCalculatorActivity : AppCompatActivity() {
     }
     
     // Views
-    private lateinit var measuredAreaText: TextView
-    private lateinit var manualAreaInput: EditText
-    private lateinit var tileWidthInput: EditText
-    private lateinit var tileHeightInput: EditText
-    private lateinit var wasteInput: EditText
-    private lateinit var boxCoverageInput: EditText
-    private lateinit var calcButton: Button
+    private lateinit var manualAreaInput: android.widget.EditText
+    private lateinit var tileWidthInput: android.widget.EditText
+    private lateinit var tileHeightInput: android.widget.EditText
+    private lateinit var wasteSlider: Slider
+    private lateinit var wastePercentBadge: TextView
     private lateinit var tilesNeededText: TextView
-    private lateinit var boxesNeededText: TextView
+    private lateinit var tilesCalculationDetailsText: TextView
+    private lateinit var notesInput: android.widget.EditText
     
     private var incomingArea: Float = 0f
     private var projectMeasurementId: String? = null
@@ -45,15 +45,14 @@ class TileCalculatorActivity : AppCompatActivity() {
         ProjectSummaryRepository.init(this)
         
         // Grab views
-        measuredAreaText = findViewById(R.id.measuredAreaText)
         manualAreaInput = findViewById(R.id.manualAreaInput)
         tileWidthInput = findViewById(R.id.tileWidthInput)
         tileHeightInput = findViewById(R.id.tileHeightInput)
-        wasteInput = findViewById(R.id.wasteInput)
-        boxCoverageInput = findViewById(R.id.boxCoverageInput)
-        calcButton = findViewById(R.id.calcButton)
+        wasteSlider = findViewById(R.id.wasteSlider)
+        wastePercentBadge = findViewById(R.id.wastePercentBadge)
         tilesNeededText = findViewById(R.id.tilesNeededText)
-        boxesNeededText = findViewById(R.id.boxesNeededText)
+        tilesCalculationDetailsText = findViewById(R.id.tilesCalculationDetailsText)
+        notesInput = findViewById(R.id.notesInput)
         
         // Read incoming data
         incomingArea = intent.getFloatExtra("areaSqFeet", 0f)
@@ -63,46 +62,32 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         // Set up area display
         if (incomingArea > 0) {
-                measuredAreaText.text = String.format("%.2f ft²", incomingArea)
-            manualAreaInput.setText("")  // leave manual empty, incoming wins
-            android.util.Log.d("TileCalculatorActivity", "Set measured area text to: ${measuredAreaText.text}")
-        } else {
-            measuredAreaText.text = "—"
-            manualAreaInput.setText("")  // user must type
-            android.util.Log.d("TileCalculatorActivity", "No incoming area, showing '—'")
+            manualAreaInput.setText(String.format("%.2f", incomingArea))
+            android.util.Log.d("TileCalculatorActivity", "Set manual area input to: $incomingArea")
         }
         
         // Load default tile sizes from preferences
         loadDefaultTileSizes()
         
-        // Set up highlighting for required fields
-        setupFieldHighlighting()
+        // Setup waste slider listener
+        wasteSlider.addOnChangeListener { _, value, _ ->
+            val percent = value.toInt()
+            wastePercentBadge.text = "$percent%"
+        }
         
         // Set click listeners
-        calcButton.setOnClickListener {
-            calculateTiles()
+        findViewById<android.widget.Button>(R.id.buttonSaveJobSummary)?.setOnClickListener {
+            saveJobSummary()
         }
         
-        findViewById<Button>(R.id.buttonMeasureTileSample).setOnClickListener {
-            val intent = Intent(this, TileSampleMeasureActivity::class.java)
-            startActivityForResult(intent, REQUEST_CODE_MEASURE_TILE)
+        findViewById<android.widget.Button>(R.id.buttonBackToHome)?.setOnClickListener {
+            finish()
+        }
         }
         
-        findViewById<Button>(R.id.buttonChooseFromSavedTiles).setOnClickListener {
-            val intent = Intent(this, SavedTileSamplesActivity::class.java)
-            startActivityForResult(intent, REQUEST_CODE_SELECT_TILE)
-        }
-        
-        findViewById<Button>(R.id.buttonChooseFromSavedProjects).setOnClickListener {
-            val intent = Intent(this, SavedProjectsActivity::class.java).apply {
-                putExtra("from_calculator", true)
-            }
-            startActivityForResult(intent, REQUEST_CODE_SELECT_PROJECT)
-        }
-        
-        findViewById<Button>(R.id.buttonSaveJobSummary).setOnClickListener {
-            showSaveJobSummaryDialog()
-        }
+    private fun saveJobSummary() {
+        // TODO: Implement save job summary
+        Toast.makeText(this, "Save Job Summary - Coming soon", Toast.LENGTH_SHORT).show()
     }
     
     private fun calculateTiles() {
@@ -145,19 +130,8 @@ class TileCalculatorActivity : AppCompatActivity() {
             return
         }
         
-        // 3. Read waste percent
-        val wastePercent = try {
-            wasteInput.text.toString().toFloat()
-        } catch (e: NumberFormatException) {
-            10f
-        }
-        
-        // 4. Read box coverage
-        val boxCoverageFt2 = try {
-            boxCoverageInput.text.toString().toFloat()
-        } catch (e: NumberFormatException) {
-            0f
-        }
+        // 3. Read waste percent from slider
+        val wastePercent = wasteSlider.value
         
         // 5. Compute
         val tileAreaFt2 = (tileWidthIn / 12f) * (tileHeightIn / 12f)
@@ -179,19 +153,13 @@ class TileCalculatorActivity : AppCompatActivity() {
             kotlin.math.round(finalTileCount).toInt()
         }
         
-        val boxesNeededRoundedUp = if (boxCoverageFt2 > 0f) {
-            val boxesRaw = (areaFt2 * (1f + wastePercent / 100f)) / boxCoverageFt2
-            ceil(boxesRaw).toInt()
-        } else {
-            0
-        }
-        
-        // 6. Update
-        tilesNeededText.text = "Tiles Needed: $tilesNeededRoundedUp"
-        boxesNeededText.text = "Boxes Needed: $boxesNeededRoundedUp"
-        
-        // 7. Show results popup
-        showResultsDialog(tilesNeededRoundedUp, boxesNeededRoundedUp, areaFt2, tileWidthIn, tileHeightIn, wastePercent)
+        // 6. Update UI
+        tilesNeededText.text = "$tilesNeededRoundedUp tiles"
+        tilesCalculationDetailsText.text = String.format(
+            "%.1f calculated • %.0f%% waste • rounded up",
+            rawTileCount,
+            wastePercent
+        )
     }
     
     private fun ceil(x: Float): Float {
@@ -275,8 +243,8 @@ class TileCalculatorActivity : AppCompatActivity() {
             .setNeutralButton("Recalculate") { dialog, _ ->
                 dialog.dismiss()
                 // Clear the results to encourage recalculation
-                tilesNeededText.text = "Tiles Needed: --"
-                boxesNeededText.text = "Boxes Needed: --"
+                tilesNeededText.text = "-- tiles"
+                tilesCalculationDetailsText.text = ""
             }
             .setCancelable(true)
             .show()
@@ -321,7 +289,7 @@ class TileCalculatorActivity : AppCompatActivity() {
         // Pre-fill with default values
         val defaultName = MeasurementUtils.formatDisplayName("Job", System.currentTimeMillis())
         editProjectName.setText(defaultName)
-        editWastePercent.setText(wasteInput.text.toString())
+        editWastePercent.setText(wasteSlider.value.toInt().toString())
         
         val dialog = AlertDialog.Builder(this)
             .setTitle("Save Project Summary")
@@ -409,11 +377,10 @@ class TileCalculatorActivity : AppCompatActivity() {
                     val projectArea = data.getFloatExtra("project_area", 0f)
                     
                     if (projectArea > 0) {
-                        // Set the measured area and clear manual input
-                        measuredAreaText.text = String.format("%.2f ft²", projectArea)
-                        manualAreaInput.setText("")
+                        // Set the measured area in manual input
+                        manualAreaInput.setText(String.format("%.2f", projectArea))
                         incomingArea = projectArea
-                                Toast.makeText(this, "Project area loaded: ${String.format("%.2f", projectArea)} ft²", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Project area loaded: ${String.format("%.2f", projectArea)} ft²", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
