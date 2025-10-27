@@ -33,11 +33,9 @@ class SavedTileSamplesActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Saved Tile Samples"
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
+        binding.appHeader.apply {
+            setTitle("Saved Tile Samples")
+            setModeBack { finish() }
         }
     }
 
