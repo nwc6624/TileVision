@@ -66,6 +66,10 @@ class TileCalculatorActivity : AppCompatActivity() {
         // Setup header
         setupHeader()
         
+        // Setup grid background
+        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+        gridBackground?.setEnabledState(GridBackgroundView.isEnabled(this), saveToPreferences = false)
+        
         // Set up area display
         if (incomingArea > 0) {
             manualAreaInput.setText(String.format("%.2f", incomingArea))

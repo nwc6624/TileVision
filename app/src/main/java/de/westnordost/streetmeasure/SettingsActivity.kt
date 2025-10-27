@@ -18,6 +18,11 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         
         setupToolbar()
+        
+        // Setup grid background
+        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+        gridBackground?.setEnabledState(GridBackgroundView.isEnabled(this), saveToPreferences = false)
+        
         setupSettingsRows()
         setupVersionText()
     }

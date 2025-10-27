@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_page_frame"
-    android:padding="12dp">
+    android:background="@drawable/bg_page_frame">
+
+    <!-- Grid Background View (behind everything) -->
+    <de.westnordost.streetmeasure.GridBackgroundView
+        android:id="@+id/gridBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- Main Content -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
 
     <!-- App Header -->
     <de.westnordost.streetmeasure.AppHeaderView
@@ -69,4 +81,5 @@
             android:paddingEnd="24dp" />
     </LinearLayout>
 
-</RelativeLayout>
+    </RelativeLayout>
+</FrameLayout>

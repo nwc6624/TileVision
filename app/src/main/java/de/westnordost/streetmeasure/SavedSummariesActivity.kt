@@ -28,6 +28,10 @@ class SavedSummariesActivity : AppCompatActivity() {
         TileSampleRepository.init(this)
         ProjectSummaryRepository.init(this)
 
+        // Setup grid background
+        val gridBackground = binding.root.findViewById<GridBackgroundView>(R.id.gridBackground)
+        gridBackground?.setEnabledState(GridBackgroundView.isEnabled(this), saveToPreferences = false)
+
         setupHeader()
         setupRecyclerView()
         setupEmptyState()

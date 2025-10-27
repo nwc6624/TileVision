@@ -85,8 +85,9 @@ class GridBackgroundView @JvmOverloads constructor(
     private fun startPulseAnimation() {
         stopPulseAnimation()
         
-        pulseAnimator = ValueAnimator.ofFloat(0.4f, 1.0f).apply {
-            duration = 2000L
+        // More dramatic pulse: from 15% to 80% opacity
+        pulseAnimator = ValueAnimator.ofFloat(0.15f, 0.80f).apply {
+            duration = 1500L  // Faster pulse for more energy
             repeatCount = ValueAnimator.INFINITE
             repeatMode = ValueAnimator.REVERSE
             interpolator = LinearInterpolator()
