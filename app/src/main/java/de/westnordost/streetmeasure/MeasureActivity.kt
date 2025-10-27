@@ -364,6 +364,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Dismiss arrow instruction on first point
         if (polygonPoints.isEmpty()) {
+            val prefs = getSharedPreferences("tilevision", MODE_PRIVATE)
+            prefs.edit().putBoolean("seen_arrow_hint", true).apply()
             dismissArrowInstruction()
         }
         
@@ -866,14 +868,27 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         val arrowView = findViewById<View>(R.id.arrowInstructionView)
         if (arrowView != null && !hasSeenHint) {
+            // Fade in
+            arrowView.alpha = 0f
             arrowView.visibility = android.view.View.VISIBLE
+            arrowView.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .start()
+            
             startArrowInstructionAnimation()
             
-            // Store that we've seen the hint
-            prefs.edit().putBoolean("seen_arrow_hint", true).apply()
+            // Auto-dismiss after 10 seconds
+            arrowView.postDelayed({
+                if (arrowView.visibility == android.view.View.VISIBLE) {
+                    prefs.edit().putBoolean("seen_arrow_hint", true).apply()
+                    dismissArrowInstruction()
+                }
+            }, 10000)
             
             // Dismiss on tap
             arrowView.setOnClickListener {
+                prefs.edit().putBoolean("seen_arrow_hint", true).apply()
                 dismissArrowInstruction()
             }
         }

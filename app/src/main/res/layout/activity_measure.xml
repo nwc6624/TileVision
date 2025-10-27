@@ -110,6 +110,8 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:clipToPadding="false"
             app:cardCornerRadius="20dp"
             app:cardElevation="16dp"
             app:cardBackgroundColor="@color/bg_surface_glass"
@@ -119,8 +121,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:orientation="vertical">
 
                 <!-- Result Text -->
                 <TextView
@@ -132,7 +133,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/accent_teal"
                     android:gravity="center"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Action Buttons Row -->
                 <LinearLayout
@@ -140,7 +141,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:layout_marginBottom="12dp">
+                    android:baselineAligned="false"
+                    android:layout_marginBottom="8dp">
 
                     <!-- Undo Button -->
                     <com.google.android.material.button.MaterialButton
@@ -150,17 +152,21 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="4dp"
                         android:text="Undo"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
                         app:backgroundTint="@color/bg_surface_glass"
                         app:strokeColor="@color/border_soft"
                         app:strokeWidth="1dp"
                         app:cornerRadius="24dp"
                         app:icon="@android:drawable/ic_menu_revert"
                         app:iconTint="@color/accent_purple"
-                        app:iconPadding="4dp"
-                        app:iconSize="18dp"
+                        app:iconPadding="2dp"
+                        app:iconSize="16dp"
                         app:iconGravity="textStart"
                         android:contentDescription="Undo last corner" />
 
@@ -172,15 +178,19 @@
                         android:layout_weight="1"
                         android:layout_marginHorizontal="4dp"
                         android:text="Save"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="#000000"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
                         app:backgroundTint="@color/accent_teal"
                         app:cornerRadius="24dp"
                         app:icon="@android:drawable/checkbox_on_background"
                         app:iconTint="#000000"
-                        app:iconPadding="4dp"
-                        app:iconSize="18dp"
+                        app:iconPadding="2dp"
+                        app:iconSize="16dp"
                         app:iconGravity="textStart"
                         android:contentDescription="Save this surface measurement" />
 
@@ -192,17 +202,21 @@
                         android:layout_weight="1"
                         android:layout_marginStart="4dp"
                         android:text="Use"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
                         app:backgroundTint="@color/bg_surface_glass"
                         app:strokeColor="@color/border_soft"
                         app:strokeWidth="1dp"
                         app:cornerRadius="24dp"
                         app:icon="@drawable/ic_arrow_forward"
                         app:iconTint="@color/accent_teal"
-                        app:iconPadding="4dp"
-                        app:iconSize="18dp"
+                        app:iconPadding="2dp"
+                        app:iconSize="16dp"
                         app:iconGravity="textStart"
                         android:contentDescription="Use this area in Tile Calculator" />
                 </LinearLayout>
@@ -214,10 +228,11 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Skip AR &amp; Open Calculator"
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:textColor="@color/accent_teal"
                     android:gravity="center"
-                    android:padding="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="0dp"
                     android:textStyle="normal" />
 
             </LinearLayout>

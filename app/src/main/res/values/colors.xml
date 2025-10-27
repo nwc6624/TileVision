@@ -20,6 +20,8 @@
     <!-- Borders & Overlays -->
     <color name="border_soft">#00000022</color> <!-- Soft black border -->
     <color name="overlay_dark">#40000000</color> <!-- Light overlay -->
+    <color name="pageFrameStroke">#2A3B3B33</color> <!-- Page frame border (subtle dark/teal-ish, semi-transparent) -->
+    <color name="gridLineLightMode">#22333A33</color> <!-- Grid line color (dark-ish with slight teal cast, ~20% alpha) -->
     
     <!-- Legacy compatibility -->
     <color name="tv_primary">#22E0B8</color>
