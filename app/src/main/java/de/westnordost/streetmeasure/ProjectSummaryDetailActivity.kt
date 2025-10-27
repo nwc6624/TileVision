@@ -97,7 +97,7 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         binding.buttonExportPdf.setOnClickListener {
             summary?.let { s ->
-                performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
+                binding.buttonExportPdf.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
                 sharePdf(s)
             }
         }
@@ -139,7 +139,7 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Delete this job?")
             .setPositiveButton("Delete") { _, _ ->
-                performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                binding.buttonDelete.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                 val deleted = ProjectSummaryRepository.deleteSummary(s.id)
                 if (deleted) {
                     Toast.makeText(this, "Job deleted", Toast.LENGTH_SHORT).show()
