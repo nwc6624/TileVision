@@ -330,9 +330,11 @@ class TileCalculatorActivity : AppCompatActivity() {
             .setTitle("Save Project Summary")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
+                val notesText = editNotes.text.toString().trim()
+                android.util.Log.d("TileVision", "Notes captured from dialog: '$notesText'")
                 saveJobSummary(
                     editProjectName.text.toString().trim().ifEmpty { defaultName },
-                    editNotes.text.toString(),
+                    notesText,
                     editWastePercent.text.toString().toFloatOrNull() ?: 10f
                 )
             }
@@ -343,6 +345,8 @@ class TileCalculatorActivity : AppCompatActivity() {
     }
     
     private fun saveJobSummary(displayName: String, notes: String, wastePercent: Float) {
+        android.util.Log.d("TileVision", "saveJobSummary called with notes='$notes'")
+        
         // Get current values
         val currentArea = if (incomingArea > 0) incomingArea else manualAreaInput.text.toString().toFloat()
         val tileWidth = tileWidthInput.text.toString().toFloat()
@@ -369,6 +373,10 @@ class TileCalculatorActivity : AppCompatActivity() {
         val withWasteTileCount = rawTileCount * (1f + wastePercent / 100f)
         val finalTileCount = kotlin.math.round(withWasteTileCount).toInt()
         
+        // Determine final notes value
+        val finalNotes = notes.ifEmpty { null }
+        android.util.Log.d("TileVision", "Final notes value: '${finalNotes ?: "(null)"}'")
+        
         // Create ProjectSummary
         val summary = ProjectSummary(
             id = java.util.UUID.randomUUID().toString(),
@@ -385,7 +393,7 @@ class TileCalculatorActivity : AppCompatActivity() {
             wastePercent = wastePercent,
             totalTilesNeededRaw = rawTileCount,
             totalTilesNeededFinal = finalTileCount,
-            notes = notes.ifEmpty { null }
+            notes = finalNotes
         )
         
         // Save to repository

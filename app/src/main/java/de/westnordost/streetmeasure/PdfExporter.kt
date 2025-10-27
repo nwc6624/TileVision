@@ -123,6 +123,7 @@ object PdfExporter {
         
         // Notes
         val notes = summary.notes ?: "—"
+        android.util.Log.d("TileVision", "PDF export - notes value: '$notes'")
         canvas.drawText("Notes", margin.toFloat(), yPos.toFloat(), labelPaint)
         yPos += 18
         
