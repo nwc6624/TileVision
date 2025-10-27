@@ -66,13 +66,15 @@ class GridBackgroundView @JvmOverloads constructor(
             .start()
     }
     
-    fun setEnabledState(enabled: Boolean) {
+    fun setEnabledState(enabled: Boolean, saveToPreferences: Boolean = true) {
         if (enabled) {
             fadeIn()
         } else {
             fadeOut()
         }
-        savePreference(enabled)
+        if (saveToPreferences) {
+            savePreference(enabled)
+        }
     }
     
     private fun savePreference(enabled: Boolean) {
@@ -84,6 +86,11 @@ class GridBackgroundView @JvmOverloads constructor(
         fun isEnabled(context: Context): Boolean {
             val prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
             return prefs.getBoolean("grid_enabled", false)
+        }
+        
+        fun setEnabledState(context: Context, enabled: Boolean) {
+            val prefs = context.getSharedPreferences("tilevision", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("grid_enabled", enabled).apply()
         }
     }
 }

@@ -51,6 +51,24 @@
                 android:visibility="gone" />
         </LinearLayout>
 
+        <!-- Left action button (grid toggle) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/headerLeftActionButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="8dp"
+            app:iconGravity="textStart"
+            app:iconTint="@color/accent_teal"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:visibility="gone" />
+
         <!-- Action button (right-aligned) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/headerActionButton"

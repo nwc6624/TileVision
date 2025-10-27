@@ -36,6 +36,13 @@ class SettingsActivity : AppCompatActivity() {
             showThemeDialog()
         }
         
+        // Grid Background Toggle Switch
+        val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
+        gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
+        gridSwitch?.setOnCheckedChangeListener { _, isChecked ->
+            GridBackgroundView.setEnabledState(this, isChecked)
+        }
+        
         // Delete All Data row (using privacyPolicyRow ID for now, will update)
         findViewById<android.view.View>(R.id.deleteAllDataRow)?.setOnClickListener {
             showDeleteAllDataDialog()

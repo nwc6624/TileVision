@@ -46,6 +46,28 @@ class HomeActivity : AppCompatActivity() {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
+        
+        // Set up grid toggle button
+        binding.appHeader.setGridToggle {
+            val currentState = GridBackgroundView.isEnabled(this)
+            val newState = !currentState
+            GridBackgroundView.setEnabledState(this, newState)
+            
+            // Update icon color based on state
+            binding.appHeader.updateGridToggleState(newState)
+            
+            // Update grid background view visibility
+            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+            gridBackground?.setEnabledState(newState, saveToPreferences = false)
+            
+            // Haptic feedback
+            window.decorView.performHapticFeedback(
+                android.view.HapticFeedbackConstants.VIRTUAL_KEY
+            )
+        }
+        
+        // Set initial icon color based on current state
+        binding.appHeader.updateGridToggleState(GridBackgroundView.isEnabled(this))
     }
     
     private fun setupButtons() {
@@ -65,6 +87,16 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         populateRecentMeasurements()
+        
+        // Update grid background visibility based on preference
+        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+        gridBackground?.let {
+            if (GridBackgroundView.isEnabled(this)) {
+                it.fadeIn()
+            } else {
+                it.fadeOut()
+            }
+        }
     }
     
     private fun setupClickListeners() {

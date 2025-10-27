@@ -19,6 +19,7 @@ class AppHeaderView @JvmOverloads constructor(
     private val titleText: TextView
     private val subtitleText: TextView
     private val actionButton: MaterialButton
+    private val leftActionButton: MaterialButton
     private val statusBarSpacer: View
 
     init {
@@ -29,6 +30,7 @@ class AppHeaderView @JvmOverloads constructor(
         titleText = findViewById(R.id.headerTitle)
         subtitleText = findViewById(R.id.headerSubtitle)
         actionButton = findViewById(R.id.headerActionButton)
+        leftActionButton = findViewById(R.id.headerLeftActionButton)
         statusBarSpacer = findViewById(R.id.statusBarSpacer)
 
         // Handle system window insets to avoid status bar collision
@@ -62,5 +64,22 @@ class AppHeaderView @JvmOverloads constructor(
     fun setModeBack(onBackClick: () -> Unit) {
         actionButton.icon = context.getDrawable(R.drawable.ic_arrow_back_24)
         actionButton.setOnClickListener { onBackClick() }
+    }
+    
+    fun setGridToggle(onGridToggle: () -> Unit) {
+        leftActionButton.visibility = android.view.View.VISIBLE
+        leftActionButton.icon = context.getDrawable(R.drawable.ic_grid_view_24)
+        leftActionButton.setOnClickListener { onGridToggle() }
+    }
+    
+    fun updateGridToggleState(isEnabled: Boolean) {
+        if (leftActionButton.visibility == android.view.View.VISIBLE) {
+            val color = if (isEnabled) {
+                context.getColor(R.color.accent_teal)
+            } else {
+                context.getColor(R.color.text_secondary)
+            }
+            leftActionButton.iconTint = android.content.res.ColorStateList.valueOf(color)
+        }
     }
 }
