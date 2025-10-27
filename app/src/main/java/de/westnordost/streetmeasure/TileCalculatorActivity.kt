@@ -60,6 +60,9 @@ class TileCalculatorActivity : AppCompatActivity() {
         tileSampleId = intent.getStringExtra("tileSampleId")
         android.util.Log.d("TileCalculatorActivity", "Received incoming area: $incomingArea ft², projectId: $projectMeasurementId, tileId: $tileSampleId")
         
+        // Setup header
+        setupHeader()
+        
         // Set up area display
         if (incomingArea > 0) {
             manualAreaInput.setText(String.format("%.2f", incomingArea))
@@ -401,6 +404,15 @@ class TileCalculatorActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+    
+    private fun setupHeader() {
+        val headerView = findViewById<de.westnordost.streetmeasure.AppHeaderView>(R.id.appHeader)
+        headerView?.apply {
+            setTitle("Tile Calculator")
+            setSubtitle("Estimate tiles and waste")
+            setModeBack { finish() }
         }
     }
 }
