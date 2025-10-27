@@ -164,17 +164,21 @@ class SavedTileSamplesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        gridBackground.applyInitialEnabledState(this)
-        if (GridBackgroundView.isEnabled(this)) {
-            gridBackground.setGridEnabled(this, true)
-        } else {
-            gridBackground.setGridEnabled(this, false)
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.applyInitialEnabledState(this)
+            if (GridBackgroundView.isEnabled(this)) {
+                gridBackground.setGridEnabled(this, true)
+            } else {
+                gridBackground.setGridEnabled(this, false)
+            }
         }
     }
     
     override fun onPause() {
         super.onPause()
-        gridBackground.stopAnimators()
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.stopAnimators()
+        }
     }
 
     companion object {

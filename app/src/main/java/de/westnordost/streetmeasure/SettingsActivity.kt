@@ -18,15 +18,22 @@ class SettingsActivity : AppCompatActivity() {
         ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
         
+        android.util.Log.d("TileVisionLifecycle", "onCreate SettingsActivity starting")
+        
         // Inflate the shared page shell
         setContentView(R.layout.layout_page_shell)
         
         // Get references to shell elements
-        gridBackground = findViewById(R.id.gridBackground)
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        gridBackground = findViewById(R.id.gridBackground)
         
         // Inflate the activity's own content layout into the shell's container
-        layoutInflater.inflate(R.layout.activity_settings, pageContentContainer, true)
+        try {
+            layoutInflater.inflate(R.layout.activity_settings, pageContentContainer, true)
+            android.util.Log.d("TileVisionLifecycle", "SettingsActivity shell + content inflated ok")
+        } catch (e: Exception) {
+            android.util.Log.e("TileVisionLifecycle", "inflate failed in SettingsActivity", e)
+        }
         
         setupToolbar()
         
@@ -128,11 +135,13 @@ class SettingsActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
-        gridBackground.applyInitialEnabledState(this)
-        if (GridBackgroundView.isEnabled(this)) {
-            gridBackground.setGridEnabled(this, true)
-        } else {
-            gridBackground.setGridEnabled(this, false)
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.applyInitialEnabledState(this)
+            if (GridBackgroundView.isEnabled(this)) {
+                gridBackground.setGridEnabled(this, true)
+            } else {
+                gridBackground.setGridEnabled(this, false)
+            }
         }
         // Sync switch state
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
@@ -141,7 +150,9 @@ class SettingsActivity : AppCompatActivity() {
     
     override fun onPause() {
         super.onPause()
-        gridBackground.stopAnimators()
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.stopAnimators()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

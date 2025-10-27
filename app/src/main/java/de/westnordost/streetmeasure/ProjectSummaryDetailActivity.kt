@@ -22,15 +22,22 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        android.util.Log.d("TileVisionLifecycle", "onCreate ProjectSummaryDetailActivity starting")
+        
         // Inflate the shared page shell
         setContentView(R.layout.layout_page_shell)
         
         // Get references to shell elements
-        gridBackground = findViewById(R.id.gridBackground)
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        gridBackground = findViewById(R.id.gridBackground)
         
         // Inflate the activity's own content layout into the shell's container
-        layoutInflater.inflate(R.layout.activity_project_summary_detail, pageContentContainer, true)
+        try {
+            layoutInflater.inflate(R.layout.activity_project_summary_detail, pageContentContainer, true)
+            android.util.Log.d("TileVisionLifecycle", "ProjectSummaryDetailActivity shell + content inflated ok")
+        } catch (e: Exception) {
+            android.util.Log.e("TileVisionLifecycle", "inflate failed in ProjectSummaryDetailActivity", e)
+        }
         
         // Now set up binding on the inflated content
         binding = ActivityProjectSummaryDetailBinding.bind(pageContentContainer)
@@ -176,16 +183,20 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
-        gridBackground.applyInitialEnabledState(this)
-        if (GridBackgroundView.isEnabled(this)) {
-            gridBackground.setGridEnabled(this, true)
-        } else {
-            gridBackground.setGridEnabled(this, false)
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.applyInitialEnabledState(this)
+            if (GridBackgroundView.isEnabled(this)) {
+                gridBackground.setGridEnabled(this, true)
+            } else {
+                gridBackground.setGridEnabled(this, false)
+            }
         }
     }
     
     override fun onPause() {
         super.onPause()
-        gridBackground.stopAnimators()
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.stopAnimators()
+        }
     }
 }
