@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#3318FFC4"/> <!-- teal-ish with ~20% opacity -->
+    <stroke
+        android:width="2dp"
+        android:color="#8818FFC4"/> <!-- brighter teal edge -->
+</shape>

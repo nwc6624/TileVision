@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/disclaimerRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
+
+    <!-- Glass card -->
+    <LinearLayout
+        android:id="@+id/disclaimerCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_glass_panel_with_border"
+        android:padding="24dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
+
+        <TextView
+            android:id="@+id/disclaimerHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TileVision AR is an estimator"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-medium"/>
+
+        <TextView
+            android:id="@+id/disclaimerBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TileVision AR gives you measurement estimates using augmented reality. Always confirm with a physical tape or ruler before cutting or purchasing materials."
+            android:textSize="15sp"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="12dp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif"/>
+
+        <!-- Checkbox row -->
+        <LinearLayout
+            android:id="@+id/checkboxRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <CheckBox
+                android:id="@+id/checkboxShowEachTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show this reminder at startup"
+                android:textColor="@android:color/white"
+                android:buttonTint="@color/accent_teal"
+                android:textSize="14sp"/>
+
+        </LinearLayout>
+
+        <!-- Buttons row -->
+        <LinearLayout
+            android:id="@+id/buttonRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/buttonLearnMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Learn More"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="@color/accent_teal"
+                android:paddingEnd="24dp"
+                android:paddingStart="8dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+            <TextView
+                android:id="@+id/buttonContinue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Continue"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="@android:color/white"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:background="@drawable/bg_primary_cta_button"
+                android:drawablePadding="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

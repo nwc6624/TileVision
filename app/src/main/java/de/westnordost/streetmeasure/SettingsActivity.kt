@@ -53,6 +53,18 @@ class SettingsActivity : BaseFramedActivity() {
             gridBackground?.setGridEnabled(this@SettingsActivity, isChecked)
         }
         
+        // Disclaimer Toggle Switch
+        val disclaimerToggle = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchShowDisclaimer)
+        disclaimerToggle?.isChecked = com.tilevision.prefs.StartupPrefs.shouldShowDisclaimer(this)
+        disclaimerToggle?.setOnCheckedChangeListener { _, isChecked ->
+            com.tilevision.prefs.StartupPrefs.setShowDisclaimer(this, isChecked)
+        }
+        
+        // Units System row
+        findViewById<android.view.View>(R.id.unitsRow)?.setOnClickListener {
+            showUnitsDialog()
+        }
+        
         // Privacy Policy row
         findViewById<android.view.View>(R.id.rowPrivacyPolicy)?.setOnClickListener {
             showPrivacyPolicyDialog()
@@ -100,6 +112,22 @@ class SettingsActivity : BaseFramedActivity() {
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
+            .show()
+    }
+    
+    private fun showUnitsDialog() {
+        val units = arrayOf("Imperial (ft² / in)", "Metric (m² / cm)")
+        val currentUnits = com.tilevision.prefs.UnitsPrefs.getUnits(this)
+        val currentIndex = if (currentUnits == "imperial") 0 else 1
+        
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Choose Units")
+            .setSingleChoiceItems(units, currentIndex) { dialog, which ->
+                val newUnits = if (which == 0) "imperial" else "metric"
+                com.tilevision.prefs.UnitsPrefs.setUnits(this, newUnits)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
     

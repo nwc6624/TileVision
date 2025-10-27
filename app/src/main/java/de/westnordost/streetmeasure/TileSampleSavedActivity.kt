@@ -52,7 +52,7 @@ class TileSampleSavedActivity : AppCompatActivity() {
         binding.tileTimestamp.text = MeasurementUtils.formatTimestamp(tileSample.timestamp)
 
         // Show placeholder image since we're not storing screenshots yet
-        binding.tileImage.setImageResource(R.drawable.ic_launcher_foreground)
+        binding.tileImage.setImageResource(R.mipmap.ic_launcher)
     }
 
     private fun setupClickListeners(tileSample: TileSample) {

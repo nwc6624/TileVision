@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- Rounded pill shape -->
+    <corners android:radius="24dp" />
+    
+    <!-- Teal gradient background -->
+    <gradient
+        android:startColor="@color/accent_teal"
+        android:endColor="@color/accent_purple"
+        android:angle="45" />
+        
+</shape>

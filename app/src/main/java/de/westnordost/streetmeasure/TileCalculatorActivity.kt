@@ -26,11 +26,19 @@ class TileCalculatorActivity : BaseFramedActivity() {
     private lateinit var manualAreaInput: android.widget.EditText
     private lateinit var tileWidthInput: android.widget.EditText
     private lateinit var tileHeightInput: android.widget.EditText
+    private lateinit var groutGapInput: android.widget.EditText
     private lateinit var wasteSlider: Slider
     private lateinit var wastePercentBadge: TextView
     private lateinit var tilesNeededText: TextView
     private lateinit var tilesCalculationDetailsText: TextView
     private lateinit var notesInput: android.widget.EditText
+    
+    // Labels for units
+    private lateinit var measuredAreaLabel: TextView
+    private lateinit var tileDimensionsLabel: TextView
+    private lateinit var widthLabel: TextView
+    private lateinit var heightLabel: TextView
+    private lateinit var labelGroutGap: TextView
     
     private var incomingArea: Float = 0f
     private var projectMeasurementId: String? = null
@@ -54,11 +62,19 @@ class TileCalculatorActivity : BaseFramedActivity() {
         manualAreaInput = findViewById(R.id.manualAreaInput)
         tileWidthInput = findViewById(R.id.tileWidthInput)
         tileHeightInput = findViewById(R.id.tileHeightInput)
+        groutGapInput = findViewById(R.id.inputGroutGap)
         wasteSlider = findViewById(R.id.wasteSlider)
         wastePercentBadge = findViewById(R.id.wastePercentBadge)
         tilesNeededText = findViewById(R.id.tilesNeededText)
         tilesCalculationDetailsText = findViewById(R.id.tilesCalculationDetailsText)
         notesInput = findViewById(R.id.notesInput)
+        
+        // Labels for units
+        measuredAreaLabel = findViewById(R.id.measuredAreaLabel)
+        tileDimensionsLabel = findViewById(R.id.tileDimensionsLabel)
+        widthLabel = findViewById(R.id.widthLabel)
+        heightLabel = findViewById(R.id.heightLabel)
+        labelGroutGap = findViewById(R.id.labelGroutGap)
         
         // Read incoming data
         incomingArea = intent.getFloatExtra("areaSqFeet", 0f)
@@ -68,6 +84,9 @@ class TileCalculatorActivity : BaseFramedActivity() {
         projectMeasurementId = intent.getStringExtra("projectMeasurementId")
         tileSampleId = intent.getStringExtra("tileSampleId")
         android.util.Log.d("TileCalculatorActivity", "Received incoming area: $incomingArea ft², projectId: $projectMeasurementId, tileId: $tileSampleId")
+        
+        // Setup units
+        setupUnits()
         
         // Setup header
         setupHeader()
@@ -100,6 +119,14 @@ class TileCalculatorActivity : BaseFramedActivity() {
         })
         
         tileHeightInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                calculateTiles()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        
+        groutGapInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
                 calculateTiles()
             }
@@ -162,8 +189,10 @@ class TileCalculatorActivity : BaseFramedActivity() {
     }
     
     private fun calculateTiles() {
-        // 1. Determine areaFt2 - priority: currentAreaSqFt > incomingArea > manual input
-        val areaFt2 = when {
+        val imperial = com.tilevision.prefs.UnitsPrefs.isImperial(this)
+        
+        // 1. Determine area - priority: currentAreaSqFt > incomingArea > manual input
+        val area = when {
             currentAreaSqFt > 0 -> currentAreaSqFt
             incomingArea > 0 -> incomingArea
             else -> {
@@ -181,46 +210,59 @@ class TileCalculatorActivity : BaseFramedActivity() {
             }
         }
         
+        // Convert area to square meters if metric
+        val areaM2 = if (imperial) area * 0.092903f else area
+        
         // 2. Read tile dimensions
-        val tileWidthIn = try {
+        val tileWidth = try {
             tileWidthInput.text.toString().toFloat()
         } catch (e: NumberFormatException) {
             0f
         }
         
-        val tileHeightIn = try {
+        val tileHeight = try {
             tileHeightInput.text.toString().toFloat()
         } catch (e: NumberFormatException) {
             0f
         }
         
-        if (tileWidthIn <= 0 || tileHeightIn <= 0) {
+        if (tileWidth <= 0 || tileHeight <= 0) {
             // Just show "0 tiles" if no tile dimensions entered yet
             tilesNeededText.text = "0 tiles"
             return
         }
         
-        // 3. Read waste percent from slider
+        // 3. Read grout gap
+        val groutGap = try {
+            groutGapInput.text.toString().toFloat()
+        } catch (e: NumberFormatException) {
+            0f
+        }
+        
+        // 4. Read waste percent from slider
         val wastePercent = wasteSlider.value
         
-        // 5. Compute
-        val tileAreaFt2 = (tileWidthIn / 12f) * (tileHeightIn / 12f)
+        // 5. Compute tile area with grout gap
+        val tileAreaM2 = if (imperial) {
+            // Imperial: convert inches to meters, add grout gap in inches
+            val tileWm = (tileWidth + groutGap) * 0.0254f / 12f  // inches to feet to meters
+            val tileHm = (tileHeight + groutGap) * 0.0254f / 12f
+            tileWm * tileHm
+        } else {
+            // Metric: convert cm to meters, add grout gap in mm
+            val tileWm = (tileWidth + groutGap / 10f) / 100f  // cm + mm/10 to meters
+            val tileHm = (tileHeight + groutGap / 10f) / 100f
+            tileWm * tileHm
+        }
         
-        val rawTileCount = areaFt2 / tileAreaFt2
+        val rawTileCount = areaM2 / tileAreaM2
         
         val withWasteTileCount = rawTileCount * (1f + wastePercent / 100f)
         
-        // Apply grout gap if enabled
-        val finalTileCount = if (AppPrefs.getIncludeGrout()) {
-            withWasteTileCount * 1.05f // Add 5% for grout gaps
-        } else {
-            withWasteTileCount
-        }
-        
         val tilesNeededRoundedUp = if (AppPrefs.getForceRoundUp()) {
-            ceil(finalTileCount).toInt()
+            ceil(withWasteTileCount).toInt()
         } else {
-            kotlin.math.round(finalTileCount).toInt()
+            kotlin.math.round(withWasteTileCount).toInt()
         }
         
         // 6. Update UI
@@ -264,6 +306,7 @@ class TileCalculatorActivity : BaseFramedActivity() {
         manualAreaInput.addTextChangedListener(createTextWatcher(manualAreaInput))
         tileWidthInput.addTextChangedListener(createTextWatcher(tileWidthInput))
         tileHeightInput.addTextChangedListener(createTextWatcher(tileHeightInput))
+        groutGapInput.addTextChangedListener(createTextWatcher(groutGapInput))
     }
     
     private fun highlightField(editText: EditText) {
@@ -495,6 +538,27 @@ class TileCalculatorActivity : BaseFramedActivity() {
                     }
                 }
             }
+        }
+    }
+    
+    private fun setupUnits() {
+        val imperial = com.tilevision.prefs.UnitsPrefs.isImperial(this)
+        
+        // Update all labels dynamically
+        if (imperial) {
+            measuredAreaLabel.text = "Measured Area (ft²):"
+            manualAreaInput.hint = "Or enter area manually (ft²)"
+            tileDimensionsLabel.text = "Tile Dimensions (inches)"
+            widthLabel.text = "Width (in)"
+            heightLabel.text = "Height (in)"
+            labelGroutGap.text = "Grout Gap (in)"
+        } else {
+            measuredAreaLabel.text = "Measured Area (m²):"
+            manualAreaInput.hint = "Or enter area manually (m²)"
+            tileDimensionsLabel.text = "Tile Dimensions (cm)"
+            widthLabel.text = "Width (cm)"
+            heightLabel.text = "Height (cm)"
+            labelGroutGap.text = "Grout Gap (mm)"
         }
     }
     

@@ -44,4 +44,12 @@
     
     <!-- Legacy for bg_primary_dark -->
     <color name="bg_primary_dark">#F5F6FA</color>
+    
+    <!-- Splash screen colors -->
+    <color name="splashTitleColor">#FFFFFFFF</color>
+    <color name="splashSubtitleColor">#CCFFFFFF</color>
+    
+    <!-- Calculator field colors -->
+    <color name="calculatorFieldText">#FFFFFF</color>
+    <color name="calculatorFieldHint">#80FFFFFF</color>
 </resources>
