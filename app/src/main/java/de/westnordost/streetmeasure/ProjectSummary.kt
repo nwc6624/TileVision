@@ -4,7 +4,7 @@ data class ProjectSummary(
     val id: String,
     val timestamp: Long,
     val displayName: String,            // e.g. "Kitchen Floor - Oct 26, 2025"
-    val projectMeasurementId: String,   // FK -> ProjectMeasurement.id
+    val projectMeasurementId: String?,  // FK -> ProjectMeasurement.id (nullable)
     val tileSampleId: String?,          // FK -> TileSample.id (nullable if using unsaved tile)
     val areaSqFt: Float,                // total area for this job
     val tileWidthIn: Float,
@@ -15,5 +15,6 @@ data class ProjectSummary(
     val totalTilesNeededFinal: Int,     // after waste/round-up
     val layoutStyle: String = "Straight", // e.g. "Straight", "Staggered", "Herringbone"
     val groutGapInches: Float = 0.125f,  // e.g. 1/8" = 0.125
+    val boxesNeeded: Float? = null,     // nullable if we have box coverage math
     val notes: String? = null
 )

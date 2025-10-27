@@ -5,22 +5,18 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- App Header -->
+    <de.westnordost.streetmeasure.AppHeaderView
+        android:id="@+id/appHeader"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/bg_surface_glass"
-        android:elevation="8dp"
-        app:title="Saved Jobs"
-        app:titleTextColor="@color/text_primary"
-        app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="@color/text_primary" />
+        android:layout_height="wrap_content" />
 
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/appHeader"
         android:padding="16dp"
         android:clipToPadding="false" />
 
@@ -29,7 +25,7 @@
         android:id="@+id/emptyStateLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/appHeader"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="48dp"
@@ -44,7 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nothing saved yet"
+            android:text="No Saved Jobs"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -53,7 +49,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start calculating to see job summaries here."
+            android:text="After you run the Tile Calculator and tap Save Job Summary, it will show up here."
             android:textSize="16sp"
             android:textColor="@color/text_secondary"
             android:gravity="center"
@@ -71,16 +67,5 @@
             android:paddingStart="24dp"
             android:paddingEnd="24dp" />
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/buttonCalculateTiles"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/accent_teal"
-        app:tint="@android:color/white" />
 
 </RelativeLayout>
