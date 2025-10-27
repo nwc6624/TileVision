@@ -107,14 +107,13 @@ class SavedSummariesActivity : AppCompatActivity() {
             private val titleText: TextView = itemView.findViewById(R.id.titleText)
             private val areaText: TextView = itemView.findViewById(R.id.areaText)
             private val tileText: TextView = itemView.findViewById(R.id.tileText)
-            private val tilesNeededText: TextView = itemView.findViewById(R.id.tilesNeededText)
             private val timestampText: TextView = itemView.findViewById(R.id.timestampText)
 
             fun bind(summary: ProjectSummary) {
                 titleText.text = summary.displayName
                 areaText.text = "${String.format("%.2f", summary.areaSqFt)} ft² • ${summary.totalTilesNeededFinal} tiles"
                 tileText.text = "${String.format("%.1f", summary.tileWidthIn)} × ${String.format("%.1f", summary.tileHeightIn)} in"
-                tilesNeededText.text = MeasurementUtils.formatTimestamp(summary.timestamp)
+                timestampText.text = MeasurementUtils.formatTimestamp(summary.timestamp)
 
                 itemView.setOnClickListener {
                     onSummaryClick(summary)
