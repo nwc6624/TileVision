@@ -12,6 +12,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsActivity : AppCompatActivity() {
     
+    private lateinit var gridBackground: GridBackgroundView
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
@@ -20,8 +22,7 @@ class SettingsActivity : AppCompatActivity() {
         setupToolbar()
         
         // Setup grid background
-        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.applyInitialEnabledState(this)
+        gridBackground = findViewById(R.id.gridBackground)
         
         setupSettingsRows()
         setupVersionText()
@@ -45,8 +46,7 @@ class SettingsActivity : AppCompatActivity() {
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
         gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
         gridSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-            gridBackground?.setGridEnabled(this@SettingsActivity, isChecked)
+            gridBackground.setGridEnabled(this@SettingsActivity, isChecked)
         }
         
         // Delete All Data row (using privacyPolicyRow ID for now, will update)
@@ -122,9 +122,20 @@ class SettingsActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
-        // Sync switch state when returning to Settings
+        gridBackground.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground.setGridEnabled(this, true)
+        } else {
+            gridBackground.setGridEnabled(this, false)
+        }
+        // Sync switch state
         val gridSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.gridBackgroundSwitch)
         gridSwitch?.isChecked = GridBackgroundView.isEnabled(this)
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        gridBackground.stopAnimators()
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -29,6 +29,7 @@ class TileCalculatorActivity : AppCompatActivity() {
     private lateinit var tilesNeededText: TextView
     private lateinit var tilesCalculationDetailsText: TextView
     private lateinit var notesInput: android.widget.EditText
+    private lateinit var gridBackground: GridBackgroundView
     
     private var incomingArea: Float = 0f
     private var projectMeasurementId: String? = null
@@ -68,8 +69,7 @@ class TileCalculatorActivity : AppCompatActivity() {
         setupHeader()
         
         // Setup grid background
-        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.applyInitialEnabledState(this)
+        gridBackground = findViewById(R.id.gridBackground)
         
         // Set up area display
         if (incomingArea > 0) {
@@ -504,5 +504,20 @@ class TileCalculatorActivity : AppCompatActivity() {
             setSubtitle("Estimate tiles and waste")
             setModeBack { finish() }
         }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        gridBackground.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground.setGridEnabled(this, true)
+        } else {
+            gridBackground.setGridEnabled(this, false)
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        gridBackground.stopAnimators()
     }
 }

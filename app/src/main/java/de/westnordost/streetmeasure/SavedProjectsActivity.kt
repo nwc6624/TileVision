@@ -17,6 +17,7 @@ class SavedProjectsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySavedProjectsBinding
     private lateinit var adapter: ProjectsAdapter
+    private lateinit var gridBackground: GridBackgroundView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +31,7 @@ class SavedProjectsActivity : AppCompatActivity() {
         android.util.Log.d("SavedProjectsActivity", "onCreate called")
         
         // Setup grid background
-        val gridBackground = binding.root.findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.applyInitialEnabledState(this)
+        gridBackground = binding.root.findViewById(R.id.gridBackground)
         
         setupToolbar()
         setupRecyclerView()
@@ -177,6 +177,21 @@ class SavedProjectsActivity : AppCompatActivity() {
                     .show()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gridBackground.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground.setGridEnabled(this, true)
+        } else {
+            gridBackground.setGridEnabled(this, false)
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        gridBackground.stopAnimators()
     }
 
     companion object {

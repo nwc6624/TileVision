@@ -17,6 +17,7 @@ class SavedSummariesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySavedSummariesBinding
     private lateinit var adapter: SummariesAdapter
+    private lateinit var gridBackground: GridBackgroundView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +30,7 @@ class SavedSummariesActivity : AppCompatActivity() {
         ProjectSummaryRepository.init(this)
 
         // Setup grid background
-        val gridBackground = binding.root.findViewById<GridBackgroundView>(R.id.gridBackground)
-        gridBackground?.applyInitialEnabledState(this)
+        gridBackground = binding.root.findViewById(R.id.gridBackground)
 
         setupHeader()
         setupRecyclerView()
@@ -82,7 +82,18 @@ class SavedSummariesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        gridBackground.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground.setGridEnabled(this, true)
+        } else {
+            gridBackground.setGridEnabled(this, false)
+        }
         loadSummaries()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        gridBackground.stopAnimators()
     }
 
     private inner class SummariesAdapter(
