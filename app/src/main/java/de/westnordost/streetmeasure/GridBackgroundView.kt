@@ -1,10 +1,12 @@
 package de.westnordost.streetmeasure
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.LinearInterpolator
 
 class GridBackgroundView @JvmOverloads constructor(
     context: Context,
@@ -17,19 +19,29 @@ class GridBackgroundView @JvmOverloads constructor(
     }
     
     private var spacingPx = 32f * resources.displayMetrics.density
+    private var pulseAlpha = 1.0f
+    private var pulseAnimator: ValueAnimator? = null
     
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         
         // Determine grid color based on current theme
-        val gridColor = if (androidx.core.content.ContextCompat.getColor(context, R.color.bg_primary) == 0xFF0E1117.toInt()) {
+        val baseColor = if (androidx.core.content.ContextCompat.getColor(context, R.color.bg_primary) == 0xFF0E1117.toInt()) {
             // Dark mode
             androidx.core.content.ContextCompat.getColor(context, R.color.gridLineDarkMode)
         } else {
             // Light mode
             androidx.core.content.ContextCompat.getColor(context, R.color.gridLineLightMode)
         }
-        linePaint.color = gridColor
+        
+        // Apply pulse alpha to create energy effect
+        val alpha = (android.graphics.Color.alpha(baseColor) * pulseAlpha).toInt()
+        linePaint.color = android.graphics.Color.argb(
+            alpha,
+            android.graphics.Color.red(baseColor),
+            android.graphics.Color.green(baseColor),
+            android.graphics.Color.blue(baseColor)
+        )
         
         val width = canvas.width.toFloat()
         val height = canvas.height.toFloat()
@@ -55,10 +67,14 @@ class GridBackgroundView @JvmOverloads constructor(
         animate()
             .alpha(1f)
             .setDuration(300)
+            .withEndAction {
+                startPulseAnimation()
+            }
             .start()
     }
     
     fun fadeOut() {
+        stopPulseAnimation()
         animate()
             .alpha(0f)
             .setDuration(300)
@@ -66,10 +82,33 @@ class GridBackgroundView @JvmOverloads constructor(
             .start()
     }
     
+    private fun startPulseAnimation() {
+        stopPulseAnimation()
+        
+        pulseAnimator = ValueAnimator.ofFloat(0.4f, 1.0f).apply {
+            duration = 2000L
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = LinearInterpolator()
+            addUpdateListener { animation ->
+                pulseAlpha = animation.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+    
+    private fun stopPulseAnimation() {
+        pulseAnimator?.cancel()
+        pulseAnimator = null
+        pulseAlpha = 1.0f
+    }
+    
     fun setEnabledState(enabled: Boolean, saveToPreferences: Boolean = true) {
         if (enabled) {
             fadeIn()
         } else {
+            stopPulseAnimation()
             fadeOut()
         }
         if (saveToPreferences) {
