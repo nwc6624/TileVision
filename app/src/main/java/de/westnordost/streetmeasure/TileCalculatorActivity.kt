@@ -314,6 +314,21 @@ class TileCalculatorActivity : AppCompatActivity() {
         val tileHeight = tileHeightInput.text.toString().toFloat()
         val tileAreaSqFt = (tileWidth / 12f) * (tileHeight / 12f)
         
+        // Get layout style and grout gap from dropdowns
+        val layoutStyleLayout = findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutStyleLayout)
+        val layoutStyleDropdown = layoutStyleLayout?.editText?.text?.toString() ?: "Straight"
+        val groutGapLayout = findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.groutGapLayout)
+        val groutGapText = groutGapLayout?.editText?.text?.toString() ?: "1/8"
+        
+        // Parse grout gap to inches
+        val groutGapInches = when (groutGapText) {
+            "1/16" -> 0.0625f
+            "1/8" -> 0.125f
+            "3/16" -> 0.1875f
+            "1/4" -> 0.25f
+            else -> 0.125f
+        }
+        
         // Calculate tiles needed
         val rawTileCount = currentArea / tileAreaSqFt
         val withWasteTileCount = rawTileCount * (1f + wastePercent / 100f)
@@ -324,12 +339,14 @@ class TileCalculatorActivity : AppCompatActivity() {
             id = java.util.UUID.randomUUID().toString(),
             timestamp = System.currentTimeMillis(),
             displayName = displayName,
-            projectMeasurementId = projectMeasurementId ?: "",
+            projectMeasurementId = projectMeasurementId,
             tileSampleId = tileSampleId,
             areaSqFt = currentArea,
             tileWidthIn = tileWidth,
             tileHeightIn = tileHeight,
             tileAreaSqFt = tileAreaSqFt,
+            layoutStyle = layoutStyleDropdown,
+            groutGapInches = groutGapInches,
             wastePercent = wastePercent,
             totalTilesNeededRaw = rawTileCount,
             totalTilesNeededFinal = finalTileCount,
