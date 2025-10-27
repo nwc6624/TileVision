@@ -84,9 +84,21 @@ class HomeActivity : AppCompatActivity() {
         super.onResume()
         populateRecentMeasurements()
         
-        // Apply initial grid state
+        // Apply initial grid state and start/stop animators
         val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
         gridBackground?.applyInitialEnabledState(this)
+        if (GridBackgroundView.isEnabled(this)) {
+            gridBackground?.setGridEnabled(this, true)
+        } else {
+            gridBackground?.setGridEnabled(this, false)
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Stop animators when leaving screen to prevent crash
+        val gridBackground = findViewById<GridBackgroundView>(R.id.gridBackground)
+        gridBackground?.stopAnimators()
     }
     
     private fun setupClickListeners() {

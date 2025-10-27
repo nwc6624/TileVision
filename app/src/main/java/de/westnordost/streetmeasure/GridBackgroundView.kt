@@ -11,10 +11,8 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 import kotlin.random.Random
 
 class GridBackgroundView @JvmOverloads constructor(
@@ -30,7 +28,19 @@ class GridBackgroundView @JvmOverloads constructor(
         var lengthPx: Float
     )
     
-    private val bolts = mutableListOf<Bolt>()
+    companion object {
+        private const val MAX_BOLTS = 5
+        private const val TWO_PI = 2f * PI.toFloat()
+        
+        fun isEnabled(ctx: Context): Boolean {
+            val prefs = ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
+            return prefs.getBoolean("grid_enabled", true)
+        }
+    }
+    
+    // Fixed-size bolt pool
+    private val bolts = MutableList(MAX_BOLTS) { Bolt(false, 0, 0f, 0f, 0f) }
+    private var boltsInitialized = false
     
     // Animation state
     private var lineAlpha = 0.14f
@@ -49,6 +59,7 @@ class GridBackgroundView @JvmOverloads constructor(
     private var frameAnimator: ValueAnimator? = null
     private var lastFrameTimeNs: Long = 0L
     private var density = 0f
+    private var isAttached = false
 
     init {
         setWillNotDraw(false)
@@ -102,111 +113,115 @@ class GridBackgroundView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        bolts.clear()
-        repeat(TARGET_NUM_BOLTS) { spawnBolt() }
-        rebuildAnimator()
-        if (gridEnabled) {
-            startAnimators()
-        }
+        // Reset bolts initialization when size changes
+        boltsInitialized = false
     }
 
-    private fun spawnBolt() {
-        val isHorizontal = Random.nextBoolean()
-        val numLines = if (isHorizontal) {
-            (height / spacingPx).toInt()
-        } else {
-            (width / spacingPx).toInt()
+    private fun dpToPx(dp: Int): Float = dp * resources.displayMetrics.density
+    
+    private fun initBoltsIfNeeded() {
+        if (boltsInitialized) return
+        boltsInitialized = true
+        
+        for (bolt in bolts) {
+            resetBolt(bolt)
         }
+    }
+    
+    private fun resetBolt(bolt: Bolt) {
+        bolt.isHorizontal = Random.nextBoolean()
+        val travel = if (bolt.isHorizontal) height.toFloat() else width.toFloat()
         
-        if (numLines < 2) return  // Not enough space
+        if (travel <= 0f) return // No space yet
         
-        val lineIndex = Random.nextInt(1, numLines - 1)
-        val travelDistance = if (isHorizontal) width.toFloat() else height.toFloat()
-        val lengthPx = travelDistance * 0.25f
-        val speedPxPerSec = Random.nextFloat() * (400f - 200f) * density + 200f * density
-        
-        bolts.add(
-            Bolt(
-                isHorizontal = isHorizontal,
-                lineIndex = lineIndex,
-                headPos = -lengthPx,
-                speedPxPerSec = speedPxPerSec,
-                lengthPx = lengthPx
-            )
-        )
+        val maxLines = (travel / spacingPx).toInt().coerceAtLeast(1)
+        bolt.lineIndex = Random.nextInt(1, maxLines).coerceAtLeast(0)
+        bolt.lengthPx = travel * 0.25f
+        bolt.speedPxPerSec = dpToPx(Random.nextInt(200, 400))
+        bolt.headPos = -bolt.lengthPx
     }
 
-    private fun rebuildAnimator() {
-        frameAnimator?.cancel()
+    private fun ensureFrameAnimator() {
+        if (frameAnimator != null) return
+
         frameAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = 2000L
             repeatCount = ValueAnimator.INFINITE
             interpolator = LinearInterpolator()
             addUpdateListener {
                 val now = System.nanoTime()
-                if (lastFrameTimeNs == 0L) lastFrameTimeNs = now
+                if (lastFrameTimeNs == 0L) {
+                    lastFrameTimeNs = now
+                }
                 val dtSec = (now - lastFrameTimeNs) / 1_000_000_000f
                 lastFrameTimeNs = now
 
+                // update bolts + alpha pulse
                 updateBolts(dtSec)
-                updatePulseAlpha(dtSec)
+                updatePulse(dtSec)
+
+                // request redraw
                 invalidate()
             }
         }
     }
 
     private fun updateBolts(dtSec: Float) {
-        val iter = bolts.iterator()
-        while (iter.hasNext()) {
-            val bolt = iter.next()
-            bolt.headPos += bolt.speedPxPerSec * dtSec
-            
-            val bounds = if (bolt.isHorizontal) width.toFloat() else height.toFloat()
-            if (bolt.headPos - bolt.lengthPx > bounds) {
-                // Respawn this bolt
-                iter.remove()
-                spawnBolt()
-            }
-        }
+        if (width <= 0 || height <= 0) return
         
-        // Maintain target count
-        while (bolts.size < TARGET_NUM_BOLTS) {
-            spawnBolt()
+        for (bolt in bolts) {
+            bolt.headPos += bolt.speedPxPerSec * dtSec
+            val limit = if (bolt.isHorizontal) width.toFloat() else height.toFloat()
+            if (bolt.headPos - bolt.lengthPx > limit) {
+                resetBolt(bolt)
+            }
         }
     }
 
-    private fun updatePulseAlpha(dtSec: Float) {
+    private fun updatePulse(dtSec: Float) {
+        // 3s cycle
         pulsePhase += dtSec
-        // 3 second cycle
-        val phase = (pulsePhase / 3f) * TWO_PI
-        lineAlpha = (0.14f + sin(phase) * 0.04f).coerceIn(0.08f, 0.22f)
+        val cycle = 3f
+        val t = (pulsePhase % cycle) / cycle // 0..1
+        // sin wave 0→1→0 style
+        val wave = kotlin.math.sin(t * (PI * 2)).toFloat() * 0.5f + 0.5f // 0..1
+        val base = 0.12f
+        val amp = 0.08f
+        lineAlpha = (base + wave * amp).coerceIn(0.08f, 0.22f)
     }
 
     private fun startAnimators() {
-        if (frameAnimator?.isRunning != true) {
-            lastFrameTimeNs = 0L
-            frameAnimator?.start()
-        }
-    }
-
-    private fun stopAnimators() {
-        frameAnimator?.cancel()
+        if (!isAttached || !gridEnabled) return
+        if (width <= 0 || height <= 0) return
+        if (frameAnimator?.isRunning == true) return
+        
+        initBoltsIfNeeded()
+        ensureFrameAnimator()
+        lastFrameTimeNs = 0L
+        frameAnimator?.start()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        isAttached = true
         resolveThemeColors()
-        setupPaints()
-        if (gridEnabled) {
-            alpha = 1f
-        } else {
-            alpha = 0f
-        }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        isAttached = false
         stopAnimators()
+    }
+
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        if (visibility != VISIBLE) {
+            stopAnimators()
+        } else {
+            if (gridEnabled && width > 0 && height > 0) {
+                startAnimators()
+            }
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -230,46 +245,54 @@ class GridBackgroundView @JvmOverloads constructor(
             y += spacingPx
         }
 
-        // 2. Draw bolts
-        boltPaint.color = boltColor
-        for (bolt in bolts) {
-            if (bolt.isHorizontal) {
-                val y = bolt.lineIndex * spacingPx
-                val startX = bolt.headPos - bolt.lengthPx
-                val endX = bolt.headPos
-                val clampedStart = max(0f, startX)
-                val clampedEnd = min(width.toFloat(), endX)
-                
-                if (clampedStart < clampedEnd) {
-                    canvas.drawLine(clampedStart, y, clampedEnd, y, boltPaint)
-                    drawNodeGlow(canvas, endX, y)
-                }
-            } else {
-                val x = bolt.lineIndex * spacingPx
-                val startY = bolt.headPos - bolt.lengthPx
-                val endY = bolt.headPos
-                val clampedStart = max(0f, startY)
-                val clampedEnd = min(height.toFloat(), endY)
-                
-                if (clampedStart < clampedEnd) {
-                    canvas.drawLine(x, clampedStart, x, clampedEnd, boltPaint)
-                    drawNodeGlow(canvas, x, endY)
+        // 2. Draw bolts with try-catch safety
+        try {
+            boltPaint.color = boltColor
+            for (bolt in bolts) {
+                if (bolt.isHorizontal) {
+                    val yPos = (bolt.lineIndex * spacingPx).coerceIn(0f, height.toFloat())
+                    val startX = bolt.headPos - bolt.lengthPx
+                    val endX = bolt.headPos
+                    val clampedStart = max(0f, startX).coerceAtMost(width.toFloat())
+                    val clampedEnd = max(0f, endX).coerceAtMost(width.toFloat())
+                    
+                    if (clampedStart < clampedEnd) {
+                        canvas.drawLine(clampedStart, yPos, clampedEnd, yPos, boltPaint)
+                        drawNodeGlow(canvas, endX, yPos)
+                    }
+                } else {
+                    val xPos = (bolt.lineIndex * spacingPx).coerceIn(0f, width.toFloat())
+                    val startY = bolt.headPos - bolt.lengthPx
+                    val endY = bolt.headPos
+                    val clampedStart = max(0f, startY).coerceAtMost(height.toFloat())
+                    val clampedEnd = max(0f, endY).coerceAtMost(height.toFloat())
+                    
+                    if (clampedStart < clampedEnd) {
+                        canvas.drawLine(xPos, clampedStart, xPos, clampedEnd, boltPaint)
+                        drawNodeGlow(canvas, xPos, endY)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            // Swallow to avoid crash during transitions
         }
     }
     
     private fun drawNodeGlow(canvas: Canvas, cx: Float, cy: Float) {
         if (cx < 0f || cy < 0f || cx > width || cy > height) return
         
-        // Core dot
-        nodePaint.alpha = (0.6f * 255).toInt()
-        nodePaint.color = nodeColor
-        canvas.drawCircle(cx, cy, 4f * density, nodePaint)
-        
-        // Halo
-        nodePaint.alpha = (0.18f * 255).toInt()
-        canvas.drawCircle(cx, cy, 10f * density, nodePaint)
+        try {
+            // Core dot
+            nodePaint.alpha = (0.6f * 255).toInt()
+            nodePaint.color = nodeColor
+            canvas.drawCircle(cx, cy, 4f * density, nodePaint)
+            
+            // Halo
+            nodePaint.alpha = (0.18f * 255).toInt()
+            canvas.drawCircle(cx, cy, 10f * density, nodePaint)
+        } catch (e: Exception) {
+            // Swallow drawing errors
+        }
     }
 
     // -------- public API --------
@@ -279,9 +302,6 @@ class GridBackgroundView @JvmOverloads constructor(
         if (gridEnabled) {
             alpha = 1f
             visibility = VISIBLE
-            if (width > 0 && height > 0) {
-                startAnimators()
-            }
         } else {
             alpha = 0f
             visibility = GONE
@@ -320,16 +340,12 @@ class GridBackgroundView @JvmOverloads constructor(
                 .start()
         }
     }
-
-    // -------- companion object for static methods --------
-    companion object {
-        private const val TWO_PI = 2f * PI.toFloat()
-        private const val TARGET_NUM_BOLTS = 5
-        
-        fun isEnabled(ctx: Context): Boolean {
-            val prefs = ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
-            return prefs.getBoolean("grid_enabled", true)
-        }
+    
+    // Public method for Activities to stop animators
+    fun stopAnimators() {
+        frameAnimator?.cancel()
+        frameAnimator = null
+        lastFrameTimeNs = 0L
     }
     
     // Private helper functions for this instance
