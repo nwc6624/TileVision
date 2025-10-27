@@ -86,11 +86,15 @@ class TileCalculatorActivity : AppCompatActivity() {
         findViewById<android.widget.Button>(R.id.buttonBackToHome)?.setOnClickListener {
             finish()
         }
+        
+        findViewById<android.widget.Button>(R.id.buttonMeasureTile)?.setOnClickListener {
+            val intent = Intent(this, TileSampleMeasureActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE_MEASURE_TILE)
+        }
         }
         
     private fun saveJobSummary() {
-        // TODO: Implement save job summary
-        Toast.makeText(this, "Save Job Summary - Coming soon", Toast.LENGTH_SHORT).show()
+        showSaveJobSummaryDialog()
     }
     
     private fun calculateTiles() {
