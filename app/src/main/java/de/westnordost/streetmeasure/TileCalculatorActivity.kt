@@ -315,33 +315,39 @@ class TileCalculatorActivity : AppCompatActivity() {
             return
         }
         
-        // Create dialog view
-        val dialogView = layoutInflater.inflate(R.layout.dialog_save_job_summary, null)
-        val editProjectName = dialogView.findViewById<EditText>(R.id.editProjectName)
-        val editNotes = dialogView.findViewById<EditText>(R.id.editNotes)
-        val editWastePercent = dialogView.findViewById<EditText>(R.id.editWastePercent)
+        // Create bottom sheet dialog view
+        val dialogView = layoutInflater.inflate(R.layout.dialog_save_summary, null)
+        val jobNameText = dialogView.findViewById<EditText>(R.id.jobNameText)
+        val notesText = dialogView.findViewById<EditText>(R.id.notesText)
+        val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancel)
+        val buttonSave = dialogView.findViewById<Button>(R.id.buttonSave)
         
         // Pre-fill with default values
         val defaultName = MeasurementUtils.formatDisplayName("Job", System.currentTimeMillis())
-        editProjectName.setText(defaultName)
-        editWastePercent.setText(wasteSlider.value.toInt().toString())
+        jobNameText.setText(defaultName)
         
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Save Project Summary")
-            .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
-                val notesText = editNotes.text.toString().trim()
-                android.util.Log.d("TileVision", "Notes captured from dialog: '$notesText'")
-                saveJobSummary(
-                    editProjectName.text.toString().trim().ifEmpty { defaultName },
-                    notesText,
-                    editWastePercent.text.toString().toFloatOrNull() ?: 10f
-                )
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
+        // Create bottom sheet dialog
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        bottomSheet.setContentView(dialogView)
+        bottomSheet.behavior.peekHeight = com.google.android.material.bottomsheet.BottomSheetBehavior.PEEK_HEIGHT_AUTO
         
-        dialog.show()
+        buttonCancel.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+        
+        buttonSave.setOnClickListener {
+            val jobNameValue = jobNameText.text.toString().trim()
+            val notesValue = notesText.text.toString().trim()
+            android.util.Log.d("TileVision", "Notes captured from dialog: '$notesValue'")
+            saveJobSummary(
+                if (jobNameValue.isBlank()) defaultName else jobNameValue,
+                notesValue,
+                wasteSlider.value
+            )
+            bottomSheet.dismiss()
+        }
+        
+        bottomSheet.show()
     }
     
     private fun saveJobSummary(displayName: String, notes: String, wastePercent: Float) {
@@ -401,18 +407,20 @@ class TileCalculatorActivity : AppCompatActivity() {
         ProjectSummaryRepository.addSummary(summary)
         android.util.Log.d("TileVision", "Summary saved: ${summary.displayName}")
         
-        // Show confirmation dialog
-        AlertDialog.Builder(this)
-            .setTitle("Job Summary Saved")
-            .setMessage("Your job summary has been saved successfully.")
-            .setPositiveButton("View Saved Jobs") { _, _ ->
-                val intent = Intent(this, SavedSummariesActivity::class.java)
-                startActivity(intent)
-            }
-            .setNegativeButton("Done") { _, _ ->
-                // Just dismiss
-            }
-            .show()
+        // Haptic feedback
+        window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
+        
+        // Show confirmation snackbar with "View" action
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(
+            findViewById(android.R.id.content),
+            "Saved to Jobs",
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        )
+        snackbar.setAction("View") {
+            val intent = Intent(this, SavedSummariesActivity::class.java)
+            startActivity(intent)
+        }
+        snackbar.show()
     }
     
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

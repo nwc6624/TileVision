@@ -43,8 +43,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     private lateinit var traceOverlay: TileTraceOverlayView
     private lateinit var bottomPanel: android.widget.LinearLayout
     private lateinit var textResult: android.widget.TextView
-    private lateinit var instructionText: android.widget.TextView
-    private lateinit var editSizeButton: android.widget.Button
     private lateinit var undoButton: android.widget.Button
     private lateinit var saveButton: android.widget.Button
     private lateinit var useButton: android.widget.Button
@@ -92,8 +90,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
             finish()
         }
         
-        // Set initial instruction text
-        instructionText.text = "Slowly move your phone until the tile's surface is detected (you should see AR plane highlights). Then trace the tile with your finger in one loop."
     }
     
     private fun setupToolbar() {
@@ -106,8 +102,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         traceOverlay = binding.traceOverlay
         bottomPanel = binding.bottomPanel
         textResult = binding.textResult
-        instructionText = binding.instructionText
-        editSizeButton = binding.editSizeButton
         undoButton = binding.undoButton
         saveButton = binding.saveButton
         useButton = binding.useButton
@@ -244,14 +238,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     
     
         private fun setupClickListeners() {
-        binding.buttonBack.setOnClickListener {
-            finish()
-        }
-
-        editSizeButton.setOnClickListener {
-            showAdjustTileSizeDialog()
-        }
-
         undoButton.setOnClickListener {
             resetTileCapture()
         }
@@ -399,8 +385,7 @@ class TileSampleMeasureActivity : AppCompatActivity() {
             bottomPanel.visibility = android.view.View.VISIBLE
             textResult.text = "${dispWround} in x ${dispHround} in\n${dispAround} ft²"
 
-            // Enable Save / Use / Undo / Edit Size buttons now
-            editSizeButton.isEnabled = true
+            // Enable Save / Use / Undo buttons now
             saveButton.isEnabled = true
             useButton.isEnabled = true
             undoButton.isEnabled = true
@@ -625,7 +610,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         bottomPanel.visibility = android.view.View.GONE
         
         // Disable buttons
-        editSizeButton.isEnabled = false
         saveButton.isEnabled = false
         useButton.isEnabled = false
         undoButton.isEnabled = false

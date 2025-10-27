@@ -201,23 +201,6 @@
         android:visibility="visible"
         tools:visibility="visible" />
 
-    <!-- Skip AR Button -->
-    <TextView
-        android:id="@+id/skipButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Skip AR &amp; Open Calculator"
-        android:textColor="#fff"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:background="@android:color/transparent"
-        android:padding="12dp"
-        android:visibility="visible"
-        android:contentDescription="Skip AR and open calculator" />
-
     <!-- AR tracking error message -->
     <TextView
         android:id="@+id/tracking_message_text_view"
