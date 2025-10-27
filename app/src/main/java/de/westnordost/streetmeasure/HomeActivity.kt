@@ -27,15 +27,22 @@ class HomeActivity : AppCompatActivity() {
         ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
         
+        android.util.Log.d("TileVisionLifecycle", "onCreate HomeActivity starting")
+        
         // Inflate the shared page shell
         setContentView(R.layout.layout_page_shell)
         
         // Get references to shell elements
-        gridBackground = findViewById(R.id.gridBackground)
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        gridBackground = findViewById(R.id.gridBackground)
         
         // Inflate the activity's own content layout into the shell's container
-        layoutInflater.inflate(R.layout.activity_home, pageContentContainer, true)
+        try {
+            layoutInflater.inflate(R.layout.activity_home, pageContentContainer, true)
+            android.util.Log.d("TileVisionLifecycle", "HomeActivity shell + content inflated ok")
+        } catch (e: Exception) {
+            android.util.Log.e("TileVisionLifecycle", "inflate failed in HomeActivity", e)
+        }
         
         // Now set up binding on the inflated content
         binding = ActivityHomeBinding.bind(pageContentContainer)
@@ -96,18 +103,22 @@ class HomeActivity : AppCompatActivity() {
         populateRecentMeasurements()
         
         // Apply initial grid state and start/stop animators
-        gridBackground.applyInitialEnabledState(this)
-        if (GridBackgroundView.isEnabled(this)) {
-            gridBackground.setGridEnabled(this, true)
-        } else {
-            gridBackground.setGridEnabled(this, false)
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.applyInitialEnabledState(this)
+            if (GridBackgroundView.isEnabled(this)) {
+                gridBackground.setGridEnabled(this, true)
+            } else {
+                gridBackground.setGridEnabled(this, false)
+            }
         }
     }
     
     override fun onPause() {
         super.onPause()
         // Stop animators when leaving screen to prevent crash
-        gridBackground.stopAnimators()
+        if (::gridBackground.isInitialized && gridBackground != null) {
+            gridBackground.stopAnimators()
+        }
     }
     
     private fun setupClickListeners() {

@@ -22,15 +22,22 @@ class SavedTileSamplesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        android.util.Log.d("TileVisionLifecycle", "onCreate SavedTileSamplesActivity starting")
+        
         // Inflate the shared page shell
         setContentView(R.layout.layout_page_shell)
         
         // Get references to shell elements
-        gridBackground = findViewById(R.id.gridBackground)
         val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        gridBackground = findViewById(R.id.gridBackground)
         
         // Inflate the activity's own content layout into the shell's container
-        layoutInflater.inflate(R.layout.activity_saved_tile_samples, pageContentContainer, true)
+        try {
+            layoutInflater.inflate(R.layout.activity_saved_tile_samples, pageContentContainer, true)
+            android.util.Log.d("TileVisionLifecycle", "SavedTileSamplesActivity shell + content inflated ok")
+        } catch (e: Exception) {
+            android.util.Log.e("TileVisionLifecycle", "inflate failed in SavedTileSamplesActivity", e)
+        }
         
         // Now set up binding on the inflated content
         binding = ActivitySavedTileSamplesBinding.bind(pageContentContainer)
