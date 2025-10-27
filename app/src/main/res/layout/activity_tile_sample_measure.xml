@@ -30,127 +30,103 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@drawable/bottom_overlay_background"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:elevation="24dp">
 
-        <!-- Instruction Text -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="@color/bg_surface_glass"
+            app:strokeColor="@color/border_soft"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Result Text -->
                 <TextView
-                    android:id="@+id/instructionText"
+                    android:id="@+id/textResult"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Slowly move your phone until the tile's surface is detected (you should see AR plane highlights). Then trace the tile with your finger in one loop."
-                    android:textSize="16sp"
-                    android:textColor="@color/tv_text_primary"
+                    android:text="12.0 × 24.0 in"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_teal"
                     android:gravity="center"
                     android:layout_marginBottom="16dp" />
 
-        <!-- Measurement Display -->
-        <TextView
-            android:id="@+id/textResult"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tap to measure tile"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/tv_primary"
-            android:gravity="center"
-            android:background="@drawable/measurement_bubble_background"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp" />
+                <!-- Action Buttons Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp">
 
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <!-- Back Button -->
-            <Button
-                android:id="@+id/buttonBack"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:text="←"
-                android:textSize="20sp"
-                android:textColor="@color/tv_text_primary"
-                android:background="@drawable/circle_button_background"
-                android:layout_marginEnd="16dp" />
-
-                    <!-- Edit Size Button -->
-                    <Button
-                        android:id="@+id/editSizeButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:text="✏️"
-                        android:textSize="20sp"
-                        android:textColor="@color/tv_primaryText"
-                        android:background="@color/tv_primary"
-                        android:layout_marginEnd="16dp"
-                        android:enabled="false" />
-
-                    <!-- Undo/Retake Button -->
+                    <!-- Undo Button -->
                     <Button
                         android:id="@+id/undoButton"
                         android:layout_width="56dp"
                         android:layout_height="56dp"
-                        android:text="⟲"
-                        android:textSize="20sp"
-                        android:textColor="@color/tv_text_primary"
-                        android:background="@drawable/circle_button_background"
-                        android:layout_marginEnd="16dp"
-                        android:enabled="false" />
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/glow_button_undo"
+                        android:text="↩"
+                        android:textSize="24sp"
+                        android:textColor="@android:color/white"
+                        android:contentDescription="Undo last measurement step" />
 
                     <!-- Save Button -->
                     <Button
                         android:id="@+id/saveButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:text="💾"
-                        android:textSize="20sp"
-                        android:textColor="@color/tv_primaryText"
-                        android:background="@color/tv_primary"
-                        android:layout_marginEnd="16dp"
-                        android:enabled="false" />
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="4dp"
+                        android:text="Save"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_primary_background"
+                        android:padding="12dp"
+                        android:contentDescription="Save this tile measurement" />
 
-            <!-- Manual Outline Button -->
-            <Button
-                android:id="@+id/buttonManualOutline"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:text="✏️"
-                android:textSize="20sp"
-                android:textColor="@color/tv_text_primary"
-                android:background="@drawable/circle_button_background"
-                android:layout_marginEnd="16dp"
-                android:visibility="gone" />
-
-            <!-- Finish Polygon Button -->
-            <Button
-                android:id="@+id/buttonFinishPolygon"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:text="✓"
-                android:textSize="20sp"
-                android:textColor="@color/tv_primaryText"
-                android:background="@color/tv_primary"
-                android:visibility="gone" />
-
-                    <!-- Use in Calculator Button -->
+                    <!-- Use Button -->
                     <Button
                         android:id="@+id/useButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:text="📐"
-                        android:textSize="20sp"
-                        android:textColor="@color/tv_primaryText"
-                        android:background="@color/tv_primary"
-                        android:enabled="false" />
-
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="4dp"
+                        android:text="Use"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/button_secondary_background"
+                        android:padding="12dp"
+                        android:contentDescription="Use this measurement in the tile calculator" />
                 </LinearLayout>
 
+                <!-- Skip AR Link -->
+                <TextView
+                    android:id="@+id/skipButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Skip AR &amp; Open Calculator"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:textStyle="normal" />
+
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
     <!-- Instruction Popup -->
     <de.westnordost.streetmeasure.InstructionPopupView
@@ -161,22 +137,6 @@
         android:layout_marginTop="120dp"
         android:visibility="visible"
         android:contentDescription="Measurement instructions" />
-
-    <!-- Skip AR Button -->
-    <TextView
-        android:id="@+id/skipButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="80dp"
-        android:text="Skip AR &amp; Open Calculator"
-        android:textColor="#fff"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:background="@android:color/transparent"
-        android:padding="12dp"
-        android:visibility="visible"
-        android:contentDescription="Skip AR and open calculator" />
 
     <!-- THE TRACE OVERLAY MUST BE LAST SO IT SITS ON TOP AND GETS TOUCH -->
     <de.westnordost.streetmeasure.TileTraceOverlayView

@@ -125,47 +125,60 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp">
 
                     <!-- Undo Button -->
-                    <ImageButton
+                    <Button
                         android:id="@+id/undoButton"
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/glow_button_undo"
-                        android:src="@drawable/ic_start_over_48"
-                        android:scaleType="centerInside"
-                        android:contentDescription="Undo"
-                        android:elevation="8dp"
-                        app:tint="@android:color/white" />
+                        android:text="↩"
+                        android:textSize="24sp"
+                        android:textColor="@android:color/white"
+                        android:contentDescription="Undo last measurement step" />
 
                     <!-- Save Button -->
-                    <ImageButton
+                    <Button
                         android:id="@+id/saveButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:background="@drawable/glow_button_background"
-                        android:src="@drawable/ic_check_48"
-                        android:scaleType="centerInside"
-                        android:contentDescription="Save"
-                        android:elevation="8dp"
-                        app:tint="@android:color/white" />
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="4dp"
+                        android:text="Save"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_primary_background"
+                        android:padding="12dp"
+                        android:contentDescription="Save this measurement" />
 
                     <!-- Use Button -->
-                    <ImageButton
+                    <Button
                         android:id="@+id/confirmButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/glow_button_background"
-                        android:src="@drawable/ic_check_48"
-                        android:scaleType="centerInside"
-                        android:contentDescription="Use in calculator"
-                        android:elevation="8dp"
-                        app:tint="@android:color/white" />
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="4dp"
+                        android:text="Use"
+                        android:textColor="@color/text_primary"
+                        android:background="@drawable/button_secondary_background"
+                        android:padding="12dp"
+                        android:contentDescription="Use this measurement in the tile calculator" />
                 </LinearLayout>
+
+                <!-- Skip AR Link -->
+                <TextView
+                    android:id="@+id/skipButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Skip AR &amp; Open Calculator"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:textStyle="normal" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

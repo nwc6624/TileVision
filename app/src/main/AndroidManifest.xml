@@ -56,7 +56,8 @@
         
         <activity
             android:name="de.westnordost.streetmeasure.TileCalculatorActivity"
-            android:exported="false">
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         
         <activity
