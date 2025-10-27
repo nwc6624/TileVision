@@ -55,12 +55,12 @@ class AppHeaderView @JvmOverloads constructor(
     }
 
     fun setModeHome(onSettingsClick: () -> Unit) {
-        actionButton.setIconResource(R.drawable.ic_settings_24)
+        actionButton.icon = context.getDrawable(R.drawable.ic_settings_24)
         actionButton.setOnClickListener { onSettingsClick() }
     }
 
     fun setModeBack(onBackClick: () -> Unit) {
-        actionButton.setIconResource(R.drawable.ic_arrow_back_24)
+        actionButton.icon = context.getDrawable(R.drawable.ic_arrow_back_24)
         actionButton.setOnClickListener { onBackClick() }
     }
 }
