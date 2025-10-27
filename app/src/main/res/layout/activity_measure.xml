@@ -33,6 +33,20 @@
         android:visibility="visible"
         android:contentDescription="Measurement instructions" />
 
+    <!-- Arrow Instruction View -->
+    <include
+        android:id="@+id/arrowInstructionView"
+        layout="@layout/view_arrow_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="64dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Aim the white arrow where you want a corner, then tap to drop a point." />
+
     <!-- Top instruction label -->
     <TextView
         android:id="@+id/instructionTextView"
@@ -129,42 +143,68 @@
                     android:layout_marginBottom="12dp">
 
                     <!-- Undo Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/undoButton"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/glow_button_undo"
-                        android:text="↩"
-                        android:textSize="24sp"
-                        android:textColor="@android:color/white"
-                        android:contentDescription="Undo last measurement step" />
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:text="Undo"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        app:backgroundTint="@color/bg_surface_glass"
+                        app:strokeColor="@color/border_soft"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="24dp"
+                        app:icon="@android:drawable/ic_menu_revert"
+                        app:iconTint="@color/accent_purple"
+                        app:iconPadding="4dp"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        android:contentDescription="Undo last corner" />
 
                     <!-- Save Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/saveButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
                         android:layout_marginHorizontal="4dp"
                         android:text="Save"
-                        android:textColor="@android:color/white"
-                        android:background="@drawable/button_primary_background"
-                        android:padding="12dp"
-                        android:contentDescription="Save this measurement" />
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#000000"
+                        app:backgroundTint="@color/accent_teal"
+                        app:cornerRadius="24dp"
+                        app:icon="@android:drawable/checkbox_on_background"
+                        app:iconTint="#000000"
+                        app:iconPadding="4dp"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        android:contentDescription="Save this surface measurement" />
 
                     <!-- Use Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/confirmButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
-                        android:layout_marginHorizontal="4dp"
+                        android:layout_marginStart="4dp"
                         android:text="Use"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:background="@drawable/button_secondary_background"
-                        android:padding="12dp"
-                        android:contentDescription="Use this measurement in the tile calculator" />
+                        app:backgroundTint="@color/bg_surface_glass"
+                        app:strokeColor="@color/border_soft"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconTint="@color/accent_teal"
+                        app:iconPadding="4dp"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        android:contentDescription="Use this area in Tile Calculator" />
                 </LinearLayout>
 
                 <!-- Skip AR Link -->

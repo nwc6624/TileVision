@@ -132,24 +132,31 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
         // Direction, unit, and flash buttons removed for surface area mode
 
-        binding.undoButton.setOnClickListener { undoLastPoint() }
-        binding.confirmButton.setOnClickListener { confirmMeasurement() }
+        binding.undoButton.setOnClickListener { 
+            undoLastPoint()
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+        }
         
-        // Find save button if it exists
-        val saveButton = binding.root.findViewById<View>(R.id.saveButton)
-        saveButton?.setOnClickListener {
-            // Handle save action
+        // Save button - persist to ProjectRepository
+        binding.saveButton.setOnClickListener {
+            onSaveMeasurementClicked()
+        }
+        
+        // Confirm button - use in calculator
+        binding.confirmButton.setOnClickListener {
+            onUseMeasurementClicked()
         }
         
         // Setup instruction popup
         binding.instructionPopup.setText("Tap at each corner of the surface to mark the outline.\nPress ✓ when done.")
         binding.instructionPopup.startFloatAnim()
         
+        // Setup arrow instruction popup (first-time hint)
+        setupArrowInstruction()
+        
         // Setup skip button
         binding.skipButton.setOnClickListener {
-            val intent = Intent(this, TileCalculatorActivity::class.java)
-            startActivity(intent)
-            finish()
+            onSkipARClicked()
         }
 
         // Initialize polygon measurement UI
@@ -353,6 +360,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         // Fade out instruction popup on first tap
         if (polygonPoints.isEmpty() && binding.instructionPopup.visibility == android.view.View.VISIBLE) {
             binding.instructionPopup.fadeOut()
+        }
+        
+        // Dismiss arrow instruction on first point
+        if (polygonPoints.isEmpty()) {
+            dismissArrowInstruction()
         }
         
         // Store the world position as Vector3 in polygonPoints
@@ -778,6 +790,125 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Show save/continue dialog instead of immediately proceeding
         returnMeasuringResult()
+    }
+    
+    private fun onSaveMeasurementClicked() {
+        if (polygonState.anchors.size < 3) {
+            showInlineWarningChip("Add at least 3 corners before saving.")
+            return
+        }
+        
+        val measurement = buildProjectMeasurementFromCurrentPolygon()
+        ProjectRepository.addProjectMeasurement(measurement)
+        android.util.Log.d("TileVision", "Saved project measurement: $measurement")
+        
+        window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
+        
+        // Show snackbar and navigate
+        com.google.android.material.snackbar.Snackbar.make(
+            findViewById(android.R.id.content),
+            "Saved. View in Saved Projects.",
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        ).setAction("View") {
+            val intent = Intent(this, SavedProjectsActivity::class.java)
+            startActivity(intent)
+            finish()
+        }.show()
+    }
+    
+    private fun onUseMeasurementClicked() {
+        val area = binding.areaTextView.text?.toString()?.replace("Area: ", "")?.replace(" sq ft", "")?.toFloatOrNull()
+        
+        if (area != null && area > 0f) {
+            window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            val intent = Intent(this, TileCalculatorActivity::class.java)
+            intent.putExtra("EXTRA_AREA_FT2", area)
+            startActivity(intent)
+            finish()
+        } else {
+            showInlineWarningChip("No valid area yet.")
+        }
+    }
+    
+    private fun onSkipARClicked() {
+        val intent = Intent(this, TileCalculatorActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    
+    private fun buildProjectMeasurementFromCurrentPolygon(): ProjectMeasurement {
+        // Calculate area from polygon points
+        val points2D = polygonPoints.map { point -> Pair(point.x, point.z) }
+        var sum = 0f
+        for (i in points2D.indices) {
+            val (x1, z1) = points2D[i]
+            val (x2, z2) = points2D[(i + 1) % points2D.size]
+            sum += (x1 * z2 - x2 * z1)
+        }
+        val areaM2 = kotlin.math.abs(sum) * 0.5f
+        val areaSqFt = areaM2 * 10.7639f
+        
+        // Convert 3D points to 2D (x, z) for preview drawing
+        val polygonPoints2D = polygonPoints.map { ProjectPoint2D(it.x, it.z) }
+        
+        return ProjectMeasurement(
+            id = java.util.UUID.randomUUID().toString(),
+            displayName = MeasurementUtils.formatDisplayName("Project", System.currentTimeMillis()),
+            areaFt2 = areaSqFt,
+            timestamp = System.currentTimeMillis(),
+            polygonPoints = polygonPoints2D
+        )
+    }
+    
+    private fun setupArrowInstruction() {
+        val prefs = getSharedPreferences("tilevision", MODE_PRIVATE)
+        val hasSeenHint = prefs.getBoolean("seen_arrow_hint", false)
+        
+        val arrowView = findViewById<View>(R.id.arrowInstructionView)
+        if (arrowView != null && !hasSeenHint) {
+            arrowView.visibility = android.view.View.VISIBLE
+            startArrowInstructionAnimation()
+            
+            // Store that we've seen the hint
+            prefs.edit().putBoolean("seen_arrow_hint", true).apply()
+            
+            // Dismiss on tap
+            arrowView.setOnClickListener {
+                dismissArrowInstruction()
+            }
+        }
+    }
+    
+    private fun startArrowInstructionAnimation() {
+        val arrowView = findViewById<View>(R.id.arrowInstructionView) ?: return
+        arrowView.animate()
+            .translationYBy(-6f * resources.displayMetrics.density)
+            .setDuration(1250)
+            .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
+            .withEndAction {
+                arrowView.animate()
+                    .translationYBy(6f * resources.displayMetrics.density)
+                    .setDuration(1250)
+                    .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
+                    .withEndAction {
+                        startArrowInstructionAnimation()
+                    }
+            }
+    }
+    
+    private fun dismissArrowInstruction() {
+        val arrowView = findViewById<View>(R.id.arrowInstructionView) ?: return
+        arrowView.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction { 
+                arrowView.visibility = android.view.View.GONE
+            }
+    }
+    
+    private fun showInlineWarningChip(message: String) {
+        // TODO: Implement glass chip warning above bottom panel
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
     
     private fun updateButtonStates() {

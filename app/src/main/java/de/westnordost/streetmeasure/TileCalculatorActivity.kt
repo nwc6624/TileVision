@@ -56,6 +56,9 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         // Read incoming data
         incomingArea = intent.getFloatExtra("areaSqFeet", 0f)
+        if (incomingArea == 0f) {
+            incomingArea = intent.getFloatExtra("EXTRA_AREA_FT2", 0f)
+        }
         projectMeasurementId = intent.getStringExtra("projectMeasurementId")
         tileSampleId = intent.getStringExtra("tileSampleId")
         android.util.Log.d("TileCalculatorActivity", "Received incoming area: $incomingArea ft², projectId: $projectMeasurementId, tileId: $tileSampleId")

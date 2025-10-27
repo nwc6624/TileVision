@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@color/bg_surface_glass"
+    app:strokeColor="@color/border_soft"
+    app:strokeWidth="1dp">
+
+    <TextView
+        android:id="@+id/instructionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aim the white arrow where you want a corner, then tap to drop a point."
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:padding="12dp"
+        android:contentDescription="Aim the white arrow where you want a corner, then tap to drop a point."
+        android:focusable="true" />
+
+</com.google.android.material.card.MaterialCardView>
