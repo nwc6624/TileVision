@@ -116,6 +116,7 @@ class HomeActivity : AppCompatActivity() {
                 text = "No recent measurements"
                 textSize = 16f
                 setTextColor(resources.getColor(R.color.tv_text_secondary, null))
+                gravity = android.view.Gravity.CENTER
                 setPadding(0, 16, 0, 16)
             }
             recentContainer.addView(emptyText)
@@ -126,6 +127,7 @@ class HomeActivity : AppCompatActivity() {
                     text = formatMeasurement(measurement)
                     textSize = 16f
                     setTextColor(resources.getColor(R.color.tv_text_primary, null))
+                    gravity = android.view.Gravity.CENTER
                     setPadding(0, 8, 0, 8)
                 }
                 recentContainer.addView(measurementText)
