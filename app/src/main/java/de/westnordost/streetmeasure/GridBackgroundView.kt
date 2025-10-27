@@ -5,119 +5,199 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.LinearGradient
 import android.graphics.Paint
-import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sin
+import kotlin.random.Random
 
 class GridBackgroundView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
     
-    private var lineAlpha = 0.15f           // animated 0.10 → 0.18 → 0.10
-    private var sweepOffset = 0f
-
-    private var pulseAnimator: ValueAnimator? = null
-    private var sweepAnimator: ValueAnimator? = null
-
+    private data class Bolt(
+        var isHorizontal: Boolean,
+        var lineIndex: Int,      // which grid row/column
+        var headPos: Float,      // px along travel axis
+        var speedPxPerSec: Float,
+        var lengthPx: Float
+    )
+    
+    private val bolts = mutableListOf<Bolt>()
+    
+    // Animation state
+    private var lineAlpha = 0.14f
+    private var pulsePhase = 0f
+    
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val sweepPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private var lineColorBase = 0
-    private var sweepColorBase = 0
-
+    private val boltPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val nodePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    
+    private var baseLineColor = 0
+    private var boltColor = 0
+    private var nodeColor = 0
+    
     private var spacingPx = 0f
     private var gridEnabled = false
+    private var frameAnimator: ValueAnimator? = null
+    private var lastFrameTimeNs: Long = 0L
+    private var density = 0f
 
     init {
         setWillNotDraw(false)
-
-        // convert 32dp to px once
-        spacingPx = (32f * resources.displayMetrics.density)
-
+        density = resources.displayMetrics.density
+        spacingPx = 32f * density
         resolveThemeColors()
+        setupPaints()
     }
 
     private fun resolveThemeColors() {
-        // theme-aware colors
         val isNight = (resources.configuration.uiMode and
             Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
 
         if (isNight) {
-            lineColorBase = ContextCompat.getColor(context, R.color.gridLineDarkMode)
-            sweepColorBase = ContextCompat.getColor(context, R.color.gridLineDarkMode)
+            // Dark mode: bright teal energy
+            baseLineColor = ContextCompat.getColor(context, R.color.gridLineDarkMode)
+            boltColor = ContextCompat.getColor(context, R.color.accent_teal)
+            // Node: whitish-teal glow
+            val teal = Color.rgb(0, 184, 178)
+            val white = Color.rgb(255, 255, 255)
+            nodeColor = Color.rgb(
+                (Color.red(teal) + Color.red(white)) / 2,
+                (Color.green(teal) + Color.green(white)) / 2,
+                (Color.blue(teal) + Color.blue(white)) / 2
+            )
         } else {
-            lineColorBase = ContextCompat.getColor(context, R.color.gridLineLightMode)
-            sweepColorBase = ContextCompat.getColor(context, R.color.gridLineLightMode)
+            // Light mode: darker teal/slate
+            baseLineColor = ContextCompat.getColor(context, R.color.gridLineLightMode)
+            // Darker teal for visibility on light bg
+            boltColor = Color.rgb(0, 100, 100)
+            // Node: slightly lighter
+            nodeColor = Color.rgb(0, 120, 120)
         }
-
+    }
+    
+    private fun setupPaints() {
+        // Base grid lines
         linePaint.style = Paint.Style.STROKE
-        linePaint.strokeWidth = resources.displayMetrics.density * 1f // 1dp-ish
-
-        sweepPaint.style = Paint.Style.FILL
+        linePaint.strokeWidth = density * 1f
+        
+        // Bold bolts
+        boltPaint.style = Paint.Style.STROKE
+        boltPaint.strokeWidth = density * 2f
+        boltPaint.strokeCap = Paint.Cap.ROUND
+        boltPaint.alpha = (0.8f * 255).toInt()
+        
+        // Node glow
+        nodePaint.style = Paint.Style.FILL
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        // whenever size changes (first layout, rotation, etc), rebuild animators
-        rebuildAnimators()
+        bolts.clear()
+        repeat(TARGET_NUM_BOLTS) { spawnBolt() }
+        rebuildAnimator()
         if (gridEnabled) {
             startAnimators()
         }
     }
 
-    private fun rebuildAnimators() {
-        pulseAnimator?.cancel()
-        sweepAnimator?.cancel()
-
-        // pulseAnimator: lineAlpha breathing
-        pulseAnimator = ValueAnimator.ofFloat(0.10f, 0.18f, 0.10f).apply {
-            duration = 3000L
-            repeatCount = ValueAnimator.INFINITE
-            interpolator = AccelerateDecelerateInterpolator()
-            addUpdateListener { va ->
-                lineAlpha = (va.animatedValue as Float).coerceIn(0.05f, 0.25f)
-                invalidate()
-            }
+    private fun spawnBolt() {
+        val isHorizontal = Random.nextBoolean()
+        val numLines = if (isHorizontal) {
+            (height / spacingPx).toInt()
+        } else {
+            (width / spacingPx).toInt()
         }
+        
+        if (numLines < 2) return  // Not enough space
+        
+        val lineIndex = Random.nextInt(1, numLines - 1)
+        val travelDistance = if (isHorizontal) width.toFloat() else height.toFloat()
+        val lengthPx = travelDistance * 0.25f
+        val speedPxPerSec = Random.nextFloat() * (400f - 200f) * density + 200f * density
+        
+        bolts.add(
+            Bolt(
+                isHorizontal = isHorizontal,
+                lineIndex = lineIndex,
+                headPos = -lengthPx,
+                speedPxPerSec = speedPxPerSec,
+                lengthPx = lengthPx
+            )
+        )
+    }
 
-        // sweepAnimator: diagonal shimmer motion
-        // if width is 0 somehow, guard to something > 0 so animator still runs
-        val travel = (width.takeIf { it > 0 } ?: 1) * 2f
-        sweepAnimator = ValueAnimator.ofFloat(0f, travel).apply {
-            duration = 6000L
+    private fun rebuildAnimator() {
+        frameAnimator?.cancel()
+        frameAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 2000L
             repeatCount = ValueAnimator.INFINITE
             interpolator = LinearInterpolator()
-            addUpdateListener { va ->
-                sweepOffset = va.animatedValue as Float
+            addUpdateListener {
+                val now = System.nanoTime()
+                if (lastFrameTimeNs == 0L) lastFrameTimeNs = now
+                val dtSec = (now - lastFrameTimeNs) / 1_000_000_000f
+                lastFrameTimeNs = now
+
+                updateBolts(dtSec)
+                updatePulseAlpha(dtSec)
                 invalidate()
             }
         }
+    }
+
+    private fun updateBolts(dtSec: Float) {
+        val iter = bolts.iterator()
+        while (iter.hasNext()) {
+            val bolt = iter.next()
+            bolt.headPos += bolt.speedPxPerSec * dtSec
+            
+            val bounds = if (bolt.isHorizontal) width.toFloat() else height.toFloat()
+            if (bolt.headPos - bolt.lengthPx > bounds) {
+                // Respawn this bolt
+                iter.remove()
+                spawnBolt()
+            }
+        }
+        
+        // Maintain target count
+        while (bolts.size < TARGET_NUM_BOLTS) {
+            spawnBolt()
+        }
+    }
+
+    private fun updatePulseAlpha(dtSec: Float) {
+        pulsePhase += dtSec
+        // 3 second cycle
+        val phase = (pulsePhase / 3f) * TWO_PI
+        lineAlpha = (0.14f + sin(phase) * 0.04f).coerceIn(0.08f, 0.22f)
     }
 
     private fun startAnimators() {
-        // start only if not already running
-        if (pulseAnimator?.isRunning != true) pulseAnimator?.start()
-        if (sweepAnimator?.isRunning != true) sweepAnimator?.start()
+        if (frameAnimator?.isRunning != true) {
+            lastFrameTimeNs = 0L
+            frameAnimator?.start()
+        }
     }
 
     private fun stopAnimators() {
-        pulseAnimator?.cancel()
-        sweepAnimator?.cancel()
+        frameAnimator?.cancel()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         resolveThemeColors()
+        setupPaints()
         if (gridEnabled) {
-            // after attach we may still not know size, but onSizeChanged will fire soon
-            // so just ensure visibility state is correct
             alpha = 1f
         } else {
             alpha = 0f
@@ -132,12 +212,11 @@ class GridBackgroundView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        if (!gridEnabled) return
-        if (width == 0 || height == 0) return
+        if (!gridEnabled || width == 0 || height == 0) return
 
-        // draw grid lines
+        // 1. Draw base grid lines
         val lineA = (lineAlpha * 255).toInt().coerceIn(0, 255)
-        linePaint.color = (lineColorBase and 0x00FFFFFF) or (lineA shl 24)
+        linePaint.color = (baseLineColor and 0x00FFFFFF) or (lineA shl 24)
 
         var x = 0f
         while (x <= width.toFloat()) {
@@ -151,30 +230,53 @@ class GridBackgroundView @JvmOverloads constructor(
             y += spacingPx
         }
 
-        // draw diagonal sweep
-        val sweepAlpha = (0.08f * 255).toInt().coerceIn(0, 255)
-        val sweepColor = (sweepColorBase and 0x00FFFFFF) or (sweepAlpha shl 24)
-
-        val shader = LinearGradient(
-            -width.toFloat() + sweepOffset,
-            0f,
-            sweepOffset,
-            height.toFloat(),
-            intArrayOf(Color.TRANSPARENT, sweepColor, Color.TRANSPARENT),
-            floatArrayOf(0f, 0.5f, 1f),
-            Shader.TileMode.CLAMP
-        )
-        sweepPaint.shader = shader
-
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), sweepPaint)
+        // 2. Draw bolts
+        boltPaint.color = boltColor
+        for (bolt in bolts) {
+            if (bolt.isHorizontal) {
+                val y = bolt.lineIndex * spacingPx
+                val startX = bolt.headPos - bolt.lengthPx
+                val endX = bolt.headPos
+                val clampedStart = max(0f, startX)
+                val clampedEnd = min(width.toFloat(), endX)
+                
+                if (clampedStart < clampedEnd) {
+                    canvas.drawLine(clampedStart, y, clampedEnd, y, boltPaint)
+                    drawNodeGlow(canvas, endX, y)
+                }
+            } else {
+                val x = bolt.lineIndex * spacingPx
+                val startY = bolt.headPos - bolt.lengthPx
+                val endY = bolt.headPos
+                val clampedStart = max(0f, startY)
+                val clampedEnd = min(height.toFloat(), endY)
+                
+                if (clampedStart < clampedEnd) {
+                    canvas.drawLine(x, clampedStart, x, clampedEnd, boltPaint)
+                    drawNodeGlow(canvas, x, endY)
+                }
+            }
+        }
+    }
+    
+    private fun drawNodeGlow(canvas: Canvas, cx: Float, cy: Float) {
+        if (cx < 0f || cy < 0f || cx > width || cy > height) return
+        
+        // Core dot
+        nodePaint.alpha = (0.6f * 255).toInt()
+        nodePaint.color = nodeColor
+        canvas.drawCircle(cx, cy, 4f * density, nodePaint)
+        
+        // Halo
+        nodePaint.alpha = (0.18f * 255).toInt()
+        canvas.drawCircle(cx, cy, 10f * density, nodePaint)
     }
 
-    // -------- public API we call from Activities / header / settings --------
+    // -------- public API --------
 
     fun applyInitialEnabledState(ctx: Context) {
         gridEnabled = getPref(ctx, "grid_enabled", true)
         if (gridEnabled) {
-            // instantly visible (no flicker at Activity start)
             alpha = 1f
             visibility = VISIBLE
             if (width > 0 && height > 0) {
@@ -197,7 +299,6 @@ class GridBackgroundView @JvmOverloads constructor(
         savePref(ctx, "grid_enabled", enabled)
 
         if (enabled) {
-            // fade in, then start animators
             visibility = VISIBLE
             animate()
                 .alpha(1f)
@@ -209,7 +310,6 @@ class GridBackgroundView @JvmOverloads constructor(
                 }
                 .start()
         } else {
-            // fade out, then stop animators + hide
             animate()
                 .alpha(0f)
                 .setDuration(300L)
@@ -221,20 +321,25 @@ class GridBackgroundView @JvmOverloads constructor(
         }
     }
 
+    // -------- companion object for static methods --------
     companion object {
-        private fun prefs(ctx: Context) =
-            ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
-
-        private fun savePref(ctx: Context, key: String, value: Boolean) {
-            prefs(ctx).edit().putBoolean(key, value).apply()
-        }
-
-        private fun getPref(ctx: Context, key: String, def: Boolean): Boolean {
-            return prefs(ctx).getBoolean(key, def)
-        }
-
+        private const val TWO_PI = 2f * PI.toFloat()
+        private const val TARGET_NUM_BOLTS = 5
+        
         fun isEnabled(ctx: Context): Boolean {
-            return getPref(ctx, "grid_enabled", true)
+            val prefs = ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
+            return prefs.getBoolean("grid_enabled", true)
         }
+    }
+    
+    // Private helper functions for this instance
+    private fun savePref(ctx: Context, key: String, value: Boolean) {
+        val prefs = ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(key, value).apply()
+    }
+
+    private fun getPref(ctx: Context, key: String, def: Boolean): Boolean {
+        val prefs = ctx.getSharedPreferences("tilevision_prefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean(key, def)
     }
 }
