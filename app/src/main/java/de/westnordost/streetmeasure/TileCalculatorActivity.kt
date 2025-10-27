@@ -72,11 +72,40 @@ class TileCalculatorActivity : AppCompatActivity() {
         // Load default tile sizes from preferences
         loadDefaultTileSizes()
         
+        // Setup input change listeners to trigger calculation
+        manualAreaInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                calculateTiles()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        
+        tileWidthInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                calculateTiles()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        
+        tileHeightInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                calculateTiles()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        
         // Setup waste slider listener
         wasteSlider.addOnChangeListener { _, value, _ ->
             val percent = value.toInt()
             wastePercentBadge.text = "$percent%"
+            calculateTiles()
         }
+        
+        // Initial calculation
+        calculateTiles()
         
         // Set click listeners
         findViewById<android.widget.Button>(R.id.buttonSaveJobSummary)?.setOnClickListener {
@@ -105,14 +134,14 @@ class TileCalculatorActivity : AppCompatActivity() {
             try {
                 val manualArea = manualAreaInput.text.toString().toFloat()
                 if (manualArea <= 0) {
-                    Toast.makeText(this, "Enter area in ft² first", Toast.LENGTH_SHORT).show()
-                    highlightField(manualAreaInput)
+                    // Just show "0 tiles" if no area entered yet
+                    tilesNeededText.text = "0 tiles"
                     return
                 }
                 manualArea
             } catch (e: NumberFormatException) {
-                Toast.makeText(this, "Enter area in ft² first", Toast.LENGTH_SHORT).show()
-                highlightField(manualAreaInput)
+                // Just show "0 tiles" if no area entered yet
+                tilesNeededText.text = "0 tiles"
                 return
             }
         }
@@ -131,9 +160,8 @@ class TileCalculatorActivity : AppCompatActivity() {
         }
         
         if (tileWidthIn <= 0 || tileHeightIn <= 0) {
-            Toast.makeText(this, "Enter tile width/height", Toast.LENGTH_SHORT).show()
-            if (tileWidthIn <= 0) highlightField(tileWidthInput)
-            if (tileHeightIn <= 0) highlightField(tileHeightInput)
+            // Just show "0 tiles" if no tile dimensions entered yet
+            tilesNeededText.text = "0 tiles"
             return
         }
         
@@ -389,6 +417,7 @@ class TileCalculatorActivity : AppCompatActivity() {
                     if (tileWidth > 0 && tileHeight > 0) {
                         tileWidthInput.setText(String.format("%.1f", tileWidth))
                         tileHeightInput.setText(String.format("%.1f", tileHeight))
+                        calculateTiles() // Recalculate after loading tile dimensions
                         val message = if (requestCode == REQUEST_CODE_MEASURE_TILE) {
                             "Tile dimensions loaded from measurement"
                         } else {
@@ -404,6 +433,7 @@ class TileCalculatorActivity : AppCompatActivity() {
                         // Set the measured area in manual input
                         manualAreaInput.setText(String.format("%.2f", projectArea))
                         incomingArea = projectArea
+                        calculateTiles() // Recalculate after loading project area
                         Toast.makeText(this, "Project area loaded: ${String.format("%.2f", projectArea)} ft²", Toast.LENGTH_SHORT).show()
                     }
                 }
