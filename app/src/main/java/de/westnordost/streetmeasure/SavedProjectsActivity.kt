@@ -21,17 +21,25 @@ class SavedProjectsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySavedProjectsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
+        gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_saved_projects, pageContentContainer, true)
+        
+        // Now set up binding on the inflated content
+        binding = ActivitySavedProjectsBinding.bind(pageContentContainer)
 
         // Initialize repositories
         ProjectRepository.init(this)
         TileSampleRepository.init(this)
 
         android.util.Log.d("SavedProjectsActivity", "onCreate called")
-        
-        // Setup grid background
-        gridBackground = binding.root.findViewById(R.id.gridBackground)
         
         setupToolbar()
         setupRecyclerView()
