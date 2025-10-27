@@ -21,10 +21,19 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityProjectSummaryDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
         gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_project_summary_detail, pageContentContainer, true)
+        
+        // Now set up binding on the inflated content
+        binding = ActivityProjectSummaryDetailBinding.bind(pageContentContainer)
 
         // Initialize repositories
         ProjectRepository.init(this)

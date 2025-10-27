@@ -38,7 +38,16 @@ class TileCalculatorActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tile_calculator)
+        
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
+        gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_tile_calculator, pageContentContainer, true)
         
         // Initialize AppPrefs and Repositories
         AppPrefs.init(this)
@@ -67,9 +76,6 @@ class TileCalculatorActivity : AppCompatActivity() {
         
         // Setup header
         setupHeader()
-        
-        // Setup grid background
-        gridBackground = findViewById(R.id.gridBackground)
         
         // Set up area display
         if (incomingArea > 0) {

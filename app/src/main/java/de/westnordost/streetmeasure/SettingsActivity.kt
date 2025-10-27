@@ -17,12 +17,18 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(ThemeManager.load(this))
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        
+        // Inflate the shared page shell
+        setContentView(R.layout.layout_page_shell)
+        
+        // Get references to shell elements
+        gridBackground = findViewById(R.id.gridBackground)
+        val pageContentContainer = findViewById<android.widget.FrameLayout>(R.id.pageContentContainer)
+        
+        // Inflate the activity's own content layout into the shell's container
+        layoutInflater.inflate(R.layout.activity_settings, pageContentContainer, true)
         
         setupToolbar()
-        
-        // Setup grid background
-        gridBackground = findViewById(R.id.gridBackground)
         
         setupSettingsRows()
         setupVersionText()
