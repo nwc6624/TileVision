@@ -161,22 +161,22 @@ class TileCalculatorActivity : AppCompatActivity() {
     }
     
     private fun calculateTiles() {
-        // 1. Determine areaFt2
-        val areaFt2 = if (incomingArea > 0) {
-            incomingArea
-        } else {
-            try {
-                val manualArea = manualAreaInput.text.toString().toFloat()
-                if (manualArea <= 0) {
-                    // Just show "0 tiles" if no area entered yet
+        // 1. Determine areaFt2 - priority: currentAreaSqFt > incomingArea > manual input
+        val areaFt2 = when {
+            currentAreaSqFt > 0 -> currentAreaSqFt
+            incomingArea > 0 -> incomingArea
+            else -> {
+                try {
+                    val manualArea = manualAreaInput.text.toString().toFloat()
+                    if (manualArea <= 0) {
+                        tilesNeededText.text = "0 tiles"
+                        return
+                    }
+                    manualArea
+                } catch (e: NumberFormatException) {
                     tilesNeededText.text = "0 tiles"
                     return
                 }
-                manualArea
-            } catch (e: NumberFormatException) {
-                // Just show "0 tiles" if no area entered yet
-                tilesNeededText.text = "0 tiles"
-                return
             }
         }
         

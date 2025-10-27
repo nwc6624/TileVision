@@ -79,9 +79,8 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         setupArScene()
         setupClickListeners()
         
-        // Setup instruction popup
-        binding.instructionPopup.setText("Trace around one tile with your finger.\nLift your finger to finish.")
-        binding.instructionPopup.startFloatAnim()
+        // Setup instruction popup with dismiss behavior
+        setupTileTraceInstruction()
         
         // Setup skip button
         binding.skipButton.setOnClickListener {
@@ -90,6 +89,49 @@ class TileSampleMeasureActivity : AppCompatActivity() {
             finish()
         }
         
+    }
+    
+    private fun setupTileTraceInstruction() {
+        val prefs = getSharedPreferences("tilevision", MODE_PRIVATE)
+        val hasSeenHint = prefs.getBoolean("seenTileTraceHint", false)
+        
+        if (hasSeenHint) {
+            binding.instructionPopup.visibility = android.view.View.GONE
+            return
+        }
+        
+        binding.instructionPopup.setText("Trace around one tile with your finger.\nLift your finger to finish.")
+        binding.instructionPopup.startFloatAnim()
+        binding.instructionPopup.alpha = 0f
+        binding.instructionPopup.visibility = android.view.View.VISIBLE
+        binding.instructionPopup.animate()
+            .alpha(1f)
+            .setDuration(200)
+            .start()
+        
+        // Auto-dismiss after 10 seconds
+        binding.instructionPopup.postDelayed({
+            if (binding.instructionPopup.visibility == android.view.View.VISIBLE) {
+                prefs.edit().putBoolean("seenTileTraceHint", true).apply()
+                dismissTileTraceHint()
+            }
+        }, 10000)
+        
+        // Dismiss on tap
+        binding.instructionPopup.setOnClickListener {
+            prefs.edit().putBoolean("seenTileTraceHint", true).apply()
+            dismissTileTraceHint()
+        }
+    }
+    
+    private fun dismissTileTraceHint() {
+        binding.instructionPopup.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                binding.instructionPopup.visibility = android.view.View.GONE
+            }
+            .start()
     }
     
     private fun setupToolbar() {
@@ -108,6 +150,12 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         
         // Wire up trace overlay callbacks
         traceOverlay.onStrokeStart = { startPoint ->
+            // Dismiss hint on first touch if visible
+            if (binding.instructionPopup.visibility == android.view.View.VISIBLE) {
+                getSharedPreferences("tilevision", MODE_PRIVATE).edit()
+                    .putBoolean("seenTileTraceHint", true).apply()
+                dismissTileTraceHint()
+            }
             captureReferencePlane(startPoint)
         }
         traceOverlay.onStrokeComplete = { strokePointsPx ->
