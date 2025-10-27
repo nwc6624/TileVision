@@ -34,11 +34,9 @@ class SavedProjectsActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Saved Projects"
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
+        binding.appHeader.apply {
+            setTitle("Saved Projects")
+            setModeBack { finish() }
         }
     }
 
