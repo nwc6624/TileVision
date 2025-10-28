@@ -40,6 +40,10 @@ abstract class BaseFramedActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        
+        // Apply orientation policy first
+        com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+        
         // Start / sync animated background
         val gb = gridBackground
         if (gb != null) {

@@ -22,8 +22,9 @@
     <string name="privacy_html_arcore">"This application runs on &lt;a href=\"https://play.google.com/store/apps/details?id=com.google.ar.core\"&gt;Google Play Services for AR&lt;/a&gt; (ARCore), which is provided by Google and governed by the &lt;a href=\"https://policies.google.com/privacy\"&gt;Google Privacy Policy&lt;/a&gt;."</string>
     
     <!-- AR Support Messages -->
-    <string name="msg_scan_surface">Move your phone slowly so I can detect the tile surface</string>
+    <string name="msg_scan_surface">Move your phone slowly so I can detect the surface</string>
     <string name="msg_trace_tile">Trace around the tile with your finger</string>
+    <string name="msg_measure_project_area">Move your phone slowly to detect the floor or surface</string>
     <string name="msg_need_camera">Camera permission is required to measure the tile</string>
     <string name="msg_no_ar">This device cannot run AR measurement.</string>
 </resources>

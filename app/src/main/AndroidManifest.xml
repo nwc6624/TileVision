@@ -49,6 +49,7 @@
         
         <activity
             android:name="de.westnordost.streetmeasure.MeasureActivity"
+            android:label="Measure Project Area"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:exported="false"
@@ -57,6 +58,7 @@
         
         <activity
             android:name="de.westnordost.streetmeasure.TileSampleMeasureActivity"
+            android:label="Measure Tile Sample"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:exported="false"
@@ -136,7 +138,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                android:resource="@xml/filepaths_export" />
         </provider>
 
     </application>

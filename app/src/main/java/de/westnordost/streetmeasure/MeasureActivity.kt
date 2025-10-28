@@ -161,7 +161,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
         
         // Setup instruction popup
-        binding.instructionPopup.setText(getString(R.string.msg_scan_surface))
+        binding.instructionPopup.setText(getString(R.string.msg_measure_project_area))
         binding.instructionPopup.startFloatAnim()
         
         // Setup arrow instruction popup (first-time hint)
@@ -242,6 +242,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
     override fun onResume() {
         super.onResume()
+        
+        // Apply orientation policy
+        com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+        
         if (initSessionOnResume && CameraPermissionHelper.hasCameraPermission(this)) {
             lifecycleScope.launch {
                 try {

@@ -88,6 +88,9 @@ class TileCalculatorActivity : BaseFramedActivity() {
         // Setup units
         setupUnits()
         
+        // Setup smooth scrolling for keyboard
+        setupSmoothScrolling()
+        
         // Setup header
         setupHeader()
         
@@ -431,53 +434,81 @@ class TileCalculatorActivity : BaseFramedActivity() {
     private fun saveJobSummary(displayName: String, notes: String, wastePercent: Float) {
         android.util.Log.d("TileVision", "saveJobSummary called with notes='$notes'")
         
-        // Get current values
-        val currentArea = if (incomingArea > 0) incomingArea else manualAreaInput.text.toString().toFloat()
-        val tileWidth = tileWidthInput.text.toString().toFloat()
-        val tileHeight = tileHeightInput.text.toString().toFloat()
-        val tileAreaSqFt = (tileWidth / 12f) * (tileHeight / 12f)
+        val imperial = com.tilevision.prefs.UnitsPrefs.isImperial(this)
         
-        // Get layout style and grout gap from dropdowns
-        val layoutStyleLayout = findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutStyleLayout)
-        val layoutStyleDropdown = layoutStyleLayout?.editText?.text?.toString() ?: "Straight"
-        val groutGapLayout = findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.groutGapLayout)
-        val groutGapText = groutGapLayout?.editText?.text?.toString() ?: "1/8"
-        
-        // Parse grout gap to inches
-        val groutGapInches = when (groutGapText) {
-            "1/16" -> 0.0625f
-            "1/8" -> 0.125f
-            "3/16" -> 0.1875f
-            "1/4" -> 0.25f
-            else -> 0.125f
+        // Get current values using the same logic as calculateTiles()
+        val currentArea = when {
+            currentAreaSqFt > 0 -> currentAreaSqFt
+            incomingArea > 0 -> incomingArea
+            else -> manualAreaInput.text.toString().toFloat()
         }
         
-        // Calculate tiles needed
-        val rawTileCount = currentArea / tileAreaSqFt
+        val tileWidth = tileWidthInput.text.toString().toFloat()
+        val tileHeight = tileHeightInput.text.toString().toFloat()
+        val groutGap = try {
+            groutGapInput.text.toString().toFloat()
+        } catch (e: NumberFormatException) {
+            0f
+        }
+        
+        // Calculate tile area with grout gap (same logic as calculateTiles)
+        val tileAreaM2 = if (imperial) {
+            val tileWm = (tileWidth + groutGap) * 0.0254f / 12f
+            val tileHm = (tileHeight + groutGap) * 0.0254f / 12f
+            tileWm * tileHm
+        } else {
+            val tileWm = (tileWidth + groutGap / 10f) / 100f
+            val tileHm = (tileHeight + groutGap / 10f) / 100f
+            tileWm * tileHm
+        }
+        
+        val areaM2 = if (imperial) currentArea * 0.092903f else currentArea
+        val rawTileCount = areaM2 / tileAreaM2
         val withWasteTileCount = rawTileCount * (1f + wastePercent / 100f)
         val finalTileCount = kotlin.math.round(withWasteTileCount).toInt()
+        
+        // Determine units and values
+        val unitsSystem = if (imperial) "imperial" else "metric"
+        val areaUnit = if (imperial) "ft²" else "m²"
+        val tileSizeUnit = if (imperial) "in" else "cm"
+        val groutUnit = if (imperial) "in" else "mm"
+        val boxCoverageUnit = if (imperial) "ft²/box" else "m²/box"
+        
+        // Calculate boxes needed (simplified - assume 10 tiles per box)
+        val boxesNeeded = kotlin.math.ceil(finalTileCount / 10.0).toInt()
         
         // Determine final notes value
         val finalNotes = notes.ifEmpty { null }
         android.util.Log.d("TileVision", "Final notes value: '${finalNotes ?: "(null)"}'")
         
-        // Create ProjectSummary
+        // Create ProjectSummary with new model
         val summary = ProjectSummary(
             id = java.util.UUID.randomUUID().toString(),
             timestamp = System.currentTimeMillis(),
             displayName = displayName,
             projectMeasurementId = projectMeasurementId,
             tileSampleId = tileSampleId,
+            unitsSystem = unitsSystem,
+            areaValue = currentArea.toDouble(),
+            areaUnit = areaUnit,
+            tileWidth = tileWidth.toDouble(),
+            tileHeight = tileHeight.toDouble(),
+            tileSizeUnit = tileSizeUnit,
+            groutGap = groutGap.toDouble(),
+            groutUnit = groutUnit,
+            wastePercent = wastePercent.toDouble(),
+            tilesNeeded = finalTileCount,
+            boxesNeeded = boxesNeeded,
+            boxCoverageUnit = boxCoverageUnit,
+            notes = finalNotes,
+            // Legacy fields
             areaSqFt = currentArea,
             tileWidthIn = tileWidth,
             tileHeightIn = tileHeight,
-            tileAreaSqFt = tileAreaSqFt,
-            layoutStyle = layoutStyleDropdown,
-            groutGapInches = groutGapInches,
-            wastePercent = wastePercent,
+            tileAreaSqFt = if (imperial) tileAreaM2 * 10.764f else tileAreaM2, // Convert m² to ft² if needed
             totalTilesNeededRaw = rawTileCount,
             totalTilesNeededFinal = finalTileCount,
-            notes = finalNotes
+            groutGapInches = groutGap
         )
         
         // Save to repository
@@ -539,6 +570,11 @@ class TileCalculatorActivity : BaseFramedActivity() {
                 }
             }
         }
+    }
+    
+    private fun setupSmoothScrolling() {
+        val calculatorScroll = findViewById<androidx.core.widget.NestedScrollView>(R.id.calculatorScroll)
+        calculatorScroll?.isSmoothScrollingEnabled = true
     }
     
     private fun setupUnits() {

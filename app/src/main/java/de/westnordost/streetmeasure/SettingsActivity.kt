@@ -65,6 +65,15 @@ class SettingsActivity : BaseFramedActivity() {
             showUnitsDialog()
         }
         
+        // Portrait Lock Toggle Switch
+        val portraitSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchPortraitLock)
+        portraitSwitch?.isChecked = com.tilevision.prefs.OrientationPrefs.isPortraitLocked(this)
+        portraitSwitch?.setOnCheckedChangeListener { _, isChecked ->
+            com.tilevision.prefs.OrientationPrefs.setPortraitLocked(this, isChecked)
+            // Immediately apply to SettingsActivity itself:
+            com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+        }
+        
         // Privacy Policy row
         findViewById<android.view.View>(R.id.rowPrivacyPolicy)?.setOnClickListener {
             showPrivacyPolicyDialog()

@@ -798,6 +798,9 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         
+        // Apply orientation policy
+        com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+        
         // Retry AR session creation if it failed before
         if (!isSessionCreated) {
             setupArScene()

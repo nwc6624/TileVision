@@ -110,6 +110,12 @@ class SplashActivity : AppCompatActivity() {
         finish()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Apply orientation policy
+        com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+    }
+
     override fun onPause() {
         super.onPause()
         Log.d("SplashActivity", "onPause")

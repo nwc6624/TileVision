@@ -79,26 +79,22 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
         binding.appHeader.setSubtitle("${dateFormat.format(date)} • ${timeFormat.format(date)}")
 
         // Project section
-        binding.areaValueText.text = "${String.format("%.1f", s.areaSqFt)} ft²"
+        binding.areaValueText.text = "${String.format("%.1f", s.areaValue)} ${s.areaUnit}"
         binding.layoutValueText.text = s.layoutStyle
-        binding.groutValueText.text = formatGroutGap(s.groutGapInches)
+        binding.groutValueText.text = "${String.format("%.3f", s.groutGap)} ${s.groutUnit}"
 
         // Tile section
-        binding.tileSizeValueText.text = "${String.format("%.1f", s.tileWidthIn)} in × ${String.format("%.1f", s.tileHeightIn)} in"
-        binding.tileCoverageValueText.text = "${String.format("%.2f", s.tileAreaSqFt)} ft² per tile"
+        binding.tileSizeValueText.text = "${String.format("%.1f", s.tileWidth)} ${s.tileSizeUnit} × ${String.format("%.1f", s.tileHeight)} ${s.tileSizeUnit}"
+        binding.tileCoverageValueText.text = "${String.format("%.2f", s.tileAreaSqFt)} ${s.areaUnit} per tile"
 
         // Calculation section
         binding.rawTilesValueText.text = "${String.format("%.1f", s.totalTilesNeededRaw)} tiles (before waste)"
         binding.wasteValueText.text = "${String.format("%.0f", s.wastePercent)}%"
-        binding.totalTilesValueText.text = "${s.totalTilesNeededFinal} tiles (rounded)"
+        binding.totalTilesValueText.text = "${s.tilesNeeded} tiles (rounded)"
 
-        // Boxes needed (if present)
-        if (s.boxesNeeded != null) {
-            binding.boxesNeededContainer.visibility = View.VISIBLE
-            binding.boxesNeededValueText.text = String.format("%.1f boxes", s.boxesNeeded)
-        } else {
-            binding.boxesNeededContainer.visibility = View.GONE
-        }
+        // Boxes needed
+        binding.boxesNeededContainer.visibility = View.VISIBLE
+        binding.boxesNeededValueText.text = "${s.boxesNeeded} boxes"
 
         // Notes
         binding.notesValueText.text = s.notes ?: "—"
@@ -141,16 +137,18 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
     private fun shareText(summary: ProjectSummary) {
         val shareText = buildString {
             appendLine("Job: ${summary.displayName}")
-            appendLine("Area: ${String.format("%.1f", summary.areaSqFt)} sq ft")
-            appendLine("Tile: ${String.format("%.1f", summary.tileWidthIn)} x ${String.format("%.1f", summary.tileHeightIn)} in")
-            appendLine("Layout: ${summary.layoutStyle}")
-            appendLine("Grout Gap: ${formatGroutGap(summary.groutGapInches)}")
-            appendLine("Waste: ${String.format("%.0f", summary.wastePercent)}%")
-            appendLine("Tiles Needed: ${summary.totalTilesNeededFinal}")
-            if (summary.boxesNeeded != null) {
-                appendLine("Boxes Needed: ${String.format("%.1f", summary.boxesNeeded)}")
+            appendLine("Area: ${String.format("%.1f", summary.areaValue)} ${summary.areaUnit}")
+            appendLine("Tile: ${String.format("%.1f", summary.tileWidth)} × ${String.format("%.1f", summary.tileHeight)} ${summary.tileSizeUnit}")
+            appendLine("Grout Gap: ${String.format("%.3f", summary.groutGap)} ${summary.groutUnit}")
+            appendLine("Waste Allowance: ${String.format("%.0f", summary.wastePercent)}%")
+            appendLine("Tiles Needed: ${summary.tilesNeeded}")
+            appendLine("Boxes Needed: ${summary.boxesNeeded}")
+            appendLine("Units: ${summary.unitsSystem}")
+            if (summary.notes != null) {
+                appendLine("Notes: ${summary.notes}")
             }
-            appendLine("Notes: ${summary.notes ?: "—"}")
+            appendLine("")
+            appendLine("Reminder: Always confirm with a physical tape or ruler before buying materials.")
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -163,21 +161,26 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
 
     private fun sharePdf(summary: ProjectSummary) {
         try {
-            val pdfFile = PdfExporter.exportProjectSummaryToPdf(this, summary)
+            val uri = com.tilevision.export.PdfExporter.createSummaryPdf(this, summary)
             
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${applicationContext.packageName}.fileprovider",
-                pdfFile
-            )
-            
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/pdf"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            if (uri != null) {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        "TileVision AR Estimate - ${summary.displayName}"
+                    )
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        "Attached: TileVision AR estimate for ${summary.displayName}."
+                    )
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share PDF"))
+            } else {
+                Toast.makeText(this, "Couldn't generate PDF", Toast.LENGTH_SHORT).show()
             }
-            
-            startActivity(Intent.createChooser(intent, "Share Job PDF"))
         } catch (e: Exception) {
             Toast.makeText(this, "Failed to export PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }

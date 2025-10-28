@@ -12,13 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <!-- Content ScrollView -->
-    <ScrollView
+    <!-- Content NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/calculatorScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="16dp"
         android:paddingBottom="80dp"
         android:fillViewport="true"
+        android:clipToPadding="false"
         android:fitsSystemWindows="true">
 
         <LinearLayout
@@ -551,6 +553,6 @@
         </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>
