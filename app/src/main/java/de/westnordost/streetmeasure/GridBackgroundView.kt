@@ -45,6 +45,7 @@ class GridBackgroundView @JvmOverloads constructor(
     // Animation state
     private var lineAlpha = 0.14f
     private var pulsePhase = 0f
+    private var monochromeMode: Boolean = false
     
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val boltPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -229,52 +230,71 @@ class GridBackgroundView @JvmOverloads constructor(
 
         if (!gridEnabled || width == 0 || height == 0) return
 
-        // 1. Draw base grid lines
-        val lineA = (lineAlpha * 255).toInt().coerceIn(0, 255)
-        linePaint.color = (baseLineColor and 0x00FFFFFF) or (lineA shl 24)
+        if (monochromeMode) {
+            // Monochrome mode: simple wireframe grid lines only
+            val lineA = (lineAlpha * 255).toInt().coerceIn(0, 255)
+            linePaint.color = (Color.parseColor("#3355FFFF") and 0x00FFFFFF) or (lineA shl 24)
 
-        var x = 0f
-        while (x <= width.toFloat()) {
-            canvas.drawLine(x, 0f, x, height.toFloat(), linePaint)
-            x += spacingPx
-        }
+            var x = 0f
+            while (x <= width.toFloat()) {
+                canvas.drawLine(x, 0f, x, height.toFloat(), linePaint)
+                x += spacingPx
+            }
 
-        var y = 0f
-        while (y <= height.toFloat()) {
-            canvas.drawLine(0f, y, width.toFloat(), y, linePaint)
-            y += spacingPx
-        }
+            var y = 0f
+            while (y <= height.toFloat()) {
+                canvas.drawLine(0f, y, width.toFloat(), y, linePaint)
+                y += spacingPx
+            }
+        } else {
+            // Normal mode: animated teal pulses and glow nodes
+            // 1. Draw base grid lines
+            val lineA = (lineAlpha * 255).toInt().coerceIn(0, 255)
+            linePaint.color = (baseLineColor and 0x00FFFFFF) or (lineA shl 24)
 
-        // 2. Draw bolts with try-catch safety
-        try {
-            boltPaint.color = boltColor
-            for (bolt in bolts) {
-                if (bolt.isHorizontal) {
-                    val yPos = (bolt.lineIndex * spacingPx).coerceIn(0f, height.toFloat())
-                    val startX = bolt.headPos - bolt.lengthPx
-                    val endX = bolt.headPos
-                    val clampedStart = max(0f, startX).coerceAtMost(width.toFloat())
-                    val clampedEnd = max(0f, endX).coerceAtMost(width.toFloat())
-                    
-                    if (clampedStart < clampedEnd) {
-                        canvas.drawLine(clampedStart, yPos, clampedEnd, yPos, boltPaint)
-                        drawNodeGlow(canvas, endX, yPos)
-                    }
-                } else {
-                    val xPos = (bolt.lineIndex * spacingPx).coerceIn(0f, width.toFloat())
-                    val startY = bolt.headPos - bolt.lengthPx
-                    val endY = bolt.headPos
-                    val clampedStart = max(0f, startY).coerceAtMost(height.toFloat())
-                    val clampedEnd = max(0f, endY).coerceAtMost(height.toFloat())
-                    
-                    if (clampedStart < clampedEnd) {
-                        canvas.drawLine(xPos, clampedStart, xPos, clampedEnd, boltPaint)
-                        drawNodeGlow(canvas, xPos, endY)
+            var x = 0f
+            while (x <= width.toFloat()) {
+                canvas.drawLine(x, 0f, x, height.toFloat(), linePaint)
+                x += spacingPx
+            }
+
+            var y = 0f
+            while (y <= height.toFloat()) {
+                canvas.drawLine(0f, y, width.toFloat(), y, linePaint)
+                y += spacingPx
+            }
+
+            // 2. Draw bolts with try-catch safety
+            try {
+                boltPaint.color = boltColor
+                for (bolt in bolts) {
+                    if (bolt.isHorizontal) {
+                        val yPos = (bolt.lineIndex * spacingPx).coerceIn(0f, height.toFloat())
+                        val startX = bolt.headPos - bolt.lengthPx
+                        val endX = bolt.headPos
+                        val clampedStart = max(0f, startX).coerceAtMost(width.toFloat())
+                        val clampedEnd = max(0f, endX).coerceAtMost(width.toFloat())
+                        
+                        if (clampedStart < clampedEnd) {
+                            canvas.drawLine(clampedStart, yPos, clampedEnd, yPos, boltPaint)
+                            drawNodeGlow(canvas, endX, yPos)
+                        }
+                    } else {
+                        val xPos = (bolt.lineIndex * spacingPx).coerceIn(0f, width.toFloat())
+                        val startY = bolt.headPos - bolt.lengthPx
+                        val endY = bolt.headPos
+                        val clampedStart = max(0f, startY).coerceAtMost(height.toFloat())
+                        val clampedEnd = max(0f, endY).coerceAtMost(height.toFloat())
+                        
+                        if (clampedStart < clampedEnd) {
+                            canvas.drawLine(xPos, clampedStart, xPos, clampedEnd, boltPaint)
+                            drawNodeGlow(canvas, xPos, endY)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                // Swallow to avoid crash during transitions
             }
-        } catch (e: Exception) {
-            // Swallow to avoid crash during transitions
         }
     }
     
@@ -339,6 +359,11 @@ class GridBackgroundView @JvmOverloads constructor(
                 }
                 .start()
         }
+    }
+    
+    fun setMonochrome(enabled: Boolean) {
+        monochromeMode = enabled
+        invalidate()
     }
     
     // Public method for Activities to stop animators

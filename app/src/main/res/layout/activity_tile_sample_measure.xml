@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/tileSampleRoot"
+    android:id="@+id/ar_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tv_background">
+    android:background="@color/tv_background"
+    android:fitsSystemWindows="true">
 
     <!-- AR Scene View Container -->
     <FrameLayout
         android:id="@+id/arSceneViewContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false" />
 
-    <!-- Top App Bar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- Overlay UI (Buttons, hints, etc.) -->
+    <FrameLayout
+        android:id="@+id/arOverlay"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/tv_primary"
-        android:elevation="4dp"
-        app:title="Tile Sample"
-        app:titleTextColor="@color/tv_primaryText"
-        app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="@color/tv_primaryText" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:paddingTop="40dp">
+
+        <!-- Top App Bar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/tv_primary"
+            android:elevation="4dp"
+            app:title="Tile Sample"
+            app:titleTextColor="@color/tv_primaryText"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:navigationIconTint="@color/tv_primaryText" />
 
     <!-- Bottom Panel (hidden until capture complete) -->
     <LinearLayout
@@ -126,24 +138,42 @@
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+        </LinearLayout>
 
-    <!-- Instruction Popup -->
-    <de.westnordost.streetmeasure.InstructionPopupView
-        android:id="@+id/instructionPopup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="120dp"
-        android:visibility="visible"
-        android:contentDescription="Measurement instructions" />
+        <!-- Instruction Popup -->
+        <de.westnordost.streetmeasure.InstructionPopupView
+            android:id="@+id/instructionPopup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="80dp"
+            android:visibility="visible"
+            android:contentDescription="Measurement instructions" />
 
-    <!-- THE TRACE OVERLAY MUST BE LAST SO IT SITS ON TOP AND GETS TOUCH -->
-    <de.westnordost.streetmeasure.TileTraceOverlayView
-        android:id="@+id/traceOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true" />
+        <!-- THE TRACE OVERLAY MUST BE LAST SO IT SITS ON TOP AND GETS TOUCH -->
+        <de.westnordost.streetmeasure.TileTraceOverlayView
+            android:id="@+id/traceOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Flashlight Toggle Button -->
+        <ImageButton
+            android:id="@+id/buttonFlashlight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_round_hud_button"
+            android:src="@drawable/ic_flashlight_off"
+            android:contentDescription="@string/flashlight_toggle"
+            android:tint="#FFFFFF"
+            android:elevation="12dp"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </FrameLayout>
 
 </FrameLayout>

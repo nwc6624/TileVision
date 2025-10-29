@@ -12,8 +12,10 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -85,6 +87,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
     // Polygon measurement state for surface area mode
     private val polygonState = PolygonMeasurementState()
+    
+    // Flashlight control
+    private lateinit var torchController: com.tilevision.util.TorchController
+    private lateinit var flashlightButton: android.widget.ImageButton
     private val measurementMode = MeasurementMode.SURFACE_AREA
     
     // Store polygon points for horizontal upward-facing planes only
@@ -143,6 +149,25 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
         setContentView(binding.root)
 
+        // Initialize flashlight control
+        torchController = com.tilevision.util.TorchController(this)
+        flashlightButton = findViewById(R.id.buttonFlashlight)
+        
+        // Set initial icon state
+        updateFlashUi(false)
+        
+        // Disable button if no flash available
+        if (!torchController.hasFlash()) {
+            flashlightButton.isEnabled = false
+            flashlightButton.alpha = 0.4f
+        } else {
+            flashlightButton.setOnClickListener {
+                val newState = !torchController.isTorchOn
+                torchController.toggleTorch(newState)
+                updateFlashUi(newState)
+            }
+        }
+
         // Direction, unit, and flash buttons removed for surface area mode
 
         binding.undoButton.setOnClickListener { 
@@ -193,6 +218,14 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 finish()
             }
             .show()
+    }
+
+    private fun updateFlashUi(isOn: Boolean) {
+        val color = if (isOn) "#18FFC4" else "#FFFFFF"
+        flashlightButton.setImageResource(if (isOn) R.drawable.ic_flashlight_on else R.drawable.ic_flashlight_off)
+        flashlightButton.imageTintList =
+            ContextCompat.getColorStateList(this, android.R.color.white)
+        flashlightButton.alpha = if (isOn) 1.0f else 0.8f
     }
 
     override fun onRequestPermissionsResult(
@@ -282,6 +315,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     override fun onPause() {
         super.onPause()
         arSceneView?.pause()
+        torchController.shutdown()
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
@@ -293,6 +327,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         super.onDestroy()
         arSceneView?.pause()
         arSceneView?.destroy()
+        torchController.shutdown()
         // closing can take several seconds, should be done one background thread that outlives this activity
         GlobalScope.launch(Dispatchers.Default) {
             arSceneView?.session?.close()

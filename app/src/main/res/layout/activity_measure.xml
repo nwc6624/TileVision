@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/measurementScreenshotRoot"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ar_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:background="#666">
@@ -11,67 +12,75 @@
     <FrameLayout
         android:id="@+id/arSceneViewContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-    <!-- Hand Motion View -->
-    <de.westnordost.streetmeasure.HandMotionView
-        android:id="@+id/handMotionView"
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:clickable="false"
         android:focusable="false"/>
 
-    <!-- Instruction Popup -->
-    <de.westnordost.streetmeasure.InstructionPopupView
-        android:id="@+id/instructionPopup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:visibility="visible"
-        android:contentDescription="Measurement instructions" />
-
-    <!-- Arrow Instruction View -->
-    <include
-        android:id="@+id/arrowInstructionView"
-        layout="@layout/view_arrow_instruction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="64dp"
-        android:visibility="gone"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="Aim the white arrow where you want a corner, then tap to drop a point." />
-
-    <!-- Top instruction label -->
-    <TextView
-        android:id="@+id/instructionTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/ar_tracking_error_background"
-        android:padding="16dp"
-        android:text="Tap each corner to outline the area"
-        android:textColor="#fff"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="visible"
-        tools:visibility="visible" />
-
-    <!-- Floating area bubble (positioned dynamically) -->
+    <!-- Overlay UI (Buttons, hints, etc.) -->
     <FrameLayout
-        android:id="@+id/areaBubbleContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:id="@+id/arOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:paddingTop="40dp">
+
+        <!-- Hand Motion View -->
+        <de.westnordost.streetmeasure.HandMotionView
+            android:id="@+id/handMotionView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"/>
+
+        <!-- Instruction Popup -->
+        <de.westnordost.streetmeasure.InstructionPopupView
+            android:id="@+id/instructionPopup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="60dp"
+            android:visibility="visible"
+            android:contentDescription="Measurement instructions" />
+
+        <!-- Arrow Instruction View -->
+        <include
+            android:id="@+id/arrowInstructionView"
+            layout="@layout/view_arrow_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="24dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Aim the white arrow where you want a corner, then tap to drop a point." />
+
+        <!-- Top instruction label -->
+        <TextView
+            android:id="@+id/instructionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ar_tracking_error_background"
+            android:padding="16dp"
+            android:text="Tap each corner to outline the area"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+        <!-- Floating area bubble (positioned dynamically) -->
+        <FrameLayout
+            android:id="@+id/areaBubbleContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible">
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -91,21 +100,21 @@
 
         </FrameLayout>
 
-    </FrameLayout>
+        </FrameLayout>
 
-    <!-- Glass Bottom Panel -->
-    <LinearLayout
-        android:id="@+id/bottomControlsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:elevation="24dp">
+        <!-- Glass Bottom Panel -->
+        <LinearLayout
+            android:id="@+id/bottomControlsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:elevation="24dp">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -241,38 +250,55 @@
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+        </LinearLayout>
 
-    <!-- Bottom instruction text -->
-    <TextView
-        android:id="@+id/bottomInstructionTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="120dp"
-        android:background="@drawable/ar_tracking_error_background"
-        android:padding="12dp"
-        android:text="Tap to add point to polygon"
-        android:textColor="#fff"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="visible"
-        tools:visibility="visible" />
+        <!-- Bottom instruction text -->
+        <TextView
+            android:id="@+id/bottomInstructionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="120dp"
+            android:background="@drawable/ar_tracking_error_background"
+            android:padding="12dp"
+            android:text="Tap to add point to polygon"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            tools:visibility="visible" />
 
-    <!-- AR tracking error message -->
-    <TextView
-        android:id="@+id/tracking_message_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="64dp"
-        android:layout_centerInParent="true"
-        android:background="@drawable/ar_tracking_error_background"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:textColor="#fff"
-        android:visibility="gone"
-        tools:text="@string/ar_core_tracking_error_no_plane_hit"
-        tools:visibility="visible" />
+        <!-- AR tracking error message -->
+        <TextView
+            android:id="@+id/tracking_message_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="64dp"
+            android:background="@drawable/ar_tracking_error_background"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="#fff"
+            android:visibility="gone"
+            tools:text="@string/ar_core_tracking_error_no_plane_hit"
+            tools:visibility="visible" />
 
-</RelativeLayout>
+        <!-- Flashlight Toggle Button -->
+        <ImageButton
+            android:id="@+id/buttonFlashlight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_round_hud_button"
+            android:src="@drawable/ic_flashlight_off"
+            android:contentDescription="@string/flashlight_toggle"
+            android:tint="#FFFFFF"
+            android:elevation="12dp"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </FrameLayout>
+
+</FrameLayout>

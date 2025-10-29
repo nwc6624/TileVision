@@ -44,6 +44,10 @@ abstract class BaseFramedActivity : AppCompatActivity() {
         // Apply orientation policy first
         com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
         
+        // Apply monochrome mode styling
+        val mono = com.tilevision.prefs.AppearancePrefs.isMonochrome(this)
+        applyMonochromeMode(mono)
+        
         // Start / sync animated background
         val gb = gridBackground
         if (gb != null) {
@@ -51,6 +55,9 @@ abstract class BaseFramedActivity : AppCompatActivity() {
 
             val enabled = GridBackgroundView.isEnabled(this)
             gb.setGridEnabled(this, enabled)
+            
+            // Apply monochrome mode to grid background
+            gb.setMonochrome(mono)
         }
     }
 
@@ -58,5 +65,22 @@ abstract class BaseFramedActivity : AppCompatActivity() {
         super.onPause()
         // Stop animation to avoid crashes when backgrounded
         gridBackground?.stopAnimators()
+    }
+    
+    protected open fun applyMonochromeMode(mono: Boolean) {
+        // Update border/outline drawable tint
+        val pageShellRoot = findViewById<FrameLayout>(R.id.pageShellRoot)
+        if (pageShellRoot != null) {
+            val background = pageShellRoot.background
+            if (background != null) {
+                if (mono) {
+                    // Use a desaturated / light gray-cyan stroke, no glow
+                    background.setTint(android.graphics.Color.parseColor("#88CCCCCC"))
+                } else {
+                    // Original teal glow
+                    background.setTint(android.graphics.Color.parseColor("#18FFC4"))
+                }
+            }
+        }
     }
 }

@@ -30,7 +30,7 @@ class DisclaimerActivity : BaseFramedActivity() {
 
         continueBtn.setOnClickListener {
             // Save user's preference based on checkbox state:
-            StartupPrefs.setShowDisclaimer(this, checkbox.isChecked)
+            StartupPrefs.setShouldShowDisclaimer(this, checkbox.isChecked)
 
             startActivity(Intent(this, HomeActivity::class.java))
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -56,5 +56,11 @@ class DisclaimerActivity : BaseFramedActivity() {
             .setDuration(400)
             .setInterpolator(AccelerateDecelerateInterpolator())
             .start()
+    }
+
+    override fun onBackPressed() {
+        // Back button should do the same as Continue button
+        // This prevents users from getting stuck in a weird state
+        findViewById<View>(R.id.buttonContinue).performClick()
     }
 }

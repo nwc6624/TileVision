@@ -96,17 +96,21 @@ class SplashActivity : AppCompatActivity() {
 
         // 5. Launch next activity after ~2500ms
         tagline.postDelayed({
-            launchNext()
+            routeAfterSplash()
         }, 2500)
     }
 
-    private fun launchNext() {
-        if (StartupPrefs.shouldShowDisclaimer(this)) {
+    private fun routeAfterSplash() {
+        val shouldShowDisclaimer = StartupPrefs.shouldShowDisclaimer(this)
+        
+        if (shouldShowDisclaimer) {
             startActivity(Intent(this, DisclaimerActivity::class.java))
         } else {
             startActivity(Intent(this, HomeActivity::class.java))
         }
+        
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        // VERY IMPORTANT: kill Splash so we don't come back to it on Back
         finish()
     }
 

@@ -16,7 +16,7 @@ object StartupPrefs {
         return prefs(ctx).getBoolean(KEY_SHOW_DISCLAIMER, true)
     }
 
-    fun setShowDisclaimer(ctx: Context, show: Boolean) {
+    fun setShouldShowDisclaimer(ctx: Context, show: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_SHOW_DISCLAIMER, show).apply()
     }
 }

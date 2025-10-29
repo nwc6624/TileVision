@@ -57,7 +57,7 @@ class SettingsActivity : BaseFramedActivity() {
         val disclaimerToggle = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchShowDisclaimer)
         disclaimerToggle?.isChecked = com.tilevision.prefs.StartupPrefs.shouldShowDisclaimer(this)
         disclaimerToggle?.setOnCheckedChangeListener { _, isChecked ->
-            com.tilevision.prefs.StartupPrefs.setShowDisclaimer(this, isChecked)
+            com.tilevision.prefs.StartupPrefs.setShouldShowDisclaimer(this, isChecked)
         }
         
         // Units System row
@@ -72,6 +72,15 @@ class SettingsActivity : BaseFramedActivity() {
             com.tilevision.prefs.OrientationPrefs.setPortraitLocked(this, isChecked)
             // Immediately apply to SettingsActivity itself:
             com.tilevision.ui.ScreenOrientationHelper.applyOrientationPolicy(this)
+        }
+        
+        // Monochrome Mode Toggle Switch
+        val monochromeSwitch = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchMonochromeMode)
+        monochromeSwitch?.isChecked = com.tilevision.prefs.AppearancePrefs.isMonochrome(this)
+        monochromeSwitch?.setOnCheckedChangeListener { _, isChecked ->
+            com.tilevision.prefs.AppearancePrefs.setMonochrome(this, isChecked)
+            // Trigger UI refresh so user sees it immediately
+            recreate()
         }
         
         // Privacy Policy row
