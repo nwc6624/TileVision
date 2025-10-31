@@ -19,3 +19,5 @@ object OrientationPrefs {
         prefs(ctx).edit().putBoolean(KEY_LOCK_PORTRAIT, locked).apply()
     }
 }
+
+

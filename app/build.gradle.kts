@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -78,9 +77,6 @@ dependencies {
     
     // JSON serialization
     implementation("com.google.code.gson:gson:2.10.1")
-    
-    // Firebase Crashlytics
-    implementation("com.google.firebase:firebase-crashlytics:19.0.2")
 }
 
 tasks.register<UpdateAppTranslationsTask>("updateTranslations") {

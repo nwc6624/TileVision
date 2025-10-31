@@ -19,3 +19,5 @@ object AppearancePrefs {
         prefs(ctx).edit().putBoolean(KEY_MONOCHROME, enabled).apply()
     }
 }
+
+

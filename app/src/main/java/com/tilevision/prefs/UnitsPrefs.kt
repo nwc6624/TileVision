@@ -23,3 +23,5 @@ object UnitsPrefs {
     fun isImperial(ctx: Context): Boolean = getUnits(ctx) == "imperial"
     fun isMetric(ctx: Context): Boolean = getUnits(ctx) == "metric"
 }
+
+
