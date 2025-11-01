@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY
 import android.view.MotionEvent
@@ -102,8 +105,14 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private lateinit var flashlightButton: android.widget.ImageButton
     private val measurementMode = MeasurementMode.SURFACE_AREA
     
+    // Haptic feedback
+    private val vib by lazy { getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
+    
     // Store polygon points for horizontal upward-facing planes only
     private val polygonPoints: MutableList<Vector3> = mutableListOf()
+    
+    // Track polygon state for haptic feedback
+    private var wasPolygonValid = false
 
     // CHECKPOINT:
     // - User can tap 3+ points on the SAME plane.
@@ -508,6 +517,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             return
         }
         
+        // Anchor accepted - give haptic feedback
+        buzz(15)
+        
         // Fade out instruction popup on first tap
         if (polygonPoints.isEmpty() && binding.instructionPopup.visibility == android.view.View.VISIBLE) {
             binding.instructionPopup.fadeOut()
@@ -642,10 +654,14 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
 
     private fun validatePolygonAndUpdateUI() {
-        val plane = polygonState.plane ?: return
+        val plane = polygonState.plane ?: run {
+            wasPolygonValid = false
+            return
+        }
         
         if (polygonState.anchors.size == 0) {
             setAreaState(valid = false, areaText = "")
+            wasPolygonValid = false
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
@@ -654,6 +670,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         if (polygonState.anchors.size == 1) {
             setAreaState(valid = false, areaText = "")
+            wasPolygonValid = false
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
@@ -662,6 +679,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         if (polygonState.anchors.size == 2) {
             setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
+            wasPolygonValid = false
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
@@ -672,6 +690,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
         if (hasSelfIntersection(planePts)) {
             setAreaState(false, "Polygon intersects itself — adjust points")
+            wasPolygonValid = false
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
@@ -682,6 +701,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         if (!valid) {
             setAreaState(false, "No valid area yet — adjust points")
+            wasPolygonValid = false // Reset so haptic fires again when valid
             // Still render polygon but disable buttons
             updatePolygonDisplay()
             updateButtonStates()
@@ -692,6 +712,12 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         // Convert to user's units (ft²/m²)
         val (value, label) = toAppUnits(areaCm2)
         setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
+        
+        // Give haptic feedback when polygon becomes valid for the first time
+        if (!wasPolygonValid) {
+            buzz(30)
+            wasPolygonValid = true
+        }
         
         // Also render polygon fill if we have 3+ valid points
         renderPolygonFill()
@@ -718,6 +744,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         binding.confirmButton.isEnabled = valid
         binding.saveButton.isEnabled = valid
         binding.areaBubbleContainer.visibility = if (valid) android.view.View.VISIBLE else android.view.View.GONE
+    }
+    
+    private fun buzz(ms: Long = 20) {
+        if (Build.VERSION.SDK_INT >= 26) vib.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE))
+        else @Suppress("DEPRECATION") vib.vibrate(ms)
     }
 
     private fun calculateAndDisplayArea() {
