@@ -391,12 +391,13 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
         if (hitResult != null) {
             updateCursor(hitResult)
-
-                setTrackingMessage(R.string.ar_core_tracking_hint_tap_to_measure)
+            setTrackingMessage(R.string.ar_core_tracking_hint_tap_to_measure)
         } else {
-            /* when no plane can be found at the cursor position and the camera angle is
-               shallow enough, display a hint that user should cross street
+            /* when no plane can be found at the cursor position, disable the cursor
+               and display a hint that user should cross street
              */
+            cursorNode?.isEnabled = false
+            
             val cursorDistanceFromCamera = cursorNode?.worldPosition?.let {
                 Vector3.subtract(frame.camera.pose.position, it).length()
             } ?: 0f
