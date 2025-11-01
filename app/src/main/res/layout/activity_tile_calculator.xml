@@ -204,25 +204,25 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:boxBackgroundMode="outline"
-                            app:boxStrokeColor="@color/border_soft"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusBottomEnd="12dp">
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/border_soft"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tileWidthInput"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tileWidthInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
                                 android:textColor="@color/calculatorFieldText"
                                 app:hintTextColor="@color/calculatorFieldHint"
                                 android:textSize="16sp"
                                 android:textCursorDrawable="@drawable/cursor_teal"
                                 android:singleLine="true"
-                                android:hint="Width" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                            android:hint="Width" />
+                    </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <LinearLayout
@@ -244,25 +244,25 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:boxBackgroundMode="outline"
-                            app:boxStrokeColor="@color/border_soft"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusBottomEnd="12dp">
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/border_soft"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tileHeightInput"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tileHeightInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
                                 android:textColor="@color/calculatorFieldText"
                                 app:hintTextColor="@color/calculatorFieldHint"
                                 android:textSize="16sp"
                                 android:textCursorDrawable="@drawable/cursor_teal"
                                 android:singleLine="true"
-                                android:hint="Height" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                            android:hint="Height" />
+                    </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
                 </LinearLayout>
 

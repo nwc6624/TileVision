@@ -179,7 +179,7 @@
                         app:iconPadding="2dp"
                         app:iconSize="16dp"
                         app:iconGravity="textStart"
-                        android:contentDescription="@string/action_undo" />
+                        android:contentDescription="@string/cd_undo" />
 
                     <!-- Save Button -->
                     <com.google.android.material.button.MaterialButton
@@ -204,7 +204,7 @@
                         app:iconPadding="2dp"
                         app:iconSize="16dp"
                         app:iconGravity="textStart"
-                        android:contentDescription="Save this surface measurement" />
+                        android:contentDescription="@string/cd_save" />
 
                     <!-- Use Button -->
                     <com.google.android.material.button.MaterialButton
@@ -293,7 +293,7 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/bg_round_hud_button"
             android:src="@drawable/ic_flashlight_off"
-            android:contentDescription="@string/flashlight_toggle"
+            android:contentDescription="@string/cd_flash"
             android:tint="#FFFFFF"
             android:elevation="12dp"
             android:clickable="true"

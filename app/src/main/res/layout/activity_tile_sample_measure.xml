@@ -168,7 +168,7 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/bg_round_hud_button"
             android:src="@drawable/ic_flashlight_off"
-            android:contentDescription="@string/flashlight_toggle"
+            android:contentDescription="@string/cd_flash"
             android:tint="#FFFFFF"
             android:elevation="12dp"
             android:clickable="true"
