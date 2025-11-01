@@ -39,6 +39,27 @@ class PolygonRenderer(private val scene: Scene, private val material: Material) 
         }
     }
     
+    fun renderWorldPoints(worldPoints: List<FloatArray>) {
+        // clear old
+        lineNodes.forEach { it.setParent(null) }
+        lineNodes.clear()
+        if (worldPoints.size < 2) return
+
+        // Draw edges by connecting worldPolyline[i] -> worldPolyline[(i+1)%n]
+        for (i in worldPoints.indices) {
+            val startArr = worldPoints[i]
+            val endArr = worldPoints[(i + 1) % worldPoints.size]
+            
+            val start = Vector3(startArr[0], startArr[1], startArr[2])
+            val end = Vector3(endArr[0], endArr[1], endArr[2])
+            
+            // draw segment start->end as a thin cylinder
+            val node = LineNode(material, start, end)
+            node.setParent(scene)
+            lineNodes += node
+        }
+    }
+    
     private fun projectToPlane(planePose: Pose, worldPose: Pose): Vector3 {
         // Project world point to plane local space
         val localPoint = FloatArray(3)

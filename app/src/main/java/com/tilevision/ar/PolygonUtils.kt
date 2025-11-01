@@ -4,7 +4,7 @@ import com.google.ar.core.Pose
 import kotlin.math.abs
 import kotlin.math.atan2
 
-data class PolyCheck(val isValid: Boolean, val areaM2: Double)
+data class PolyCheck(val isValid: Boolean, val areaM2: Double, val ordered2D: List<Pair<Float, Float>> = emptyList())
 
 object PolygonUtils {
     // Project 3D points to the detected plane and compute area (shoelace), after ordering.
@@ -36,6 +36,6 @@ object PolygonUtils {
 
         // 4) validity: >=3 verts AND area above epsilon (avoid tiny triangles)
         val valid = ordered.size >= 3 && area > 1e-4
-        return PolyCheck(valid, area)
+        return PolyCheck(valid, area, ordered.map { Pair(it[0], it[1]) })
     }
 }

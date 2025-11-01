@@ -563,7 +563,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         if (polygonPoints.size < 1) {
             // Clear polygon renderer when no points
-            polygonRenderer?.render(emptyList())
+            polygonRenderer?.renderWorldPoints(emptyList())
             return
         }
         
@@ -573,9 +573,26 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             polygonNodes.add(markerNode)
         }
         
-        // Use PolygonRenderer with plane pose to project edges to plane space
-        val planePose = polygonState.plane?.centerPose
-        polygonRenderer?.render(polygonState.anchors, planePose)
+        // Use ordered2D from PolygonState evaluation result
+        val plane = polygonState.plane ?: return
+        val planePose = plane.centerPose
+        val ordered = poly.ordered2D
+        
+        if (ordered.isEmpty()) {
+            polygonRenderer?.renderWorldPoints(emptyList())
+            return
+        }
+        
+        // Transform ordered 2D points back to world space
+        val worldPolyline = ordered.map { (x, z) ->
+            val lp = floatArrayOf(x, 0f, z)
+            val wp = FloatArray(3)
+            planePose.transformPoint(lp, 0, wp, 0)
+            wp
+        }
+        
+        // Draw edges by connecting worldPolyline[i] -> worldPolyline[(i+1)%n]
+        polygonRenderer?.renderWorldPoints(worldPolyline)
     }
     
     private fun createPointMarker(point: Vector3): AnchorNode {
