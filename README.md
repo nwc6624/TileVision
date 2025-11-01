@@ -223,6 +223,30 @@ The app is available through:
 5. **Contact Support**: Send an email to our support team
 6. **Version Info**: See the current app version
 
+## Testing
+
+### Regression Test Checklist
+Before releasing new versions, please run the comprehensive test checklist located in `TEST_CHECKLIST.md`. This checklist covers:
+
+#### Critical Test Areas
+- **AR Measurement**: 3, 4, 8 vertex polygons on flat floor → Continue enabled
+- **Irregular Shapes**: Concave polygon validation and area computation
+- **Edge Cases**: 2 points → Continue disabled with proper hint
+- **Flashlight**: Toggle on/off in both AR scenes with auto-off on pause
+- **Debug Visuals**: No blue debug lines visible in polygon mode
+- **Save & Continue**: Works both with and without save
+- **Units**: Switch between ft²/m² shows consistent numbers across HUD + banner
+
+#### Quick Test Flow
+1. Place 3 vertices on flat floor → verify Continue enabled
+2. Place 2 vertices → verify Continue disabled, hint shows
+3. Toggle flashlight on/off → verify both states work
+4. Place 8 vertices concave shape → verify area computes correctly
+5. Save then Continue → verify navigation works
+6. Toggle units ft² ↔ m² → verify numbers consistent
+
+For complete test coverage, see `TEST_CHECKLIST.md` which includes 42 test cases across 11 categories.
+
 ## Development
 
 ### Building from Source
