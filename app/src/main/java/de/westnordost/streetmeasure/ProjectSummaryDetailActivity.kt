@@ -93,7 +93,7 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
         binding.totalTilesValueText.text = "${s.tilesNeeded} tiles (rounded)"
 
         // Boxes needed
-        binding.boxesNeededContainer.visibility = View.VISIBLE
+            binding.boxesNeededContainer.visibility = View.VISIBLE
         binding.boxesNeededValueText.text = "${s.boxesNeeded} boxes"
 
         // Notes
@@ -165,9 +165,9 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
             
             if (uri != null) {
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     putExtra(
                         Intent.EXTRA_SUBJECT,
                         "TileVision AR Estimate - ${summary.displayName}"
@@ -210,6 +210,7 @@ class ProjectSummaryDetailActivity : AppCompatActivity() {
             putExtra("areaSqFeet", s.areaSqFt)
             putExtra("tileWidthIn", s.tileWidthIn)
             putExtra("tileHeightIn", s.tileHeightIn)
+            putExtra("groutGap", s.groutGapInches)
             putExtra("wastePercent", s.wastePercent)
         }
         startActivity(intent)

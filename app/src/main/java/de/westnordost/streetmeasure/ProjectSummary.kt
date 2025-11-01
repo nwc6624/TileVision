@@ -14,14 +14,17 @@ data class ProjectSummary(
     val areaValue: Double,              // numeric area at time of save
     val areaUnit: String,               // "ft²" or "m²"
     
-    // Tile geometry
+    // Tile geometry (canonical MM)
     val tileWidth: Double,
     val tileHeight: Double,
     val tileSizeUnit: String,           // "in" or "cm"
+    val tileWidthMm: Float,
+    val tileHeightMm: Float,
     
-    // Grout gap
+    // Grout gap (canonical MM)
     val groutGap: Double,
     val groutUnit: String,              // "in" or "mm"
+    val groutGapMm: Float,
     
     // Waste & box
     val wastePercent: Double,

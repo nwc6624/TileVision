@@ -104,6 +104,20 @@ class TileCalculatorActivity : BaseFramedActivity() {
         // Load default tile sizes from preferences
         loadDefaultTileSizes()
         
+        // Read intent extras for tile dimensions and settings (e.g., from saved summary)
+        intent.getFloatExtra("tileWidthIn", 0f).takeIf { it > 0 }?.let {
+            tileWidthInput.setText(String.format("%.1f", it))
+        }
+        intent.getFloatExtra("tileHeightIn", 0f).takeIf { it > 0 }?.let {
+            tileHeightInput.setText(String.format("%.1f", it))
+        }
+        intent.getFloatExtra("groutGap", 0f).takeIf { it > 0 }?.let {
+            groutGapInput.setText(String.format("%.3f", it))
+        }
+        intent.getFloatExtra("wastePercent", -1f).takeIf { it >= 0 }?.let {
+            wasteSlider.value = it
+        }
+        
         // Setup input change listeners to trigger calculation
         manualAreaInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -481,6 +495,11 @@ class TileCalculatorActivity : BaseFramedActivity() {
         val finalNotes = notes.ifEmpty { null }
         android.util.Log.d("TileVision", "Final notes value: '${finalNotes ?: "(null)"}'")
         
+        // Convert to canonical MM values
+        val tileWidthMm = if (imperial) tileWidth * 25.4f else tileWidth * 10f
+        val tileHeightMm = if (imperial) tileHeight * 25.4f else tileHeight * 10f
+        val groutGapMm = if (imperial) groutGap * 25.4f else groutGap
+        
         // Create ProjectSummary with new model
         val summary = ProjectSummary(
             id = java.util.UUID.randomUUID().toString(),
@@ -494,8 +513,11 @@ class TileCalculatorActivity : BaseFramedActivity() {
             tileWidth = tileWidth.toDouble(),
             tileHeight = tileHeight.toDouble(),
             tileSizeUnit = tileSizeUnit,
+            tileWidthMm = tileWidthMm,
+            tileHeightMm = tileHeightMm,
             groutGap = groutGap.toDouble(),
             groutUnit = groutUnit,
+            groutGapMm = groutGapMm,
             wastePercent = wastePercent.toDouble(),
             tilesNeeded = finalTileCount,
             boxesNeeded = boxesNeeded,
