@@ -10,6 +10,7 @@ import android.os.PersistableBundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import de.westnordost.streetmeasure.BuildConfig
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY
 import android.view.MotionEvent
 import android.view.View
@@ -183,6 +184,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 val newState = !torchController.isTorchOn
                 torchController.toggleTorch(newState)
                 updateFlashUi(newState)
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Toggled torch: $newState")
+                }
             }
         }
 
@@ -520,6 +524,12 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         // Anchor accepted - give haptic feedback
         buzz(15)
         
+        if (BuildConfig.DEBUG) {
+            val planeType = plane.type?.name ?: "UNKNOWN"
+            val newSize = polygonState.anchors.size
+            Log.d(TAG, "Added point: polygon size=$newSize, plane=$planeType")
+        }
+        
         // Fade out instruction popup on first tap
         if (polygonPoints.isEmpty() && binding.instructionPopup.visibility == android.view.View.VISIBLE) {
             binding.instructionPopup.fadeOut()
@@ -654,78 +664,102 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
 
     private fun validatePolygonAndUpdateUI() {
-        val plane = polygonState.plane ?: run {
-            wasPolygonValid = false
-            return
-        }
-        
-        if (polygonState.anchors.size == 0) {
-            setAreaState(valid = false, areaText = "")
-            wasPolygonValid = false
+        try {
+            val plane = polygonState.plane ?: run {
+                wasPolygonValid = false
+                return
+            }
+            
+            val polygonSize = polygonState.anchors.size
+            val planeType = plane.type?.name ?: "UNKNOWN"
+            
+            if (polygonSize == 0) {
+                setAreaState(valid = false, areaText = "")
+                wasPolygonValid = false
+                updatePolygonDisplay()
+                updateButtonStates()
+                updateAreaBubblePosition()
+                return
+            }
+            
+            if (polygonSize == 1) {
+                setAreaState(valid = false, areaText = "")
+                wasPolygonValid = false
+                updatePolygonDisplay()
+                updateButtonStates()
+                updateAreaBubblePosition()
+                return
+            }
+            
+            if (polygonSize == 2) {
+                setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
+                wasPolygonValid = false
+                updatePolygonDisplay()
+                updateButtonStates()
+                updateAreaBubblePosition()
+                return
+            }
+            
+            // Project to plane 2D and compute area using new validation approach
+            val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
+            if (hasSelfIntersection(planePts)) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, "Validation failed: self-intersection (size=$polygonSize, plane=$planeType)")
+                }
+                setAreaState(false, "Polygon intersects itself — adjust points")
+                wasPolygonValid = false
+                updatePolygonDisplay()
+                updateButtonStates()
+                updateAreaBubblePosition()
+                return
+            }
+            val areaCm2 = polygonAreaCm2(planePts)
+            val valid = isNonCollinear(areaCm2)
+            
+            if (!valid) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, "Validation failed: area too small (size=$polygonSize, plane=$planeType, areaCm2=$areaCm2)")
+                }
+                setAreaState(false, "No valid area yet — adjust points")
+                wasPolygonValid = false // Reset so haptic fires again when valid
+                // Still render polygon but disable buttons
+                updatePolygonDisplay()
+                updateButtonStates()
+                updateAreaBubblePosition()
+                return
+            }
+            
+            // Convert to user's units (ft²/m²)
+            val (value, label) = toAppUnits(areaCm2)
+            setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
+            
+            // Give haptic feedback when polygon becomes valid for the first time
+            if (!wasPolygonValid) {
+                buzz(30)
+                wasPolygonValid = true
+            }
+            
+            // Also render polygon fill if we have 3+ valid points
+            renderPolygonFill()
+            
+            // Update UI
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
-            return
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                val size = polygonState.anchors.size
+                val planeType = polygonState.plane?.type?.name ?: "UNKNOWN"
+                val areaCm2 = try {
+                    val pts = polygonState.anchors.map { projectToPlaneSpace(polygonState.plane!!, it.pose) }
+                    polygonAreaCm2(pts)
+                } catch (_: Exception) {
+                    -1.0
+                }
+                Log.e(TAG, "Error in validatePolygonAndUpdateUI: size=$size, plane=$planeType, areaCm2=$areaCm2", e)
+            }
+            throw e
         }
-        
-        if (polygonState.anchors.size == 1) {
-            setAreaState(valid = false, areaText = "")
-            wasPolygonValid = false
-            updatePolygonDisplay()
-            updateButtonStates()
-            updateAreaBubblePosition()
-            return
-        }
-        
-        if (polygonState.anchors.size == 2) {
-            setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
-            wasPolygonValid = false
-            updatePolygonDisplay()
-            updateButtonStates()
-            updateAreaBubblePosition()
-            return
-        }
-        
-        // Project to plane 2D and compute area using new validation approach
-        val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
-        if (hasSelfIntersection(planePts)) {
-            setAreaState(false, "Polygon intersects itself — adjust points")
-            wasPolygonValid = false
-            updatePolygonDisplay()
-            updateButtonStates()
-            updateAreaBubblePosition()
-            return
-        }
-        val areaCm2 = polygonAreaCm2(planePts)
-        val valid = isNonCollinear(areaCm2)
-        
-        if (!valid) {
-            setAreaState(false, "No valid area yet — adjust points")
-            wasPolygonValid = false // Reset so haptic fires again when valid
-            // Still render polygon but disable buttons
-            updatePolygonDisplay()
-            updateButtonStates()
-            updateAreaBubblePosition()
-            return
-        }
-        
-        // Convert to user's units (ft²/m²)
-        val (value, label) = toAppUnits(areaCm2)
-        setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
-        
-        // Give haptic feedback when polygon becomes valid for the first time
-        if (!wasPolygonValid) {
-            buzz(30)
-            wasPolygonValid = true
-        }
-        
-        // Also render polygon fill if we have 3+ valid points
-        renderPolygonFill()
-        
-        // Update UI
-        updatePolygonDisplay()
-        updateButtonStates()
-        updateAreaBubblePosition()
     }
     
     private fun toAppUnits(areaCm2: Double): Pair<Double, String> {
@@ -1351,6 +1385,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     /* ----------------------------------------- Intent ----------------------------------------- */
 
     companion object {
+        private const val TAG = "MeasureActivity"
         private const val HAS_REQUESTED_AR_CORE_INSTALL = "has_requested_ar_core_install"
 
         /** Boolean. Whether this activity should return a result. If yes, the activity will return
