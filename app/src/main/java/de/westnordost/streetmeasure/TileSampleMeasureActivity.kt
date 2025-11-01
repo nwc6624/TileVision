@@ -333,6 +333,13 @@ class TileSampleMeasureActivity : AppCompatActivity() {
                 arSceneView.setupSession(arSession!!)
             }
             
+            // Clean up any debug nodes in the scene
+            arSceneView.scene.addOnUpdateListener {
+                arSceneView.scene.children
+                    .filter { it.name?.contains("Debug", true) == true || it.name?.contains("Normal", true) == true }
+                    .forEach { it.setParent(null) }
+            }
+            
                     // No longer need click listener - trace overlay handles touch
             this.arSceneView = arSceneView
             Log.d("TileSampleMeasureActivity", "ArSceneView created successfully")
