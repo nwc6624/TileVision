@@ -57,6 +57,11 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.math.tan
+import java.util.Locale
+
+// Polygon validation constants from patch
+private const val MIN_EDGE_CM = 1.0            // ignore micro-taps
+private const val AREA_EPSILON_CM2 = 5.0       // min polygon area to count as "valid"
 
 /** Activity to measure distances. Can be started as activity for result, which result in slightly
  *  different UX, too.  */
@@ -483,6 +488,24 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val plane = hitResult.trackable as? Plane ?: return
         val anchor = hitResult.createAnchor()
         
+        // Check minimum edge distance - reject points that are too close
+        val tooShort = polygonState.anchors.lastOrNull()?.let { last -> 
+            distanceCm(last.pose, anchor.pose) < MIN_EDGE_CM 
+        } ?: false
+        if (tooShort) {
+            anchor.detach()
+            Toast.makeText(this, "Points too close — move farther apart.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        // Add anchor to polygon state - this handles plane locking
+        val success = polygonState.addAnchor(anchor, plane)
+        if (!success) {
+            Toast.makeText(this, "Keep measuring on the same surface.", Toast.LENGTH_SHORT).show()
+            anchor.detach()
+            return
+        }
+        
         // Fade out instruction popup on first tap
         if (polygonPoints.isEmpty() && binding.instructionPopup.visibility == android.view.View.VISIBLE) {
             binding.instructionPopup.fadeOut()
@@ -500,27 +523,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val point = Vector3(worldPosition[0], worldPosition[1], worldPosition[2])
         polygonPoints.add(point)
         
-        // Add anchor to polygon state
-        val success = polygonState.addAnchor(anchor, plane)
-        if (!success) {
-            Toast.makeText(this, "Stay on the same surface", Toast.LENGTH_SHORT).show()
-            anchor.detach()
-            return
-        }
-        
         // Re-render the outline connecting all points in order
         renderPolygonOutline()
         
-        // Calculate and display area if we have 3+ points
-        if (polygonPoints.size >= 3) {
-            calculateAndDisplayArea()
-            renderPolygonFill()
-        }
-        
-        // Update UI
-        updatePolygonDisplay()
-        updateButtonStates()
-        updateAreaBubblePosition()
+        // Validate polygon and update UI based on validation
+        validatePolygonAndUpdateUI()
     }
 
     private fun renderPolygonOutline() {
@@ -640,6 +647,62 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
     }
 
+    private fun validatePolygonAndUpdateUI() {
+        val plane = polygonState.plane ?: return
+        
+        if (polygonState.anchors.size < 3) {
+            setAreaState(valid = false, areaText = "Add at least 3 points")
+            updatePolygonDisplay()
+            updateButtonStates()
+            updateAreaBubblePosition()
+            return
+        }
+        
+        // Project to plane 2D and compute area using new validation approach
+        val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
+        val areaCm2 = polygonAreaCm2(planePts)
+        val valid = isNonCollinear(areaCm2)
+        
+        if (!valid) {
+            setAreaState(false, "No valid area yet — adjust points")
+            // Still render polygon but disable buttons
+            updatePolygonDisplay()
+            updateButtonStates()
+            updateAreaBubblePosition()
+            return
+        }
+        
+        // Convert to user's units (ft²/m²)
+        val (value, label) = toAppUnits(areaCm2)
+        setAreaState(true, String.format(Locale.US, "%.2f %s", value, label))
+        
+        // Also render polygon fill if we have 3+ valid points
+        renderPolygonFill()
+        
+        // Update UI
+        updatePolygonDisplay()
+        updateButtonStates()
+        updateAreaBubblePosition()
+    }
+    
+    private fun toAppUnits(areaCm2: Double): Pair<Double, String> {
+        val areaM2 = areaCm2 / 10_000.0  // cm² -> m²
+        val units = AppPrefs.getUnits()
+        return if (units == "imperial") {
+            val areaFt2 = areaM2 * 10.7639
+            Pair(areaFt2, "ft²")
+        } else {
+            Pair(areaM2, "m²")
+        }
+    }
+    
+    private fun setAreaState(valid: Boolean, areaText: String) {
+        binding.areaTextView.text = areaText
+        binding.confirmButton.isEnabled = valid
+        binding.saveButton.isEnabled = valid
+        binding.areaBubbleContainer.visibility = if (valid) android.view.View.VISIBLE else android.view.View.GONE
+    }
+    
     private fun calculateAndDisplayArea() {
         if (polygonPoints.size < 3) return
         
@@ -899,18 +962,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         // Re-render everything
         renderPolygonOutline()
         
-        if (polygonPoints.size >= 3) {
-            calculateAndDisplayArea()
-            renderPolygonFill()
-        } else {
-            binding.areaBubbleContainer.visibility = android.view.View.GONE
-            polygonFillNode?.setParent(null)
-            polygonFillNode = null
-        }
-        
-        updatePolygonDisplay()
-        updateButtonStates()
-        updateAreaBubblePosition()
+        // Validate and update UI with new validation logic
+        validatePolygonAndUpdateUI()
     }
     
     private fun confirmMeasurement() {
@@ -1270,3 +1323,35 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         const val RESULT_INCHES = "inches"
     }
 }
+
+// Polygon validation utility functions from patch
+private fun Float.cm() = this * 100f
+
+private fun distanceCm(a: Pose, b: Pose): Double {
+    val dx = a.tx() - b.tx(); val dy = a.ty() - b.ty(); val dz = a.tz() - b.tz()
+    return (sqrt(dx*dx + dy*dy + dz*dz) * 100.0)
+}
+
+private data class PlaneSpacePoint(val x: Float, val y: Float)
+
+private fun projectToPlaneSpace(plane: Plane, worldPose: Pose): PlaneSpacePoint {
+    // Build a transform that maps world -> plane local (X,Z axes on the plane)
+    val center = plane.centerPose
+    val inv = center.inverse()
+    val local = inv.compose(worldPose)
+    // In plane-local, X and Z lie on the plane surface (Y is normal)
+    return PlaneSpacePoint(local.tx(), local.tz())
+}
+
+private fun polygonAreaCm2(pts: List<PlaneSpacePoint>): Double {
+    // Shoelace in plane space; units are meters -> convert to cm^2
+    var sum = 0.0
+    for (i in pts.indices) {
+        val j = (i + 1) % pts.size
+        sum += (pts[i].x * pts[j].y - pts[j].x * pts[i].y)
+    }
+    val areaMeters2 = abs(sum) / 2.0
+    return areaMeters2 * 10_000.0 // m^2 -> cm^2
+}
+
+private fun isNonCollinear(areaCm2: Double) = areaCm2 > AREA_EPSILON_CM2
