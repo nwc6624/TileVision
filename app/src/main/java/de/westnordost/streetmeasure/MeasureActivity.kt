@@ -54,6 +54,7 @@ import de.westnordost.streetmeasure.databinding.ActivityMeasureBinding
 import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import com.tilevision.ar.PolygonUtils
 import com.tilevision.ar.PolyCheck
+import com.tilevision.util.Units
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
@@ -719,7 +720,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             
             // Convert area from m² to user's display units
             val (value, label) = if (result.isValid) {
-                toAppUnits(result.areaM2 * 10_000.0) // m² to cm² conversion
+                toAppUnitsFromM2(result.areaM2)
             } else {
                 Pair(0.0, "")
             }
@@ -755,9 +756,13 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     private fun toAppUnits(areaCm2: Double): Pair<Double, String> {
         val areaM2 = areaCm2 / 10_000.0  // cm² -> m²
+        return toAppUnitsFromM2(areaM2)
+    }
+    
+    private fun toAppUnitsFromM2(areaM2: Double): Pair<Double, String> {
         val units = AppPrefs.getUnits()
         return if (units == "imperial") {
-            val areaFt2 = areaM2 * 10.7639
+            val areaFt2 = Units.m2ToSqFt(areaM2)
             Pair(areaFt2, "ft²")
         } else {
             Pair(areaM2, "m²")
@@ -766,6 +771,16 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     private fun setAreaState(valid: Boolean, areaText: String) {
         binding.areaTextView.text = areaText
+        
+        // Update big number in bottom panel from single source of truth
+        val resultText = findViewById<android.widget.TextView>(R.id.resultText)
+        if (valid && lastPolyCheck != null) {
+            val (value, label) = toAppUnitsFromM2(lastPolyCheck!!.areaM2)
+            resultText?.text = String.format(Locale.US, "%.1f %s", value, label)
+        } else {
+            resultText?.text = ""
+        }
+        
         binding.confirmButton.isEnabled = valid
         binding.saveButton.isEnabled = valid
         // Set 60% opacity when disabled
@@ -797,7 +812,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val areaM2 = kotlin.math.abs(sum) * 0.5f
         
         // Convert to square feet
-        val areaSqFt = areaM2 * 10.7639f
+        val areaSqFt = Units.m2ToSqFt(areaM2.toDouble()).toFloat()
         
         // Update area TextView using AppPrefs for formatting
         val units = AppPrefs.getUnits()
@@ -1085,7 +1100,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Convert areaM2 to ft² for calculator
         val areaM2 = lastPolyCheck!!.areaM2
-        val areaFt2 = (areaM2 * 10.7639).toFloat()
+        val areaFt2 = Units.m2ToSqFt(areaM2).toFloat()
         
         val intent = Intent(this, TileCalculatorActivity::class.java).apply {
             putExtra("areaSqFeet", areaFt2)
@@ -1102,16 +1117,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
     
     private fun buildProjectMeasurementFromCurrentPolygon(): ProjectMeasurement {
-        // Calculate area from polygon points
-        val points2D = polygonPoints.map { point -> Pair(point.x, point.z) }
-        var sum = 0f
-        for (i in points2D.indices) {
-            val (x1, z1) = points2D[i]
-            val (x2, z2) = points2D[(i + 1) % points2D.size]
-            sum += (x1 * z2 - x2 * z1)
-        }
-        val areaM2 = kotlin.math.abs(sum) * 0.5f
-        val areaSqFt = areaM2 * 10.7639f
+        // Use validated area from lastPolyCheck (single source of truth)
+        val areaM2 = lastPolyCheck?.areaM2 ?: 0.0
+        val areaSqFt = Units.m2ToSqFt(areaM2).toFloat()
         
         // Convert 3D points to 2D (x, z) for preview drawing
         val polygonPoints2D = polygonPoints.map { ProjectPoint2D(it.x, it.z) }

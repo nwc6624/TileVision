@@ -22,6 +22,7 @@ import com.google.ar.sceneform.rendering.MaterialFactory
 import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.Color
 import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
+import com.tilevision.util.Units
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -477,7 +478,7 @@ class TileSampleMeasureActivity : AppCompatActivity() {
 
             val widthInches = widthMeters * 39.3701f
             val heightInches = heightMeters * 39.3701f
-            val areaFt2 = (widthMeters * heightMeters) * 10.7639f
+            val areaFt2 = Units.m2ToSqFt((widthMeters * heightMeters).toDouble()).toFloat()
 
             val dispW = max(widthInches, heightInches)
             val dispH = min(widthInches, heightInches)

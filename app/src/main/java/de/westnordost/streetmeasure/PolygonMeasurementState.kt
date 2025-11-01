@@ -3,6 +3,7 @@ package de.westnordost.streetmeasure
 import com.google.ar.core.Anchor
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
+import com.tilevision.util.Units
 
 class PolygonMeasurementState {
     var plane: Plane? = null
@@ -76,6 +77,6 @@ class PolygonMeasurementState {
     }
 
     fun areaSqFeet(): Float {
-        return areaSqMeters() * 10.7639f
+        return Units.m2ToSqFt(areaSqMeters().toDouble()).toFloat()
     }
 }
