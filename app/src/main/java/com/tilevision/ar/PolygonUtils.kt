@@ -8,6 +8,8 @@ data class PolyCheck(val isValid: Boolean, val areaM2: Double)
 
 object PolygonUtils {
     // Project 3D points to the detected plane and compute area (shoelace), after ordering.
+    fun evaluate(planePose: Pose, worldPoints: List<FloatArray>): PolyCheck = validateAndArea(planePose, worldPoints)
+    
     fun validateAndArea(planePose: Pose, worldPoints: List<FloatArray>): PolyCheck {
         if (worldPoints.size < 3) return PolyCheck(false, 0.0)
 
