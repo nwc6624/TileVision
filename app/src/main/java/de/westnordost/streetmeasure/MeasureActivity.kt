@@ -717,10 +717,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             
             // Use PolygonState validation (auto-evaluated on add)
             val currentUnits = AppPrefs.getUnits()
-            val (value, label) = Units.m2ToUi(poly.areaM2, currentUnits)
+            val areaText = Units.m2ToUi(poly.areaM2, currentUnits)
             
             if (poly.valid) {
-                setAreaState(true, String.format(Locale.US, "%.2f %s", value, label))
+                setAreaState(true, areaText)
                 
                 // Give haptic feedback when polygon becomes valid for the first time
                 if (!wasPolygonValid) {
@@ -748,21 +748,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
     }
     
-    private fun toAppUnits(areaCm2: Double): Pair<Double, String> {
-        val areaM2 = areaCm2 / 10_000.0  // cm² -> m²
-        return toAppUnitsFromM2(areaM2)
-    }
-    
-    private fun toAppUnitsFromM2(areaM2: Double): Pair<Double, String> {
-        val units = AppPrefs.getUnits()
-        return if (units == "imperial") {
-            val areaFt2 = Units.m2ToSqFt(areaM2)
-            Pair(areaFt2, "ft²")
-        } else {
-            Pair(areaM2, "m²")
-        }
-    }
-    
     private fun setAreaState(valid: Boolean, areaText: String) {
         binding.areaTextView.text = areaText
         
@@ -770,8 +755,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         val resultText = findViewById<android.widget.TextView>(R.id.resultText)
         if (valid) {
             val currentUnits = AppPrefs.getUnits()
-            val (value, label) = Units.m2ToUi(poly.areaM2, currentUnits)
-            resultText?.text = String.format(Locale.US, "%.1f %s", value, label)
+            val areaText = Units.m2ToUi(poly.areaM2, currentUnits)
+            resultText?.text = areaText
         } else {
             resultText?.text = ""
         }
@@ -789,35 +774,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         else @Suppress("DEPRECATION") vib.vibrate(ms)
     }
 
-    private fun calculateAndDisplayArea() {
-        if (polygonPoints.size < 3) return
-        
-        // Project polygonPoints into 2D plane coordinates (drop Y, use X and Z)
-        val points2D = polygonPoints.map { point ->
-            Pair(point.x, point.z)
-        }
-        
-        // Compute area in square meters using Shoelace formula
-        var sum = 0f
-        for (i in points2D.indices) {
-            val (x1, z1) = points2D[i]
-            val (x2, z2) = points2D[(i + 1) % points2D.size]
-            sum += (x1 * z2 - x2 * z1)
-        }
-        val areaM2 = kotlin.math.abs(sum) * 0.5f
-        
-        // Convert to square feet
-        val areaSqFt = Units.m2ToSqFt(areaM2.toDouble()).toFloat()
-        
-        // Update area TextView using AppPrefs for formatting
-        val units = AppPrefs.getUnits()
-        val precision = AppPrefs.getPrecision()
-        val unitSymbol = if (units == "imperial") "ft²" else "m²"
-        val displayArea = if (units == "imperial") areaSqFt else areaM2
-        binding.areaTextView.text = "${String.format("%.${precision}f", displayArea)} $unitSymbol"
-        binding.areaBubbleContainer.visibility = android.view.View.VISIBLE
-    }
-    
     private fun updateAreaBubblePosition() {
         if (polygonPoints.size < 3) {
             binding.areaBubbleContainer.visibility = android.view.View.GONE
