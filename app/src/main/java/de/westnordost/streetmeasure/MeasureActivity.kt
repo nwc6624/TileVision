@@ -324,7 +324,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     override fun onPause() {
         super.onPause()
         arSceneView?.pause()
-        torchController.shutdown()
+        if (torchController.isTorchOn) {
+            torchController.shutdown()
+            updateFlashUi(false)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
