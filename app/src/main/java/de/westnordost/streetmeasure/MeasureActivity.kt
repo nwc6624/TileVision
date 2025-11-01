@@ -1067,7 +1067,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     private fun onSaveMeasurementClicked() {
         if (polygonState.anchors.size < 3) {
-            showInlineWarningChip("Add at least 3 corners before saving.")
             return
         }
         
@@ -1092,7 +1091,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private fun onUseMeasurementClicked() {
         // Check if we have a valid polygon result
         if (lastPolyCheck == null || !lastPolyCheck!!.isValid) {
-            showInlineWarningChip("No valid area yet.")
             return
         }
         
@@ -1190,11 +1188,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             .withEndAction { 
                 arrowView.visibility = android.view.View.GONE
             }
-    }
-    
-    private fun showInlineWarningChip(message: String) {
-        // TODO: Implement glass chip warning above bottom panel
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
     
     private fun updateButtonStates() {

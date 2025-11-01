@@ -32,7 +32,8 @@
             android:layout_height="match_parent"
             android:visibility="gone"
             android:clickable="false"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:importantForAccessibility="no"/>
 
         <!-- Instruction Popup -->
         <de.westnordost.streetmeasure.InstructionPopupView
@@ -42,6 +43,9 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="60dp"
             android:visibility="visible"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             android:contentDescription="Measurement instructions" />
 
         <!-- Arrow Instruction View -->
@@ -53,8 +57,9 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="24dp"
             android:visibility="gone"
-            android:clickable="true"
-            android:focusable="true"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             android:contentDescription="Aim the white arrow where you want a corner, then tap to drop a point." />
 
         <!-- Top instruction label -->
@@ -71,6 +76,9 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="visible"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             tools:visibility="visible" />
 
         <!-- Floating area bubble (positioned dynamically) -->
@@ -80,6 +88,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             tools:visibility="visible">
 
         <FrameLayout
@@ -114,7 +125,9 @@
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible"
-            android:elevation="24dp">
+            android:elevation="24dp"
+            android:clickable="true"
+            android:focusable="true">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -266,6 +279,9 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:visibility="visible"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             tools:visibility="visible" />
 
         <!-- AR tracking error message -->
@@ -280,6 +296,9 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textColor="#fff"
             android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
             tools:text="@string/ar_core_tracking_error_no_plane_hit"
             tools:visibility="visible" />
 
