@@ -80,6 +80,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private var pointRenderable: Renderable? = null
     private var polygonLineRenderable: Renderable? = null
     private var polygonFillRenderable: Renderable? = null
+    private var polygonLineMaterial: com.google.ar.sceneform.rendering.Material? = null
 
     private var cursorNode: Node? = null
     private var lastSmoothedPose: Pose? = null
@@ -88,6 +89,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private val polygonNodes = mutableListOf<AnchorNode>()
     private val polygonLineNodes = mutableListOf<Node>()
     private var polygonFillNode: Node? = null
+    private var polygonRenderer: de.westnordost.streetmeasure.Rendering.PolygonRenderer? = null
 
     private var requestResult: Boolean = false
     private var measuringTapeColor: Int = -1
@@ -470,6 +472,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             true
         }
         this.arSceneView = arSceneView
+        // PolygonRenderer will be initialized later in initRenderables() once material is ready
     }
 
     /* ---------------------------------------- Measuring --------------------------------------- */
@@ -539,19 +542,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             polygonNodes.add(markerNode)
         }
         
-        if (polygonPoints.size < 2) return
+        if (polygonState.anchors.size < 2) return
         
-        // Connect all points in order
-        for (i in 0 until polygonPoints.size) {
-            val currentPoint = polygonPoints[i]
-            val nextPoint = polygonPoints[(i + 1) % polygonPoints.size]
-            
-            // Only draw closing line if we have 3+ points
-            if (i == polygonPoints.size - 1 && polygonPoints.size < 3) continue
-            
-            val lineNode = drawEdge(currentPoint, nextPoint)
-            polygonLineNodes.add(lineNode)
-        }
+        // Use PolygonRenderer for lightweight world-space polyline rendering
+        polygonRenderer?.render(polygonState.anchors)
     }
     
     private fun createPointMarker(point: Vector3): AnchorNode {
@@ -1122,6 +1116,16 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         // Polygon-specific renderables - thin rectangular prism for edges that sit on the floor like tape
         polygonLineRenderable = ShapeFactory.makeCube(Vector3(0.02f, 0.005f, 1f), Vector3.zero(), materialBlue) // Thin rectangular prism for edges
         polygonFillRenderable = ShapeFactory.makeCube(Vector3(1f, 0.001f, 1f), Vector3.zero(), materialTeal) // Thin fill
+        
+        // Material for lightweight polygon line rendering
+        polygonLineMaterial = MaterialFactory.makeOpaqueWithColor(this, Color(android.graphics.Color.CYAN)).await()
+        
+        // Initialize polygon renderer with the material
+        polygonLineMaterial?.let { material ->
+            arSceneView?.scene?.let { scene ->
+                polygonRenderer = de.westnordost.streetmeasure.Rendering.PolygonRenderer(scene, material)
+            }
+        }
         
         listOfNotNull(cursorRenderable, pointRenderable, polygonLineRenderable, polygonFillRenderable).forEach {
             it.isShadowCaster = false
