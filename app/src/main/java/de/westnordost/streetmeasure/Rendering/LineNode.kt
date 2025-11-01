@@ -15,7 +15,7 @@ class LineNode(private val material: Material, private val start: Vector3, priva
         val length = sqrt(dx*dx + dy*dy + dz*dz)
         
         val cylinder = ShapeFactory.makeCylinder(
-            0.0025f,
+            0.012f,  // ~3dp in world units
             length,
             Vector3.zero(),
             material

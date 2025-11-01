@@ -575,8 +575,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             polygonNodes.add(markerNode)
         }
         
-        // Use PolygonRenderer for lightweight world-space polyline rendering
-        polygonRenderer?.render(polygonState.anchors)
+        // Use PolygonRenderer with plane pose to project edges to plane space
+        val planePose = polygonState.plane?.centerPose
+        polygonRenderer?.render(polygonState.anchors, planePose)
     }
     
     private fun createPointMarker(point: Vector3): AnchorNode {
@@ -1201,7 +1202,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private suspend fun initRenderables() {
         // takes about half a second on a high-end device(!)
         val materialBlue = MaterialFactory.makeOpaqueWithColor(this, Color(measuringTapeColor)).await()
-        val materialTeal = MaterialFactory.makeTransparentWithColor(this, Color(0.3f, 0.7f, 0.6f, 0.3f)).await() // Semi-transparent teal
+        val materialTeal = MaterialFactory.makeTransparentWithColor(this, Color(0.3f, 0.7f, 0.6f, 0.25f)).await() // Semi-transparent teal with alpha=0.25
         
         cursorRenderable = ViewRenderable.builder().setView(this, R.layout.view_ar_cursor).build().await()
         pointRenderable = ShapeFactory.makeCylinder(0.03f, 0.005f, Vector3.zero(), materialBlue)
