@@ -116,6 +116,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     // Track polygon state for haptic feedback
     private var wasPolygonValid = false
+    
+    // Store last validation result for Save/Continue
+    private var lastPolyCheck: PolyCheck? = null
 
     // CHECKPOINT:
     // - User can tap 3+ points on the SAME plane.
@@ -676,6 +679,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             val planeType = plane.type?.name ?: "UNKNOWN"
             
             if (polygonSize == 0) {
+                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -685,6 +689,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             }
             
             if (polygonSize == 1) {
+                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -694,6 +699,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             }
             
             if (polygonSize == 2) {
+                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -708,6 +714,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 floatArrayOf(pos[0], pos[1], pos[2])
             }
             val result = PolygonUtils.validateAndArea(plane.centerPose, worldPoints)
+            lastPolyCheck = result  // Store for Save/Continue use
             
             // Convert area from m² to user's display units
             val (value, label) = if (result.isValid) {
@@ -1064,17 +1071,24 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
     
     private fun onUseMeasurementClicked() {
-        val area = binding.areaTextView.text?.toString()?.replace("Area: ", "")?.replace(" sq ft", "")?.toFloatOrNull()
-        
-        if (area != null && area > 0f) {
-            window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
-            val intent = Intent(this, TileCalculatorActivity::class.java)
-            intent.putExtra("EXTRA_AREA_FT2", area)
-            startActivity(intent)
-            finish()
-        } else {
+        // Check if we have a valid polygon result
+        if (lastPolyCheck == null || !lastPolyCheck!!.isValid) {
             showInlineWarningChip("No valid area yet.")
+            return
         }
+        
+        window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+        
+        // Convert areaM2 to ft² for calculator
+        val areaM2 = lastPolyCheck!!.areaM2
+        val areaFt2 = (areaM2 * 10.7639).toFloat()
+        
+        val intent = Intent(this, TileCalculatorActivity::class.java).apply {
+            putExtra("areaSqFeet", areaFt2)
+            putExtra("EXTRA_AREA_FT2", areaFt2)  // For backward compatibility
+        }
+        startActivity(intent)
+        finish()
     }
     
     private fun onSkipARClicked() {
