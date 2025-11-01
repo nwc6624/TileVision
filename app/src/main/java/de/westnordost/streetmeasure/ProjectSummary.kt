@@ -18,13 +18,13 @@ data class ProjectSummary(
     val tileWidth: Double,
     val tileHeight: Double,
     val tileSizeUnit: String,           // "in" or "cm"
-    val tileWidthMm: Float,
-    val tileHeightMm: Float,
+    val tileWidthMm: Float = 0f,        // Canonical MM for backward compatibility
+    val tileHeightMm: Float = 0f,       // Canonical MM for backward compatibility
     
     // Grout gap (canonical MM)
     val groutGap: Double,
     val groutUnit: String,              // "in" or "mm"
-    val groutGapMm: Float,
+    val groutGapMm: Float = 0f,         // Canonical MM for backward compatibility
     
     // Waste & box
     val wastePercent: Double,
