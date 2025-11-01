@@ -955,22 +955,23 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
 
     private fun undoLastPoint() {
-        if (polygonPoints.isEmpty()) return
-        
-        // Remove last point
-        polygonPoints.removeAt(polygonPoints.size - 1)
-        
-        // Remove last anchor from polygon state
         if (polygonState.anchors.isNotEmpty()) {
-            val lastAnchor = polygonState.anchors.removeAt(polygonState.anchors.size - 1)
-            lastAnchor.detach()
+            polygonState.anchors.removeLast().detach()
+            // Also remove from legacy polygonPoints for compatibility
+            if (polygonPoints.isNotEmpty()) {
+                polygonPoints.removeAt(polygonPoints.size - 1)
+            }
+            renderPolygonOutline()
+            validatePolygonAndUpdateUI()
         }
-        
-        // Re-render everything
-        renderPolygonOutline()
-        
-        // Validate and update UI with new validation logic
-        validatePolygonAndUpdateUI()
+    }
+    
+    private fun closePolygon() {
+        // PolygonRenderer already closes the loop when rendering
+        if (polygonState.anchors.size >= 3) {
+            renderPolygonOutline() // renderer already closes loop
+            validatePolygonAndUpdateUI()
+        }
     }
     
     private fun confirmMeasurement() {

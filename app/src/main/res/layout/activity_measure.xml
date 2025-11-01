@@ -162,7 +162,7 @@
                         android:layout_weight="1"
                         android:minWidth="0dp"
                         android:layout_marginEnd="4dp"
-                        android:text="Undo"
+                        android:text="@string/action_undo"
                         android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
@@ -179,7 +179,7 @@
                         app:iconPadding="2dp"
                         app:iconSize="16dp"
                         app:iconGravity="textStart"
-                        android:contentDescription="Undo last corner" />
+                        android:contentDescription="@string/action_undo" />
 
                     <!-- Save Button -->
                     <com.google.android.material.button.MaterialButton

@@ -30,4 +30,7 @@
     <string name="msg_no_ar">This device cannot run AR measurement.</string>
     
     <string name="hint_tap_save">Tap Save to store this measurement</string>
+    
+    <string name="action_undo">Undo</string>
+    <string name="action_close">Close shape</string>
 </resources>
