@@ -667,6 +667,13 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Project to plane 2D and compute area using new validation approach
         val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
+        if (hasSelfIntersection(planePts)) {
+            setAreaState(false, "Polygon intersects itself — adjust points")
+            updatePolygonDisplay()
+            updateButtonStates()
+            updateAreaBubblePosition()
+            return
+        }
         val areaCm2 = polygonAreaCm2(planePts)
         val valid = isNonCollinear(areaCm2)
         
@@ -1346,6 +1353,31 @@ private fun distanceCm(a: Pose, b: Pose): Double {
 }
 
 private data class PlaneSpacePoint(val x: Float, val y: Float)
+
+// Self-intersection detection helpers
+private data class Seg(val a: PlaneSpacePoint, val b: PlaneSpacePoint)
+
+private fun ccw(a: PlaneSpacePoint, b: PlaneSpacePoint, c: PlaneSpacePoint): Boolean {
+    return (c.y - a.y)*(b.x - a.x) > (b.y - a.y)*(c.x - a.x)
+}
+
+private fun intersects(s1: Seg, s2: Seg): Boolean {
+    return ccw(s1.a, s2.a, s2.b) != ccw(s1.b, s2.a, s2.b) &&
+           ccw(s1.a, s1.b, s2.a) != ccw(s1.a, s1.b, s2.b)
+}
+
+private fun hasSelfIntersection(pts: List<PlaneSpacePoint>): Boolean {
+    if (pts.size < 4) return false
+    val segs = pts.indices.map { i -> Seg(pts[i], pts[(i+1)%pts.size]) }
+    for (i in segs.indices) {
+        for (j in i+1 until segs.size) {
+            // ignore adjacent edges and first-last adjacency
+            val adjacent = (j == i+1) || (i == 0 && j == segs.lastIndex)
+            if (!adjacent && intersects(segs[i], segs[j])) return true
+        }
+    }
+    return false
+}
 
 private fun projectToPlaneSpace(plane: Plane, worldPose: Pose): PlaneSpacePoint {
     // Build a transform that maps world -> plane local (X,Z axes on the plane)
