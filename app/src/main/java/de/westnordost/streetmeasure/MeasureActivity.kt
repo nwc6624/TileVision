@@ -758,7 +758,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 binding.instructionTextView.text = "Tap one more corner to complete the area"
             }
             else -> {
-                binding.instructionTextView.text = "Tap Accept to save this measurement"
+                binding.instructionTextView.text = getString(R.string.hint_tap_save)
             }
         }
         

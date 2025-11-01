@@ -28,4 +28,6 @@
     <string name="msg_measure_project_area">Move your phone slowly to detect the floor or surface</string>
     <string name="msg_need_camera">Camera permission is required to measure the tile</string>
     <string name="msg_no_ar">This device cannot run AR measurement.</string>
+    
+    <string name="hint_tap_save">Tap Save to store this measurement</string>
 </resources>
