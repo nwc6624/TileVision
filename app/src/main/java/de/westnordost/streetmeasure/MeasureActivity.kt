@@ -724,7 +724,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             }
             
             if (result.isValid) {
-                setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
+                setAreaState(true, String.format(Locale.US, "%.2f %s", value, label))
                 
                 // Give haptic feedback when polygon becomes valid for the first time
                 if (!wasPolygonValid) {
@@ -734,7 +734,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 
                 renderPolygonFill()
             } else {
-                setAreaState(false, "No valid area yet — adjust points")
+                setAreaState(false, "")
                 wasPolygonValid = false
             }
             
@@ -767,6 +767,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         binding.areaTextView.text = areaText
         binding.confirmButton.isEnabled = valid
         binding.saveButton.isEnabled = valid
+        // Set 60% opacity when disabled
+        binding.confirmButton.alpha = if (valid) 1.0f else 0.6f
+        binding.saveButton.alpha = if (valid) 1.0f else 0.6f
         binding.areaBubbleContainer.visibility = if (valid) android.view.View.VISIBLE else android.view.View.GONE
     }
     
