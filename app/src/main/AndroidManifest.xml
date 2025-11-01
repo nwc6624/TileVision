@@ -11,6 +11,7 @@
     <uses-feature android:name="android.hardware.screen.portrait" />
     <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
 
     <application
         android:allowBackup="true"
