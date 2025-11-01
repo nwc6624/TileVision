@@ -54,6 +54,7 @@ import de.westnordost.streetmeasure.databinding.ActivityMeasureBinding
 import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import com.tilevision.ar.PolygonUtils
 import com.tilevision.ar.PolyCheck
+import com.tilevision.ar.PolygonState
 import com.tilevision.util.Units
 import com.tilevision.camera.FlashlightController
 import kotlinx.coroutines.Dispatchers
@@ -104,6 +105,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
     // Polygon measurement state for surface area mode
     private val polygonState = PolygonMeasurementState()
+    private val poly = PolygonState()
     
     // Flashlight control
     private lateinit var torch: FlashlightController
@@ -119,9 +121,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     // Track polygon state for haptic feedback
     private var wasPolygonValid = false
-    
-    // Store last validation result for Save/Continue
-    private var lastPolyCheck: PolyCheck? = null
 
     // CHECKPOINT:
     // - User can tap 3+ points on the SAME plane.
@@ -513,6 +512,12 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         }
         
         val plane = hit.trackable as Plane
+        
+        // Update PolygonState
+        poly.setPlane(plane)
+        val p = hit.hitPose
+        poly.add(floatArrayOf(p.tx(), p.ty(), p.tz()))
+        
         if (!polygonState.addAnchor(anchor, plane)) {
             anchor.detach()
             Toast.makeText(this, "Stay on the same surface.", Toast.LENGTH_SHORT).show()
@@ -664,16 +669,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
     private fun validatePolygonAndUpdateUI() {
         try {
-            val plane = polygonState.plane ?: run {
-                wasPolygonValid = false
-                return
-            }
-            
             val polygonSize = polygonState.anchors.size
-            val planeType = plane.type?.name ?: "UNKNOWN"
             
             if (polygonSize == 0) {
-                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -683,7 +681,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             }
             
             if (polygonSize == 1) {
-                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -693,7 +690,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             }
             
             if (polygonSize == 2) {
-                lastPolyCheck = null
                 setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
                 wasPolygonValid = false
                 updatePolygonDisplay()
@@ -702,22 +698,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 return
             }
             
-            // Use robust PolygonUtils validation
-            val worldPoints = polygonState.anchors.map { anchor ->
-                val pos = anchor.pose.translation
-                floatArrayOf(pos[0], pos[1], pos[2])
-            }
-            val result = PolygonUtils.validateAndArea(plane.centerPose, worldPoints)
-            lastPolyCheck = result  // Store for Save/Continue use
+            // Use PolygonState validation (auto-evaluated on add)
+            val currentUnits = AppPrefs.getUnits()
+            val (value, label) = Units.m2ToUi(poly.areaM2, currentUnits)
             
-            // Convert area from m² to user's display units
-            val (value, label) = if (result.isValid) {
-                toAppUnitsFromM2(result.areaM2)
-            } else {
-                Pair(0.0, "")
-            }
-            
-            if (result.isValid) {
+            if (poly.valid) {
                 setAreaState(true, String.format(Locale.US, "%.2f %s", value, label))
                 
                 // Give haptic feedback when polygon becomes valid for the first time
@@ -766,8 +751,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Update big number in bottom panel from single source of truth
         val resultText = findViewById<android.widget.TextView>(R.id.resultText)
-        if (valid && lastPolyCheck != null) {
-            val (value, label) = toAppUnitsFromM2(lastPolyCheck!!.areaM2)
+        if (valid) {
+            val currentUnits = AppPrefs.getUnits()
+            val (value, label) = Units.m2ToUi(poly.areaM2, currentUnits)
             resultText?.text = String.format(Locale.US, "%.1f %s", value, label)
         } else {
             resultText?.text = ""
@@ -1082,15 +1068,14 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     
     private fun onUseMeasurementClicked() {
         // Check if we have a valid polygon result
-        if (lastPolyCheck == null || !lastPolyCheck!!.isValid) {
+        if (!poly.valid) {
             return
         }
         
         window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
         
         // Convert areaM2 to ft² for calculator
-        val areaM2 = lastPolyCheck!!.areaM2
-        val areaFt2 = Units.m2ToSqFt(areaM2).toFloat()
+        val areaFt2 = Units.m2ToSqFt(poly.areaM2).toFloat()
         
         val intent = Intent(this, TileCalculatorActivity::class.java).apply {
             putExtra("areaSqFeet", areaFt2)
@@ -1107,9 +1092,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
     
     private fun buildProjectMeasurementFromCurrentPolygon(): ProjectMeasurement {
-        // Use validated area from lastPolyCheck (single source of truth)
-        val areaM2 = lastPolyCheck?.areaM2 ?: 0.0
-        val areaSqFt = Units.m2ToSqFt(areaM2).toFloat()
+        // Use validated area from PolygonState (single source of truth)
+        val areaSqFt = Units.m2ToSqFt(poly.areaM2).toFloat()
         
         // Convert 3D points to 2D (x, z) for preview drawing
         val polygonPoints2D = polygonPoints.map { ProjectPoint2D(it.x, it.z) }
