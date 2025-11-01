@@ -55,6 +55,7 @@ import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import com.tilevision.ar.PolygonUtils
 import com.tilevision.ar.PolyCheck
 import com.tilevision.util.Units
+import com.tilevision.camera.FlashlightController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
@@ -105,8 +106,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private val polygonState = PolygonMeasurementState()
     
     // Flashlight control
-    private lateinit var torchController: com.tilevision.util.TorchController
+    private lateinit var torch: FlashlightController
     private lateinit var flashlightButton: android.widget.ImageButton
+    private var torchOn = false
     private val measurementMode = MeasurementMode.SURFACE_AREA
     
     // Haptic feedback
@@ -175,25 +177,15 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         setContentView(binding.root)
 
         // Initialize flashlight control
-        torchController = com.tilevision.util.TorchController(this)
+        torch = FlashlightController(this)
         flashlightButton = findViewById(R.id.buttonFlashlight)
         
-        // Set initial icon state
-        updateFlashUi(false)
+        flashlightButton.isEnabled = torch.isAvailable()
         
-        // Disable button if no flash available
-        if (!torchController.hasFlash()) {
-            flashlightButton.isEnabled = false
-            flashlightButton.alpha = 0.4f
-        } else {
-            flashlightButton.setOnClickListener {
-                val newState = !torchController.isTorchOn
-                torchController.toggleTorch(newState)
-                updateFlashUi(newState)
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Toggled torch: $newState")
-                }
-            }
+        flashlightButton.setOnClickListener {
+            torchOn = !torchOn
+            torch.set(torchOn)
+            flashlightButton.setImageResource(if (torchOn) R.drawable.ic_flashlight_on else R.drawable.ic_flashlight_off)
         }
 
         // Direction, unit, and flash buttons removed for surface area mode
@@ -246,14 +238,6 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 finish()
             }
             .show()
-    }
-
-    private fun updateFlashUi(isOn: Boolean) {
-        val color = if (isOn) "#18FFC4" else "#FFFFFF"
-        flashlightButton.setImageResource(if (isOn) R.drawable.ic_flashlight_on else R.drawable.ic_flashlight_off)
-        flashlightButton.imageTintList =
-            ContextCompat.getColorStateList(this, android.R.color.white)
-        flashlightButton.alpha = if (isOn) 1.0f else 0.8f
     }
 
     override fun onRequestPermissionsResult(
@@ -343,9 +327,10 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     override fun onPause() {
         super.onPause()
         arSceneView?.pause()
-        if (torchController.isTorchOn) {
-            torchController.shutdown()
-            updateFlashUi(false)
+        if (torchOn) {
+            torch.set(false)
+            torchOn = false
+            flashlightButton.setImageResource(R.drawable.ic_flashlight_off)
         }
     }
 
@@ -358,7 +343,9 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         super.onDestroy()
         arSceneView?.pause()
         arSceneView?.destroy()
-        torchController.shutdown()
+        if (torchOn) {
+            torch.set(false)
+        }
         // closing can take several seconds, should be done one background thread that outlives this activity
         GlobalScope.launch(Dispatchers.Default) {
             arSceneView?.session?.close()

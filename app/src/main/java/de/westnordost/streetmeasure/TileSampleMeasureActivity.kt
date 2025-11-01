@@ -23,6 +23,7 @@ import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.Color
 import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
 import com.tilevision.util.Units
+import com.tilevision.camera.FlashlightController
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -53,8 +54,9 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     private lateinit var useButton: android.widget.Button
     
     // Flashlight control
-    private lateinit var torchController: com.tilevision.util.TorchController
+    private lateinit var torch: FlashlightController
     private lateinit var flashlightButton: android.widget.ImageButton
+    private var torchOn = false
     
     // Measurement results
     private var lastTileWidthInches: Float = 0f
@@ -93,22 +95,15 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         setContentView(binding.root)
         
         // Initialize flashlight control
-        torchController = com.tilevision.util.TorchController(this)
+        torch = FlashlightController(this)
         flashlightButton = findViewById(R.id.buttonFlashlight)
         
-        // Set initial icon state
-        updateFlashUi(false)
+        flashlightButton.isEnabled = torch.isAvailable()
         
-        // Disable button if no flash available
-        if (!torchController.hasFlash()) {
-            flashlightButton.isEnabled = false
-            flashlightButton.alpha = 0.4f
-        } else {
-            flashlightButton.setOnClickListener {
-                val newState = !torchController.isTorchOn
-                torchController.toggleTorch(newState)
-                updateFlashUi(newState)
-            }
+        flashlightButton.setOnClickListener {
+            torchOn = !torchOn
+            torch.set(torchOn)
+            flashlightButton.setImageResource(if (torchOn) R.drawable.ic_flashlight_on else R.drawable.ic_flashlight_off)
         }
         
         // Keep screen on
@@ -172,14 +167,6 @@ class TileSampleMeasureActivity : AppCompatActivity() {
                 binding.instructionPopup.visibility = android.view.View.GONE
             }
             .start()
-    }
-    
-    private fun updateFlashUi(isOn: Boolean) {
-        val color = if (isOn) "#18FFC4" else "#FFFFFF"
-        flashlightButton.setImageResource(if (isOn) R.drawable.ic_flashlight_on else R.drawable.ic_flashlight_off)
-        flashlightButton.imageTintList =
-            ContextCompat.getColorStateList(this, android.R.color.white)
-        flashlightButton.alpha = if (isOn) 1.0f else 0.8f
     }
     
     private fun setupToolbar() {
@@ -859,7 +846,11 @@ class TileSampleMeasureActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("TileSampleMeasureActivity", "Failed to pause AR scene view", e)
         }
-        torchController.shutdown()
+        if (torchOn) {
+            torch.set(false)
+            torchOn = false
+            flashlightButton.setImageResource(R.drawable.ic_flashlight_off)
+        }
     }
     
     override fun onDestroy() {
@@ -868,7 +859,9 @@ class TileSampleMeasureActivity : AppCompatActivity() {
             arSceneView?.pause()
             arSceneView?.destroy()
             arSession?.close()
-            torchController.shutdown()
+            if (torchOn) {
+                torch.set(false)
+            }
             Log.d("TileSampleMeasureActivity", "AR resources cleaned up")
         } catch (e: Exception) {
             Log.e("TileSampleMeasureActivity", "Failed to cleanup AR resources", e)
