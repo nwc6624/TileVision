@@ -52,6 +52,8 @@ import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.rendering.ViewRenderable
 import de.westnordost.streetmeasure.databinding.ActivityMeasureBinding
 import de.westnordost.streetmeasure.permissions.CameraPermissionHelper
+import com.tilevision.ar.PolygonUtils
+import com.tilevision.ar.PolyCheck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
@@ -700,47 +702,34 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
                 return
             }
             
-            // Project to plane 2D and compute area using new validation approach
-            val planePts = polygonState.anchors.map { projectToPlaneSpace(plane, it.pose) }
-            if (hasSelfIntersection(planePts)) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Validation failed: self-intersection (size=$polygonSize, plane=$planeType)")
-                }
-                setAreaState(false, "Polygon intersects itself — adjust points")
-                wasPolygonValid = false
-                updatePolygonDisplay()
-                updateButtonStates()
-                updateAreaBubblePosition()
-                return
+            // Use robust PolygonUtils validation
+            val worldPoints = polygonState.anchors.map { anchor ->
+                val pos = anchor.pose.translation
+                floatArrayOf(pos[0], pos[1], pos[2])
             }
-            val areaCm2 = polygonAreaCm2(planePts)
-            val valid = isNonCollinear(areaCm2)
+            val result = PolygonUtils.validateAndArea(plane.centerPose, worldPoints)
             
-            if (!valid) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Validation failed: area too small (size=$polygonSize, plane=$planeType, areaCm2=$areaCm2)")
+            // Convert area from m² to user's display units
+            val (value, label) = if (result.isValid) {
+                toAppUnits(result.areaM2 * 10_000.0) // m² to cm² conversion
+            } else {
+                Pair(0.0, "")
+            }
+            
+            if (result.isValid) {
+                setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
+                
+                // Give haptic feedback when polygon becomes valid for the first time
+                if (!wasPolygonValid) {
+                    buzz(30)
+                    wasPolygonValid = true
                 }
+                
+                renderPolygonFill()
+            } else {
                 setAreaState(false, "No valid area yet — adjust points")
-                wasPolygonValid = false // Reset so haptic fires again when valid
-                // Still render polygon but disable buttons
-                updatePolygonDisplay()
-                updateButtonStates()
-                updateAreaBubblePosition()
-                return
+                wasPolygonValid = false
             }
-            
-            // Convert to user's units (ft²/m²)
-            val (value, label) = toAppUnits(areaCm2)
-            setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
-            
-            // Give haptic feedback when polygon becomes valid for the first time
-            if (!wasPolygonValid) {
-                buzz(30)
-                wasPolygonValid = true
-            }
-            
-            // Also render polygon fill if we have 3+ valid points
-            renderPolygonFill()
             
             // Update UI
             updatePolygonDisplay()
@@ -750,13 +739,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
             if (BuildConfig.DEBUG) {
                 val size = polygonState.anchors.size
                 val planeType = polygonState.plane?.type?.name ?: "UNKNOWN"
-                val areaCm2 = try {
-                    val pts = polygonState.anchors.map { projectToPlaneSpace(polygonState.plane!!, it.pose) }
-                    polygonAreaCm2(pts)
-                } catch (_: Exception) {
-                    -1.0
-                }
-                Log.e(TAG, "Error in validatePolygonAndUpdateUI: size=$size, plane=$planeType, areaCm2=$areaCm2", e)
+                Log.e(TAG, "Error in validatePolygonAndUpdateUI: size=$size, plane=$planeType", e)
             }
             throw e
         }
