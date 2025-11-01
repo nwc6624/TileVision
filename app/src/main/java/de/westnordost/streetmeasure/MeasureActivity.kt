@@ -369,6 +369,11 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     override fun onUpdate(frameTime: FrameTime) {
         val frame = arSceneView?.arFrame ?: return
 
+        // Clean up any debug nodes
+        arSceneView?.scene?.children
+            ?.filter { it.name?.contains("Debug", true) == true || it.name?.contains("Normal", true) == true }
+            ?.forEach { it.setParent(null) }
+
         if (frame.hasFoundPlane()) {
             binding.handMotionView.isGone = true
         }
