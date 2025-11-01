@@ -80,7 +80,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private var polygonLineRenderable: Renderable? = null
     private var polygonFillRenderable: Renderable? = null
 
-    private var cursorNode: AnchorNode? = null
+    private var cursorNode: Node? = null
+    private var lastSmoothedPose: Pose? = null
 
     // Polygon measurement nodes
     private val polygonNodes = mutableListOf<AnchorNode>()
@@ -1263,29 +1264,24 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     }
 
     private fun updateCursor(hitResult: HitResult) {
-        // release previous anchor only if it is not used by any other node
-        val anchor = cursorNode?.anchor
-        if (anchor != null) {
-            anchor.detach()
-        }
-
-        try {
-            val newAnchor = hitResult.createAnchor()
+        val hitPose = hitResult.hitPose
+        
+        if (hitPose != null) {
+            lastSmoothedPose = if (lastSmoothedPose == null) hitPose else lerpPose(lastSmoothedPose!!, hitPose, 0.25f)
             val cursorNode = getCursorNode()
-            cursorNode.anchor = newAnchor
-
-            // Old measurement logic removed for surface area mode
-        } catch (e: Exception) {
-            Log.e("MeasureActivity", "Error", e)
+            cursorNode.worldPosition = Vector3(lastSmoothedPose!!.tx(), lastSmoothedPose!!.ty(), lastSmoothedPose!!.tz())
+            cursorNode.isEnabled = true
+        } else {
+            cursorNode?.isEnabled = false
         }
     }
 
     // Old measurement methods removed for surface area mode
 
-    private fun getCursorNode(): AnchorNode {
+    private fun getCursorNode(): Node {
         var node = cursorNode
         if (node == null) {
-            node = AnchorNode().apply {
+            node = Node().apply {
                 renderable = cursorRenderable
                 setParent(arSceneView!!.scene)
             }
@@ -1355,3 +1351,13 @@ private fun polygonAreaCm2(pts: List<PlaneSpacePoint>): Double {
 }
 
 private fun isNonCollinear(areaCm2: Double) = areaCm2 > AREA_EPSILON_CM2
+
+// Smoothing utilities for cursor/plotter
+private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
+private fun lerpPose(prev: Pose, next: Pose, t: Float): Pose {
+    // linear interp position; keep next rotation (stable enough for reticle)
+    val x = lerp(prev.tx(), next.tx(), t)
+    val y = lerp(prev.ty(), next.ty(), t)
+    val z = lerp(prev.tz(), next.tz(), t)
+    return Pose.makeRotation(next.qx(), next.qy(), next.qz(), next.qw()).compose(Pose.makeTranslation(x - next.tx(), y - next.ty(), z - next.tz()))
+}
