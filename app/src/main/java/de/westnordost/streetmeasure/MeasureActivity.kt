@@ -291,8 +291,8 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         if (initSessionOnResume && CameraPermissionHelper.hasCameraPermission(this)) {
             lifecycleScope.launch {
                 try {
-                    initializeSession()
-                    initRenderables()
+                initializeSession()
+                initRenderables()
                 } catch (t: Throwable) {
                     android.util.Log.e("ARInit", "Failed to start AR", t)
                     androidx.appcompat.app.AlertDialog.Builder(this@MeasureActivity)
@@ -394,7 +394,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
         if (hitResult != null) {
             updateCursor(hitResult)
-            setTrackingMessage(R.string.ar_core_tracking_hint_tap_to_measure)
+                setTrackingMessage(R.string.ar_core_tracking_hint_tap_to_measure)
         } else {
             /* when no plane can be found at the cursor position, disable the cursor
                and display a hint that user should cross street
@@ -531,18 +531,19 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
 
     private fun renderPolygonOutline() {
         // Clear existing outline nodes
-        clearPolygonLineNodes()
         clearPolygonPointMarkers()
         
-        if (polygonPoints.size < 1) return
+        if (polygonPoints.size < 1) {
+            // Clear polygon renderer when no points
+            polygonRenderer?.render(emptyList())
+            return
+        }
         
         // Draw point markers at each vertex
         for (point in polygonPoints) {
             val markerNode = createPointMarker(point)
             polygonNodes.add(markerNode)
         }
-        
-        if (polygonState.anchors.size < 2) return
         
         // Use PolygonRenderer for lightweight world-space polyline rendering
         polygonRenderer?.render(polygonState.anchors)
@@ -640,8 +641,24 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
     private fun validatePolygonAndUpdateUI() {
         val plane = polygonState.plane ?: return
         
-        if (polygonState.anchors.size < 3) {
-            setAreaState(valid = false, areaText = "Add at least 3 points")
+        if (polygonState.anchors.size == 0) {
+            setAreaState(valid = false, areaText = "")
+            updatePolygonDisplay()
+            updateButtonStates()
+            updateAreaBubblePosition()
+            return
+        }
+        
+        if (polygonState.anchors.size == 1) {
+            setAreaState(valid = false, areaText = "")
+            updatePolygonDisplay()
+            updateButtonStates()
+            updateAreaBubblePosition()
+            return
+        }
+        
+        if (polygonState.anchors.size == 2) {
+            setAreaState(valid = false, areaText = "Add 1 more point to close a surface")
             updatePolygonDisplay()
             updateButtonStates()
             updateAreaBubblePosition()
@@ -664,7 +681,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         
         // Convert to user's units (ft²/m²)
         val (value, label) = toAppUnits(areaCm2)
-        setAreaState(true, String.format(Locale.US, "%.2f %s", value, label))
+        setAreaState(true, String.format(Locale.US, "Area: %.2f %s. Tap Save to keep this project.", value, label))
         
         // Also render polygon fill if we have 3+ valid points
         renderPolygonFill()
@@ -692,7 +709,7 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         binding.saveButton.isEnabled = valid
         binding.areaBubbleContainer.visibility = if (valid) android.view.View.VISIBLE else android.view.View.GONE
     }
-    
+
     private fun calculateAndDisplayArea() {
         if (polygonPoints.size < 3) return
         
