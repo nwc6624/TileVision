@@ -235,4 +235,57 @@ object PdfExporter {
         }
         return lines
     }
+    
+    // Lightweight PDF export with callbacks for simple measurement sharing
+    fun export(context: Context, summary: ProjectSummary, areaText: String, bitmapPreview: Bitmap?, onReady: (Uri) -> Unit, onError: (Throwable) -> Unit) {
+        try {
+            // Create PDF document
+            val doc = PdfDocument()
+            val pageInfo = PdfDocument.PageInfo.Builder(1024, 1448, 1).create()
+            val page = doc.startPage(pageInfo)
+            val c = page.canvas
+            
+            // White background
+            c.drawColor(Color.WHITE)
+            
+            // Title
+            val p = Paint(Paint.ANTI_ALIAS_FLAG).apply { 
+                textSize = 40f
+                color = Color.BLACK
+                typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+            }
+            c.drawText("TileVision Measurement", 64f, 96f, p)
+            
+            // Area
+            p.textSize = 28f
+            p.typeface = Typeface.DEFAULT
+            c.drawText("Area: $areaText", 64f, 160f, p)
+            
+            // Units
+            c.drawText("Units: ${summary.unitsSystem}", 64f, 210f, p)
+            
+            // Optional bitmap preview
+            bitmapPreview?.let { bitmap ->
+                c.drawBitmap(bitmap, 64f, 260f, null)
+            }
+            
+            doc.finishPage(page)
+            
+            // Save to cache directory
+            val file = File(context.cacheDir, "tilevision_${System.currentTimeMillis()}.pdf")
+            file.outputStream().use { doc.writeTo(it) }
+            doc.close()
+            
+            // Get FileProvider URI
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+            
+            onReady(uri)
+        } catch (t: Throwable) {
+            onError(t)
+        }
+    }
 }
