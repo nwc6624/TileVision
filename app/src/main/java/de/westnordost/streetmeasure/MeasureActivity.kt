@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
@@ -462,49 +463,42 @@ class MeasureActivity : AppCompatActivity(), Scene.OnUpdateListener {
         binding.arSceneViewContainer.addView(arSceneView, MATCH_PARENT, MATCH_PARENT)
         arSceneView.setupSession(session)
         arSceneView.scene.addOnUpdateListener(this)
-        arSceneView.setOnClickListener { onTapPlane() }
+        arSceneView.setOnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                onTapPlane(motionEvent.x, motionEvent.y)
+            }
+            true
+        }
         this.arSceneView = arSceneView
     }
 
     /* ---------------------------------------- Measuring --------------------------------------- */
 
-    private fun onTapPlane() {
+    private fun onTapPlane(x: Float, y: Float) {
         val frame = arSceneView?.arFrame ?: return
-        val centerX = binding.arSceneViewContainer.width / 2f
-        val centerY = binding.arSceneViewContainer.height / 2f
-        
-        // Perform hit test and filter for horizontal upward-facing planes only
-        val hitResults = frame.hitTest(centerX, centerY).filter { hitResult ->
-            val plane = hitResult.trackable as? Plane
-            plane != null && 
-            plane.type == HORIZONTAL_UPWARD_FACING && 
-            plane.isPoseInPolygon(hitResult.hitPose)
-        }
-        
-        val hitResult = hitResults.firstOrNull()
-        if (hitResult == null) {
+        val hits = frame.hitTest(x, y)
+        val hit = hits.firstOrNull { hitResult ->
+            val track = hitResult.trackable
+            track is Plane && track.isPoseInPolygon(hitResult.hitPose) && track.trackingState == TRACKING
+        } ?: run {
             Toast.makeText(this, getString(R.string.msg_trace_tile), Toast.LENGTH_SHORT).show()
             return
         }
         
-        val plane = hitResult.trackable as? Plane ?: return
-        val anchor = hitResult.createAnchor()
+        // Create anchor and add to polygon
+        val anchor = hit.createAnchor()
         
-        // Check minimum edge distance - reject points that are too close
-        val tooShort = polygonState.anchors.lastOrNull()?.let { last -> 
-            distanceCm(last.pose, anchor.pose) < MIN_EDGE_CM 
-        } ?: false
-        if (tooShort) {
+        // de-dup too-close taps
+        if (polygonState.anchors.lastOrNull()?.let { distanceCm(it.pose, anchor.pose) < MIN_EDGE_CM } == true) {
             anchor.detach()
-            Toast.makeText(this, "Points too close — move farther apart.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Points too close — try again.", Toast.LENGTH_SHORT).show()
             return
         }
         
-        // Add anchor to polygon state - this handles plane locking
-        val success = polygonState.addAnchor(anchor, plane)
-        if (!success) {
-            Toast.makeText(this, "Keep measuring on the same surface.", Toast.LENGTH_SHORT).show()
+        val plane = hit.trackable as Plane
+        if (!polygonState.addAnchor(anchor, plane)) {
             anchor.detach()
+            Toast.makeText(this, "Stay on the same surface.", Toast.LENGTH_SHORT).show()
             return
         }
         
