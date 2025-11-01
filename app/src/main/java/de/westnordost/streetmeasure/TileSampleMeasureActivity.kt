@@ -336,7 +336,8 @@ class TileSampleMeasureActivity : AppCompatActivity() {
     private fun createArSceneView() {
         try {
             val arSceneView = ArSceneView(this)
-            arSceneView.planeRenderer.isEnabled = true
+            arSceneView.planeRenderer.isEnabled = false  // Disable debug plane visuals
+            arSceneView.planeRenderer.isShadowReceiver = true
             binding.arSceneViewContainer.addView(arSceneView, android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
             
             // Only setup session if it's created
